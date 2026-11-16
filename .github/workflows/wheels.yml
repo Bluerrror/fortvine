@@ -58,13 +58,13 @@ jobs:
       - name: locate the sdist
         shell: bash
         run: echo "SDIST=$(ls sdist/*.tar.gz)" >> "$GITHUB_ENV"
-      - name: gfortran (Windows: MinGW-w64)
+      - name: "gfortran (Windows: MinGW-w64)"
         if: runner.os == 'Windows'
         uses: fortran-lang/setup-fortran@v1
         with:
           compiler: gcc
           version: 13
-      - name: gfortran (macOS: Homebrew gcc)
+      - name: "gfortran (macOS: Homebrew gcc)"
         if: runner.os == 'macOS'
         run: |
           brew install gcc

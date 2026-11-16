@@ -2854,55 +2854,8 @@ contains
     s2 = ua2 + ub2 - ua2 * ub - 2.0_dp * ua1 * ub1 - ua * ub2
   end subroutine joe_terms
 
-  ! Newton's method on [lb, ub] from the closed-form start x0; each pass gives the log-likelihood f,
-  ! score g and curvature h.  The iteration stops when the quadratic model predicts a remaining gain
-  ! g^2 / 2|h| below 1e-6 log-likelihood units (the exact MLE to that accuracy), so a start inside
-  ! the Le Cam one-step neighbourhood costs two passes.  Non-concave points step uphill; any step that
-  ! lowers the likelihood is halved; the box is respected.
-  subroutine newton1(pass, x0, lb, ub, th, f, ok)
-    interface
-      subroutine pass(t, f, g, h)
-        import :: dp
-        real(dp), intent(in) :: t
-        real(dp), intent(out) :: f, g, h
-      end subroutine pass
-    end interface
-    real(dp), intent(in) :: x0, lb, ub
-    real(dp), intent(out) :: th, f
-    logical, intent(out) :: ok
-    real(dp) :: lo, hi, g, h, st, tn, fn, gn, hn
-    integer :: it, tr
-    logical :: acc
-    ok = .false.
-    lo = lb + 1.0e-10_dp * max(ub - lb, 1.0e-8_dp); hi = ub - 1.0e-10_dp * max(ub - lb, 1.0e-8_dp)
-    th = min(max(x0, lo), hi); f = -huge(1.0_dp)
-    if (.not. (hi > lo)) return
-    call pass(th, f, g, h)
-    if (.not. (finite_(f) .and. finite_(g) .and. finite_(h))) return
-    do it = 1, 60
-      if ((th <= lo .and. g < 0.0_dp) .or. (th >= hi .and. g > 0.0_dp)) exit
-      if (abs(g) <= 1.0e-9_dp * (1.0_dp + abs(f))) exit
-      if (h < 0.0_dp) then
-        if (0.5_dp * g * g / (-h) <= 1.0e-6_dp) exit
-        st = -g / h
-      else
-        st = sign(0.1_dp * max(abs(th), 1.0_dp), g)
-      end if
-      acc = .false.
-      do tr = 1, 50
-        tn = min(max(th + st, lo), hi)
-        if (tn == th) exit
-        call pass(tn, fn, gn, hn)
-        if (finite_(fn) .and. finite_(gn) .and. finite_(hn) .and. fn >= f - 1.0e-12_dp * (1.0_dp + abs(f))) then
-          acc = .true.; exit
-        end if
-        st = 0.5_dp * st
-      end do
-      if (.not. acc) exit
-      th = tn; f = fn; g = gn; h = hn
-    end do
-    ok = .true.
-  end subroutine newton1
+  ! newton1 (Newton's method for one parameter) lives in newton1.inc: an internal procedure of mle1
+  ! and mle1d, so that no internal procedure is ever passed as an argument (no trampolines).
 
   ! continuous pair (u1, u2) with transforms t (pc_transforms), rotation rot, start x0, box [lb, ub]
   subroutine mle1(fam, rot, n, u1, u2, t, usew, w, x0, lb, ub, par, ll, ok)
@@ -2952,9 +2905,10 @@ contains
         call rotate(rot, clampu(u1(i)), clampu(u2(i)), ra(i), rb(i))
       end do
     end if
-    call newton1(pass, x0(1), lb(1), ub(1), th, f, ok)
+    call newton1(x0(1), lb(1), ub(1), th, f, ok)
     par(1) = th; ll = f
   contains
+#include "newton1.inc"
     real(dp) function gauss_ll(r0)
       real(dp), intent(in) :: r0
       real(dp) :: r, s
@@ -2989,8 +2943,9 @@ contains
     real(dp), intent(in) :: x0, lb, ub
     real(dp), intent(out) :: par, ll
     logical, intent(out) :: ok
-    call newton1(pass, x0, lb, ub, par, ll, ok)
+    call newton1(x0, lb, ub, par, ll, ok)
   contains
+#include "newton1.inc"
     subroutine pass(th0, f, g, h)
       real(dp), intent(in) :: th0
       real(dp), intent(out) :: f, g, h
