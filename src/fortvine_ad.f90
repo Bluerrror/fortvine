@@ -1,3 +1,6 @@
+! SPDX-License-Identifier: GPL-3.0-or-later
+! Copyright (C) 2026 Shahab Aldin Shojaeezadeh. Part of fortvine (see LICENSE). If you use it, please cite:
+! Shojaeezadeh, S. A. (2026). fortvine: a complete compendium to work on vine copula modeling.
 ! fortvine_ad.f90 -- dual numbers: value and exact gradient with respect to up to 3
 ! copula parameters (forward-mode differentiation).
 !

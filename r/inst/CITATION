@@ -1,0 +1,10 @@
+bibentry(
+  bibtype = "Unpublished",
+  author = person("Shahab Aldin", "Shojaeezadeh"),
+  title = "fortvine: a complete compendium to work on vine copula modeling",
+  year = "2026",
+  note = "In preparation. Software: https://github.com/Bluerrror/fortvine",
+  textVersion = paste("Shojaeezadeh, S. A. (2026). fortvine: a complete compendium to work",
+                      "on vine copula modeling. In preparation.",
+                      "Software: https://github.com/Bluerrror/fortvine")
+)

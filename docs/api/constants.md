@@ -63,7 +63,7 @@ inner Pickands function (0 to 13). There is no named constant per generic code;
 | `FV_ALL` | `[0, 1, ..., 23]` (24 codes) | every hand-coded parametric family |
 | `FV_PARAMETRIC` | `[0, 1, ..., 11]` (12 codes) | vinecopulib's parametric set |
 | `FV_NONPAR` | `[24, 25]` | TLL and Bernstein |
-| `FV_ONE_PAR` | `[1, 3, 4, 5, 6]` | the one-parameter families with closed-form fits and tau inversion |
+| `FV_ONE_PAR` | `[1, 3, 4, 5, 6]` | the one-parameter families with closed-form fits and Kendall's $\tau$ inversion |
 | `FV_NCLASSIC` | 26 | number of hand-coded codes (0 to 25) |
 | `FV_NFAM` | 192 | capacity of `fv_controls%family_set` |
 | `NAUX` | 933 | length of the `aux` vector of TLL / Bernstein ($3 + 30 + 30 \cdot 30$) |
@@ -86,7 +86,7 @@ without t-EV.
 | constant | value | |
 |---|---:|---|
 | `FV_MLE` | 0 | maximum likelihood |
-| `FV_ITAU` | 1 | Kendall's tau inversion (families 0 to 6) |
+| `FV_ITAU` | 1 | Kendall's $\tau$ inversion (families 0 to 6) |
 
 ## Tree criteria (`fv_controls%tree_crit`, `fv_dependence`)
 

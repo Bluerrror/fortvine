@@ -179,41 +179,76 @@ def main():
     write_tables(res)
 
 
+LIBS = ["fortvine", "pyvinecopulib", "torchvine"]
+NAMES = {"gaussian": "Gaussian", "student": "Student $t$", "clayton": "Clayton", "gumbel": "Gumbel",
+         "frank": "Frank", "joe": "Joe", "bb1": "BB1", "bb6": "BB6", "bb7": "BB7", "bb8": "BB8", "tawn": "Tawn"}
+
+
+def _v(row, lib, key):
+    v = row.get(lib)
+    return v.get(key) if isinstance(v, dict) else None
+
+
+def _f(v, fmt):
+    if v is None or isinstance(v, str):
+        return "—"
+    s = fmt % v
+    return s.lstrip("+-") if float(s) == 0 else s          # no signed zeros
+
+
 def write_tables(res):
-    libs = ["fortvine", "pyvinecopulib", "torchvine"]
-    def cell(row, lib, key, fmt):
-        v = row.get(lib, {}).get(key)
-        return "n/a" if v is None else (fmt % v if isinstance(v, (int, float)) else str(v))
+    """Paper-style tables: one measure per table, one column per library, math in the headers."""
     L = []
-    L.append("### Pair-copula evaluation (ns per point, one thread, n = 10^6)\n")
-    L.append("| family | " + " | ".join(f"{l} pdf | {l} h | {l} h⁻¹" for l in libs) + " |")
-    L.append("|---" * (1 + 3 * len(libs)) + "|")
-    for r in res["eval"]:
-        L.append(f"| {r['family']} | " + " | ".join(" | ".join(cell(r, l, k, "%.0f") for k in ("logpdf", "hfunc1", "hinv1"))
-                                                for l in libs) + " |")
-    L.append("\n### Pair-copula MLE fit of a known family (ms, one thread, n = 5000)\n")
-    L.append("| family | " + " | ".join(f"{l} ms | {l} loglik" for l in libs) + " |")
-    L.append("|---" * (1 + 2 * len(libs)) + "|")
+    hdr = "| | " + " | ".join(LIBS) + " |\n|---|" + "---:|" * len(LIBS)
+
+    def table(title, rows, label, fmt):
+        L.append(f"**{title}**\n")
+        L.append(hdr)
+        for r in rows:
+            L.append(f"| {label(r)} | " + " | ".join(_f(fmt[0](r, l), fmt[1]) for l in LIBS) + " |")
+        L.append("")
+
+    fam = lambda r: NAMES.get(r.get("family", r.get("truth")), r.get("family", r.get("truth")))
+    for k, (key, what) in enumerate([("logpdf", r"density $c(u,v)$"), ("hfunc1", r"$h$-function $h_1(v\mid u)$"),
+                                     ("hinv1", r"inverse $h_1^{-1}(w\mid u)$")], start=1):
+        table(f"Table {k}. Evaluation of the {what}: time per point [ns], one thread, $n = 10^6$.",
+              res["eval"], fam, (lambda r, l, key=key: _v(r, l, key), "%.0f"))
+    table("Table 4. Maximum-likelihood fit of the true family: time [ms], one thread, $n = 5000$.",
+          res["fit"], fam, (lambda r, l: _v(r, l, "ms"), "%.2f"))
+
+    def dll(r, l):          # log-likelihood relative to fortvine's maximum
+        a, b = _v(r, l, "loglik"), _v(r, "fortvine", "loglik")
+        return None if a is None or b is None else a - b
+    L.append(r"**Table 5. Maximised log-likelihood $\hat\ell$ of the fit in Table 4, and the difference "
+             r"$\Delta\ell = \hat\ell_{\mathrm{lib}} - \hat\ell_{\mathrm{fortvine}}$.**" + "\n")
+    L.append(r"| | $\hat\ell$ fortvine | $\Delta\ell$ pyvinecopulib | $\Delta\ell$ torchvine |" + "\n|---|---:|---:|---:|")
     for r in res["fit"]:
-        L.append(f"| {r['family']} | " + " | ".join(f"{cell(r, l, 'ms', '%.2f')} | {cell(r, l, 'loglik', '%.1f')}"
-                                                for l in libs) + " |")
-    L.append("\n### Family selection among the 12 common families + rotations (ms, one thread, n = 5000)\n")
-    L.append("| truth | " + " | ".join(f"{l} ms | {l} chosen" for l in libs) + " |")
-    L.append("|---" * (1 + 2 * len(libs)) + "|")
+        L.append(f"| {fam(r)} | {_f(_v(r, 'fortvine', 'loglik'), '%.2f')} | {_f(dll(r, 'pyvinecopulib'), '%+.2f')} | "
+                 f"{_f(dll(r, 'torchvine'), '%+.2f')} |")
+    L.append("")
+    table("Table 6. Selection among the 12 common families and their rotations (BIC): time [ms], one thread, "
+          "$n = 5000$.", res["select"], fam, (lambda r, l: _v(r, l, "ms"), "%.1f"))
+    L.append("**Table 7. Family chosen by BIC in Table 6 (true family in the first column).**\n")
+    L.append(hdr)
     for r in res["select"]:
-        L.append(f"| {r['truth']} | " + " | ".join(f"{cell(r, l, 'ms', '%.1f')} | {cell(r, l, 'family', '%s')}"
-                                               for l in libs) + " |")
-    L.append("\n### Vine copula selection, density and simulation (n = 2000)\n")
-    L.append("| d | threads | " + " | ".join(f"{l} select s | {l} loglik | {l} pdf s | {l} simulate s" for l in libs) + " |")
-    L.append("|---" * (2 + 4 * len(libs)) + "|")
-    for r in res["vine"]:
-        L.append(f"| {r['d']} | {r['threads']} | " + " | ".join(
-            " | ".join(cell(r, l, k, f) for k, f in (("select_s", "%.3f"), ("loglik", "%.1f"), ("pdf_s", "%.4f"),
-                                                      ("simulate_s", "%.4f"))) for l in libs) + " |")
+        L.append(f"| {fam(r)} | " + " | ".join(NAMES.get(_v(r, l, "family"), _v(r, l, "family") or "—") for l in LIBS) + " |")
+    L.append("")
+    vl = lambda r: f"$d = {r['d']}$, {r['threads']} thread" + ("s" if r["threads"] > 1 else "")
+    table("Table 8. Regular-vine selection (Dissmann, BIC): time [s], $n = 2000$.", res["vine"], vl,
+          (lambda r, l: _v(r, l, "select_s"), "%.3f"))
+    table(r"Table 9. Log-likelihood $\hat\ell$ of the selected vine, $n = 2000$.", res["vine"], vl,
+          (lambda r, l: _v(r, l, "loglik"), "%.1f"))
+    table("Table 10. Vine density on the $n = 2000$ sample: time [ms].", res["vine"], vl,
+          (lambda r, l: None if _v(r, l, "pdf_s") is None else 1e3 * _v(r, l, "pdf_s"), "%.2f"))
+    table("Table 11. Simulation of $n = 2000$ draws from the selected vine: time [ms].", res["vine"], vl,
+          (lambda r, l: None if _v(r, l, "simulate_s") is None else 1e3 * _v(r, l, "simulate_s"), "%.2f"))
     with open(os.path.join(OUT, "tables.md"), "w", encoding="utf-8") as fh:
         fh.write("\n".join(L) + "\n")
     print("\n".join(L))
 
 
 if __name__ == "__main__":
-    main()
+    if sys.argv[1:] == ["--tables"]:          # rebuild tables.md from results.json without rerunning
+        write_tables(json.load(open(os.path.join(OUT, "results.json"))))
+    else:
+        main()

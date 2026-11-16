@@ -33,12 +33,12 @@ end type fv_controls
 | `method` | `integer` | `FV_MLE` | `FV_MLE`, `FV_ITAU` | estimation method |
 | `tree_crit` | `integer` | `FV_TREE_TAU` | `FV_TREE_TAU` ... `FV_TREE_FERREIRA` | spanning-tree weight |
 | `tree_algo` | `integer` | `FV_PRIM` | `FV_PRIM`, `FV_KRUSKAL` | spanning-tree algorithm |
-| `tau_mode` | `integer` | `FV_TAU_EXACT` | `FV_TAU_AUTO`, `FV_TAU_EXACT`, `FV_TAU_APPROX` | Kendall's tau for starts and preselection |
+| `tau_mode` | `integer` | `FV_TAU_EXACT` | `FV_TAU_AUTO`, `FV_TAU_EXACT`, `FV_TAU_APPROX` | Kendall's $\tau$ for starts and preselection |
 | `trunc_lvl` | `integer` | $-1$ | $-1$ or $0 \dots d-1$ | last tree fitted |
 | `nthreads` | `integer` | 0 | $\ge 0$ | threads; 0 = automatic |
 | `preselect` | `logical` | `.true.` | | tail-based preselection of candidates |
 | `allow_rotations` | `logical` | `.true.` | | try rotations 90, 180, 270 |
-| `fast_mle` | `logical` | `.false.` | | tau inversion for Gaussian, Clayton, Gumbel, Frank, Joe |
+| `fast_mle` | `logical` | `.false.` | | $\tau$ inversion for Gaussian, Clayton, Gumbel, Frank, Joe |
 | `threshold` | `real(dp)` | 0 | $[0, 1]$ | edges with a weaker tree criterion become independence |
 | `psi0` | `real(dp)` | 0.9 | $(0, 1)$ | mBIC / mBICv prior of a dependent edge |
 | `select_trunc` | `logical` | `.false.` | | truncation level by mBICv |

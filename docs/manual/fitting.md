@@ -177,13 +177,25 @@ passes) refit many identical pairs. The fit cache stores the result of each pair
 64-bit key built from every bit of the pair data, the weights, the $F(x^-)$ values of discrete
 margins, the family, rotation, method, start and box:
 
-```fortran
-call fv_fitcache_enable(20000)          ! room for 20000 fits
-call vc%select(u, ctl)                  ! fills the cache
-call vc%select(u, ctl, fixed=.false.)   ! identical pairs: cache hits
-call fv_fitcache_stats(hits, misses, used)
-call fv_fitcache_disable()              ! frees the table
-```
+=== "Fortran"
+
+    ```fortran
+    call fv_fitcache_enable(20000)          ! room for 20000 fits
+    call vc%select(u, ctl)                  ! fills the cache
+    call vc%select(u, ctl, fixed=.false.)   ! identical pairs: cache hits
+    call fv_fitcache_stats(hits, misses, used)
+    call fv_fitcache_disable()              ! frees the table
+    ```
+
+=== "Python"
+
+    !!! note
+        The fit cache is available from Fortran only.
+
+=== "R"
+
+    !!! note
+        The fit cache is available from Fortran only.
 
 * A hit returns exactly the fit computed earlier for identical input, so results do not
   change.
@@ -239,10 +251,10 @@ parameter can be set from the sample $\tau$ instead of maximising the likelihood
 The numerical inversions use Newton's method with the analytic $d\tau/d\theta$ inside a
 bracket. Two controls use them:
 
-* `ctl%method = FV_ITAU`: every candidate is fitted by inversion; families without an
+* `ctl%method = FV_ITAU` (`method="itau"` in Python, `par_method = "itau"` in R): every candidate is fitted by inversion; families without an
   inversion (codes above 6) are not considered in selection. The log-likelihood is evaluated
   at the inverted parameter so that criteria remain comparable.
-* `ctl%fast_mle = .true.` (with `FV_MLE`): only the five one-parameter families above use the
+* `ctl%fast_mle = .true.` (with `FV_MLE`; `fast_mle=True` in Python, not available in R): only the five one-parameter families above use the
   inversion; everything else, including the Student, is fitted by MLE. Since the closed-form
   MLE of those families is already cheap, the saving is small in fortvine.
 
@@ -255,62 +267,144 @@ the $\tau$ tree criterion, the exact $\tau$ matrix computed for the tree weights
 
 ## Example: what the options cost
 
-```fortran
-program fitting_demo
-  use fortvine_api
-  use iso_fortran_env, only: int64
-  implicit none
-  integer, parameter :: dp = kind(1.0d0), n = 5000, d = 5
-  type(fv_vinecop) :: truth, vc
-  type(fv_controls) :: ctl
-  real(dp) :: u(n, d)
-  integer(int64) :: hits, misses, t0, t1, rate
-  integer :: e, used
+=== "Fortran"
 
-  call truth%set_dvine([1, 2, 3, 4, 5])
-  do e = 1, d - 1
-    truth%fam(e, 1) = FV_BB1; truth%par(1:2, e, 1) = [0.6_dp, 1.4_dp]
-  end do
-  truth%fam(1:d - 2, 2) = FV_STUDENT; truth%par(1, 1:d - 2, 2) = 0.3_dp; truth%par(2, 1:d - 2, 2) = 5.0_dp
-  call truth%simulate(n, u, seed=5)
-  ctl%nthreads = 4
+    ```fortran title="fitting_demo.f90"
+    program fitting_demo
+      use fortvine_api
+      use iso_fortran_env, only: int64
+      implicit none
+      integer, parameter :: dp = kind(1.0d0), n = 5000, d = 5
+      type(fv_vinecop) :: truth, vc
+      type(fv_controls) :: ctl
+      real(dp) :: u(n, d)
+      integer(int64) :: hits, misses, t0, t1, rate
+      integer :: e, used
 
-  call run('MLE, BIC (default)')
-  ctl%fast_mle = .true.;  call run('fast_mle')
-  ctl%fast_mle = .false.; ctl%method = FV_ITAU; call run('itau')
-  ctl%method = FV_MLE;    ctl%selcrit = FV_MBICV; call run('MLE, mBICv')
+      call truth%set_dvine([1, 2, 3, 4, 5])
+      do e = 1, d - 1
+        truth%fam(e, 1) = FV_BB1; truth%par(1:2, e, 1) = [0.6_dp, 1.4_dp]
+      end do
+      truth%fam(1:d - 2, 2) = FV_STUDENT; truth%par(1, 1:d - 2, 2) = 0.3_dp; truth%par(2, 1:d - 2, 2) = 5.0_dp
+      call truth%simulate(n, u, seed=5)
+      ctl%nthreads = 4
 
-  ! the fit cache: a repeated selection on identical data reuses every cached pair fit
-  ctl%selcrit = FV_BIC
-  call fv_fitcache_enable(20000)
-  call run('cache, first pass')
-  call run('cache, second pass')
-  call fv_fitcache_stats(hits, misses, used)
-  print '(a,i0,a,i0,a,i0)', 'cache hits ', hits, '  misses ', misses, '  slots used ', used
-  call fv_fitcache_disable()
-contains
-  subroutine run(label)
-    character(*), intent(in) :: label
-    call system_clock(t0, rate)
-    call vc%select(u, ctl, fixed=.false.)
-    call system_clock(t1)
-    print '(a20,a,f10.2,a,i3,a,f7.3,a)', label, '  loglik', vc%loglik(u), '  npars', vc%npars(), &
-      '  time', real(t1 - t0, dp) / rate, ' s'
-  end subroutine run
-end program fitting_demo
-```
+      call run('MLE, BIC (default)')
+      ctl%fast_mle = .true.;  call run('fast_mle')
+      ctl%fast_mle = .false.; ctl%method = FV_ITAU; call run('itau')
+      ctl%method = FV_MLE;    ctl%selcrit = FV_MBICV; call run('MLE, mBICv')
+
+      ! the fit cache: a repeated selection on identical data reuses every cached pair fit
+      ctl%selcrit = FV_BIC
+      call fv_fitcache_enable(20000)
+      call run('cache, first pass')
+      call run('cache, second pass')
+      call fv_fitcache_stats(hits, misses, used)
+      print '(a,i0,a,i0,a,i0)', 'cache hits ', hits, '  misses ', misses, '  slots used ', used
+      call fv_fitcache_disable()
+    contains
+      subroutine run(label)
+        character(*), intent(in) :: label
+        call system_clock(t0, rate)
+        call vc%select(u, ctl, fixed=.false.)
+        call system_clock(t1)
+        print '(a20,a,f10.2,a,i3,a,f7.3,a)', label, '  loglik', vc%loglik(u), '  npars', vc%npars(), &
+          '  time', real(t1 - t0, dp) / rate, ' s'
+      end subroutine run
+    end program fitting_demo
+    ```
+
+=== "Python"
+
+    ```python title="fitting_demo.py"
+    import time
+
+    import fortvine as fv
+
+    n, d = 5000, 5
+    truth = fv.Vinecop().set_dvine([1, 2, 3, 4, 5])
+    for e in range(d - 1):
+        truth.set_pair_copula(0, e, fv.Bicop("bb1", 0, [0.6, 1.4]))
+    for e in range(d - 2):
+        truth.set_pair_copula(1, e, fv.Bicop("student", 0, [0.3, 5.0]))
+    u = truth.simulate(n, seed=5)
+
+
+    def run(label, **options):
+        t0 = time.perf_counter()
+        vc = fv.Vinecop.from_data(u, num_threads=4, **options)
+        t1 = time.perf_counter()
+        print(f"{label:>20s}  loglik{vc.loglik(u):10.2f}  npars{vc.npars:3d}  time{t1 - t0:7.3f} s")
+
+
+    run("MLE, BIC (default)")
+    run("fast_mle", fast_mle=True)
+    run("itau", method="itau")
+    run("MLE, mBICv", criterion="mbicv")
+    # the fit cache (fv_fitcache_*) is available from Fortran only
+    ```
+
+    !!! note
+        The fit cache (`fv_fitcache_*`) is available from Fortran only.
+
+=== "R"
+
+    ```r title="fitting_demo.R"
+    library(fortvine)
+    n <- 5000; d <- 5
+    pcs <- list(rep(list(bicop_dist("bb1", 0, c(0.6, 1.4))), d - 1),
+                rep(list(bicop_dist("student", 0, c(0.3, 5))), d - 2))
+    truth <- vinecop_dist(pcs, dvine_structure(1:d))
+    set.seed(5)
+    u <- rvinecop(n, truth)
+
+    run <- function(label, ...) {
+      t <- system.time(vc <- vinecop(u, cores = 4, ...))[["elapsed"]]
+      cat(sprintf("%20s  loglik%10.2f  npars%3d  time%7.3f s\n", label, logLik(vc), vc$npars, t))
+    }
+    run("MLE, BIC (default)")
+    run("itau", par_method = "itau")
+    run("MLE, mBICv", selcrit = "mbicv")
+    # fast_mle and the fit cache (fv_fitcache_*) are available from Fortran only
+    ```
+
+    !!! note
+        `fast_mle` and the fit cache (`fv_fitcache_*`) are available from Fortran only.
 
 Output (4 threads; timings depend on the machine):
 
-```text
-  MLE, BIC (default)  loglik   6733.94  npars 14  time  0.381 s
-            fast_mle  loglik   6733.94  npars 14  time  0.376 s
-                itau  loglik   6641.74  npars 14  time  0.104 s
-          MLE, mBICv  loglik   6733.94  npars 14  time  0.372 s
-   cache, first pass  loglik   6733.94  npars 14  time  0.372 s
-  cache, second pass  loglik   6733.94  npars 14  time  0.021 s
-cache hits 260  misses 402  slots used 350
-```
+=== "Fortran"
+
+    ```text
+      MLE, BIC (default)  loglik   6733.94  npars 14  time  0.381 s
+                fast_mle  loglik   6733.94  npars 14  time  0.376 s
+                    itau  loglik   6641.74  npars 14  time  0.104 s
+              MLE, mBICv  loglik   6733.94  npars 14  time  0.372 s
+       cache, first pass  loglik   6733.94  npars 14  time  0.372 s
+      cache, second pass  loglik   6733.94  npars 14  time  0.021 s
+    cache hits 260  misses 402  slots used 350
+    ```
+
+=== "Python"
+
+    ```text
+      MLE, BIC (default)  loglik   6820.85  npars 14  time  0.415 s
+                fast_mle  loglik   6820.85  npars 14  time  0.410 s
+                    itau  loglik   6743.91  npars 14  time  0.108 s
+              MLE, mBICv  loglik   6820.85  npars 14  time  0.418 s
+    ```
+
+=== "R"
+
+    ```text
+      MLE, BIC (default)  loglik   7099.77  npars 14  time  1.060 s
+                    itau  loglik   7019.80  npars 14  time  0.240 s
+              MLE, mBICv  loglik   7099.77  npars 14  time  1.080 s
+    ```
+
+The Python and R samples come from other random streams, so their log-likelihoods differ
+from the Fortran ones; the pattern is the same. The R package is compiled with R's own
+compiler flags (`-O2`, no `-march=native`), which makes it two to three times slower here.
 
 `FV_ITAU` is fastest because it drops every family above code 6 (here the true BB1 is no
 longer available, which costs about 92 log-likelihood units). The second cached selection

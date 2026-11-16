@@ -25,9 +25,9 @@ plt.rcParams.update({"font.family": "serif", "font.serif": ["Times New Roman", "
                      "axes.linewidth": 0.6, "xtick.color": "#5A5F73", "ytick.color": "#5A5F73",
                      "axes.labelcolor": "#1E2230", "text.color": "#1E2230"})
 INK, MUTED, GRIDC = "#1E2230", "#5A5F73", "#E3E4EC"
-VIOLET = "#5B3F8C"
-LIBC = {"fortvine": "#5B3F8C", "pyvinecopulib": "#C08A1E", "torchvine": "#3D7FB8"}   # validated, light surface
-CMAP = LinearSegmentedColormap.from_list("fv", ["#FFFFFF", "#E7E0F3", "#B9A6DC", "#7D61B3", "#5B3F8C", "#2C1C4A"])
+BLUE, GREEN = "#1F5FA6", "#2E8B57"
+LIBC = {"fortvine": "#1F5FA6", "pyvinecopulib": "#2E8B57", "torchvine": "#C7922B"}   # validated, light surface
+CMAP = LinearSegmentedColormap.from_list("fv", ["#FFFFFF", "#E3EDF8", "#AFCBEA", "#5F95D0", "#1F5FA6", "#0D2C52"])
 TAU, NU, RHO = r"$\tau$", r"$\nu$", r"$\rho$"
 
 z = np.linspace(-3, 3, 121)
@@ -67,7 +67,7 @@ def panel(a, g, ticks=True):
     d = g * PHI
     lev = np.linspace(0, max(d.max(), 1e-9) * 1.001, 11)
     a.contourf(Z1, Z2, d, levels=lev[1:], cmap=CMAP, vmin=0)          # zero-density band left white
-    a.contour(Z1, Z2, d, levels=lev[1:], colors="#2C1C4A", linewidths=0.35, alpha=0.55)
+    a.contour(Z1, Z2, d, levels=lev[1:], colors="#0D2C52", linewidths=0.35, alpha=0.55)
     a.set_xlim(-3, 3); a.set_ylim(-3, 3); a.set_aspect("equal")
     for sp in a.spines.values():
         sp.set_visible(False)
@@ -219,7 +219,8 @@ def bench():
         for sp in ("top", "right", "left"):
             a.spines[sp].set_visible(False)
         a.tick_params(axis="y", length=0)
-    ax[0].set_yticks(yy); ax[0].set_yticklabels(fams)
+    pretty = {"student": "Student $t$", "bb1": "BB1", "bb6": "BB6", "bb7": "BB7", "bb8": "BB8"}
+    ax[0].set_yticks(yy); ax[0].set_yticklabels([pretty.get(f, f.capitalize()) for f in fams])
     h, l = ax[0].get_legend_handles_labels()
     f.legend(h, l, loc="upper center", ncol=3, frameon=False, fontsize=9, bbox_to_anchor=(0.55, 1.03))
     f.tight_layout(rect=(0, 0, 1, 0.94))
@@ -243,10 +244,10 @@ def vine():
             for sp in a.spines.values():
                 sp.set_color(GRIDC)
             if i == j:
-                a.hist(zz[:, i], bins=30, color=VIOLET, alpha=0.85, edgecolor="white", linewidth=0.4)
+                a.hist(zz[:, i], bins=30, color=BLUE, alpha=0.85, edgecolor="white", linewidth=0.4)
                 a.text(0.05, 0.85, f"$u_{i + 1}$", transform=a.transAxes, fontsize=11)
             elif i > j:
-                a.scatter(zz[:, j], zz[:, i], s=2.5, color=VIOLET, alpha=0.45, linewidths=0)
+                a.scatter(zz[:, j], zz[:, i], s=2.5, color=BLUE, alpha=0.45, linewidths=0)
                 a.set_xlim(-3.5, 3.5); a.set_ylim(-3.5, 3.5)
             else:
                 t = kendalltau(zz[:, j], zz[:, i])[0]

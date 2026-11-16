@@ -1,3 +1,6 @@
+! SPDX-License-Identifier: GPL-3.0-or-later
+! Copyright (C) 2026 Shahab Aldin Shojaeezadeh. Part of fortvine (see LICENSE). If you use it, please cite:
+! Shojaeezadeh, S. A. (2026). fortvine: a complete compendium to work on vine copula modeling.
 ! fortvine_adk.inc -- dual numbers of a fixed width AD_N (1 or 2 copula parameters): value
 ! and exact gradient, compiled once per width at the end of fortvine_ad.f90.  Same operations as
 ! fortvine_ad's hd (always 3 slots), without the unused slots: one- and two-parameter

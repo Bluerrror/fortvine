@@ -1,0 +1,5 @@
+^cran-comments\.md$
+^\.gitignore$
+^src/.*\.mod$
+^.*\.Rproj$
+^\.Rproj\.user$

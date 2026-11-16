@@ -3,15 +3,32 @@
 `fv_controls` gathers every option of fitting and selection in one record. All fields have
 defaults, are public and can be set independently:
 
-```fortran
-type(fv_controls) :: ctl          ! defaults
-ctl%selcrit = FV_AIC              ! change only what you need
-call vc%select(u, ctl)
-```
+=== "Fortran"
+
+    ```fortran
+    type(fv_controls) :: ctl          ! defaults
+    ctl%selcrit = FV_AIC              ! change only what you need
+    call vc%select(u, ctl)
+    ```
+
+=== "Python"
+
+    ```python
+    vc = fv.Vinecop.from_data(u, criterion="aic")     # the other options keep their defaults
+    ```
+
+=== "R"
+
+    ```r
+    vc <- vinecop(u, selcrit = "aic")                 # the other options keep their defaults
+    ```
 
 The same record is accepted by `fv_bicop%fit`, `fv_bicop%select`, `fv_vinecop%select` and
 `fv_vinecop%relax`; each routine reads the fields that concern it (see the last column).
-Passing no record is the same as passing `fv_controls()`.
+Passing no record is the same as passing `fv_controls()`. The Python and R functions take
+the options as keyword arguments with the same defaults; the names are listed on the
+[Python](../python.md#api) and [R](../r.md#functions) pages, and options without a binding
+are noted in the tabs below.
 
 ## Field reference
 
@@ -41,30 +58,87 @@ every hand-coded parametric family) followed by `FV_NONPAR` (24 TLL, 25 Bernstei
 `nfam = 23` uses the first 23 entries: **codes 0 to 22**, every parametric family except
 t-EV, whose fit is the slowest. The two most common changes need only `nfam`:
 
-```fortran
-ctl%nfam = size(FV_ALL)         ! 24: add t-EV (code 23)
-ctl%nfam = FV_NCLASSIC          ! 26: also TLL and Bernstein
-```
+=== "Fortran"
+
+    ```fortran
+    ctl%nfam = size(FV_ALL)         ! 24: add t-EV (code 23)
+    ctl%nfam = FV_NCLASSIC          ! 26: also TLL and Bernstein
+    ```
+
+=== "Python"
+
+    ```python
+    best = fv.Bicop().select(u, family_set=list(range(24)))     # codes 0..23: add t-EV
+    ```
+
+    !!! note
+        TLL and Bernstein (codes 24, 25) are available from Fortran only.
+
+=== "R"
+
+    ```r
+    best <- bicop(u, family_set = 0:23)                         # codes 0..23: add t-EV
+    ```
+
+    !!! note
+        TLL and Bernstein (codes 24, 25) are available from Fortran only.
 
 Any other set is written explicitly:
 
-```fortran
-ctl%family_set(1:5) = [FV_INDEP, FV_GAUSSIAN, FV_CLAYTON, FV_GUMBEL, FV_FRANK]
-ctl%nfam = 5
+=== "Fortran"
 
-ctl%nfam = size(FV_PARAMETRIC)  ! vinecopulib's parametric set (codes 0..11)
-ctl%family_set(1:ctl%nfam) = FV_PARAMETRIC
-```
+    ```fortran
+    ctl%family_set(1:5) = [FV_INDEP, FV_GAUSSIAN, FV_CLAYTON, FV_GUMBEL, FV_FRANK]
+    ctl%nfam = 5
+
+    ctl%nfam = size(FV_PARAMETRIC)  ! vinecopulib's parametric set (codes 0..11)
+    ctl%family_set(1:ctl%nfam) = FV_PARAMETRIC
+    ```
+
+=== "Python"
+
+    ```python
+    fs = ["indep", "gaussian", "clayton", "gumbel", "frank"]   # names or codes
+
+    fs = list(range(12))            # vinecopulib's parametric set (codes 0..11)
+    best = fv.Bicop().select(u, family_set=fs)
+    ```
+
+=== "R"
+
+    ```r
+    fs <- c("indep", "gaussian", "clayton", "gumbel", "frank")  # names or codes
+
+    fs <- "parametric"              # vinecopulib's parametric set (codes 0..11)
+    best <- bicop(u, family_set = fs)
+    ```
 
 Adding the [generic families](generic.md):
 
-```fortran
-integer, allocatable :: gen(:)
-gen = fv_generic_families()                       ! 85 codes
-ctl%family_set(1:24) = FV_ALL
-ctl%family_set(25:24 + size(gen)) = gen
-ctl%nfam = 24 + size(gen)                         ! 109 candidates
-```
+=== "Fortran"
+
+    ```fortran
+    integer, allocatable :: gen(:)
+    gen = fv_generic_families()                       ! 85 codes
+    ctl%family_set(1:24) = FV_ALL
+    ctl%family_set(25:24 + size(gen)) = gen
+    ctl%nfam = 24 + size(gen)                         ! 109 candidates
+    ```
+
+=== "Python"
+
+    ```python
+    gen = [f.code for f in fv.families() if f.code >= 10000]     # 85 codes
+    fs = list(range(24)) + gen                                  # 109 candidates
+    best = fv.Bicop().select(u, family_set=fs)
+    ```
+
+=== "R"
+
+    ```r
+    fs <- list(0:23, "generic")                       # "generic": the 85 generic codes; 109 candidates
+    best <- bicop(u, family_set = fs)
+    ```
 
 Leave out `FV_INDEP` (0) if an edge must never be independence. The independence copula costs
 nothing to "fit" and is the natural fallback for weak dependence, so keeping it is
@@ -163,37 +237,112 @@ logical CPUs reported by OpenMP. See [Performance](performance.md).
 
 === "Fast exploratory fit"
 
-    ```fortran
-    ctl%family_set(1:6) = [FV_INDEP, FV_GAUSSIAN, FV_STUDENT, FV_CLAYTON, FV_GUMBEL, FV_FRANK]
-    ctl%nfam = 6
-    ctl%trunc_lvl = 3            ! three trees are often enough to see the main structure
-    ```
+    === "Fortran"
+
+        ```fortran
+        ctl%family_set(1:6) = [FV_INDEP, FV_GAUSSIAN, FV_STUDENT, FV_CLAYTON, FV_GUMBEL, FV_FRANK]
+        ctl%nfam = 6
+        ctl%trunc_lvl = 3            ! three trees are often enough to see the main structure
+        ```
+
+    === "Python"
+
+        ```python
+        fs = ["indep", "gaussian", "student", "clayton", "gumbel", "frank"]
+        # three trees are often enough to see the main structure
+        vc = fv.Vinecop.from_data(u, family_set=fs, trunc_lvl=3)
+        ```
+
+    === "R"
+
+        ```r
+        fs <- c("indep", "gaussian", "student", "clayton", "gumbel", "frank")
+        # three trees are often enough to see the main structure
+        vc <- vinecop(u, family_set = fs, trunc_lvl = 3)
+        ```
 
 === "Sparse high-dimensional vine"
 
-    ```fortran
-    ctl%selcrit = FV_MBICV
-    ctl%select_trunc = .true.
-    ctl%select_threshold = .true.
-    ```
+    === "Fortran"
+
+        ```fortran
+        ctl%selcrit = FV_MBICV
+        ctl%select_trunc = .true.
+        ctl%select_threshold = .true.
+        ```
+
+    === "Python"
+
+        ```python
+        vc = fv.Vinecop.from_data(u, criterion="mbicv")
+        ```
+
+        !!! note
+            `select_trunc` and `select_threshold` are available from Fortran only; a fixed
+            `trunc_lvl` and `threshold` can be passed.
+
+    === "R"
+
+        ```r
+        vc <- vinecop(u, selcrit = "mbicv")
+        ```
+
+        !!! note
+            `select_trunc` and `select_threshold` are available from Fortran only; a fixed
+            `trunc_lvl` and `threshold` can be passed.
 
 === "Like vinecopulib's defaults"
 
-    ```fortran
-    ctl%nfam = size(FV_PARAMETRIC)
-    ctl%family_set(1:ctl%nfam) = FV_PARAMETRIC
-    ctl%selcrit = FV_BIC
-    ```
+    === "Fortran"
+
+        ```fortran
+        ctl%nfam = size(FV_PARAMETRIC)
+        ctl%family_set(1:ctl%nfam) = FV_PARAMETRIC
+        ctl%selcrit = FV_BIC
+        ```
+
+    === "Python"
+
+        ```python
+        vc = fv.Vinecop.from_data(u, family_set=list(range(12)), criterion="bic")
+        ```
+
+    === "R"
+
+        ```r
+        vc <- vinecop(u, family_set = "parametric", selcrit = "bic")
+        ```
 
 === "Everything"
 
-    ```fortran
-    integer, allocatable :: gen(:)
-    gen = fv_generic_families()
-    ctl%family_set(1:FV_NCLASSIC) = [FV_ALL, FV_NONPAR]
-    ctl%family_set(FV_NCLASSIC + 1:FV_NCLASSIC + size(gen)) = gen
-    ctl%nfam = FV_NCLASSIC + size(gen)            ! 111 candidate families
-    ```
+    === "Fortran"
+
+        ```fortran
+        integer, allocatable :: gen(:)
+        gen = fv_generic_families()
+        ctl%family_set(1:FV_NCLASSIC) = [FV_ALL, FV_NONPAR]
+        ctl%family_set(FV_NCLASSIC + 1:FV_NCLASSIC + size(gen)) = gen
+        ctl%nfam = FV_NCLASSIC + size(gen)            ! 111 candidate families
+        ```
+
+    === "Python"
+
+        ```python
+        fs = list(range(24)) + [f.code for f in fv.families() if f.code >= 10000]  # 109
+        vc = fv.Vinecop.from_data(u, family_set=fs)
+        ```
+
+        !!! note
+            TLL and Bernstein (codes 24, 25) are available from Fortran only. Without them the set has 109 families.
+
+    === "R"
+
+        ```r
+        vc <- vinecop(u, family_set = list(0:23, "generic"))   # 109 candidate families
+        ```
+
+        !!! note
+            TLL and Bernstein (codes 24, 25) are available from Fortran only. Without them the set has 109 families.
 
 !!! tip
     A `fv_controls` value can be reset with `ctl = fv_controls()`, which restores every

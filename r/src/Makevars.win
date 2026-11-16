@@ -1,0 +1,21 @@
+# Builds the fortvine library with R's own Fortran compiler. fortvine/ holds copies of the
+# library sources (tools/sync_r_src.sh) with the extension .F90, so the compiler preprocesses
+# them and pulls in the .inc files next to them. OpenMP: the Fortran macro for compiling, the C
+# macro for linking (the C compiler links the package), as Writing R Extensions describes;
+# without OpenMP both are empty and the library runs on one thread.
+PKG_FCFLAGS = -DFORTVINE_NO_IO $(SHLIB_OPENMP_FFLAGS)
+PKG_LIBS = $(SHLIB_OPENMP_CFLAGS)
+
+OBJECTS = fortvine_ad.o fortvine.o fortvine_api.o fortvine_r.o init.o
+
+all: $(SHLIB)
+
+# module dependency order (all must stay the first target)
+fortvine_ad.o: fortvine/fortvine_ad.F90 fortvine/fortvine_adk.inc
+	$(FC) $(ALL_FCFLAGS) -c fortvine/fortvine_ad.F90 -o $@
+fortvine.o: fortvine/fortvine.F90 fortvine_ad.o fortvine/families_core.inc \
+  fortvine/families_ext.inc fortvine/families_gen.inc
+	$(FC) $(ALL_FCFLAGS) -c fortvine/fortvine.F90 -o $@
+fortvine_api.o: fortvine/fortvine_api.F90 fortvine.o
+	$(FC) $(ALL_FCFLAGS) -c fortvine/fortvine_api.F90 -o $@
+fortvine_r.o: fortvine_r.f90 fortvine_api.o

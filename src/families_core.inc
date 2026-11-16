@@ -1,3 +1,6 @@
+! SPDX-License-Identifier: GPL-3.0-or-later
+! Copyright (C) 2026 Shahab Aldin Shojaeezadeh. Part of fortvine (see LICENSE). If you use it, please cite:
+! Shojaeezadeh, S. A. (2026). fortvine: a complete compendium to work on vine copula modeling.
 ! families_core.inc -- log-density of the core pair-copula families 1, 3-11 (12-22 via
 ! families_ext.inc) written once in generic form and compiled from fortvine.f90 for each
 ! dual type VT: type(hd) (3 score slots), hd1 (1), hd2 (2).

@@ -1,3 +1,6 @@
+! SPDX-License-Identifier: GPL-3.0-or-later
+! Copyright (C) 2026 Shahab Aldin Shojaeezadeh. Part of fortvine (see LICENSE). If you use it, please cite:
+! Shojaeezadeh, S. A. (2026). fortvine: a complete compendium to work on vine copula modeling.
 ! fortvine.f90 -- fortvine: vine copulas in Fortran (pair-copula eval, MLE fitting,
 ! vine density on prediction grids, Kendall's tau).
 !
@@ -6781,8 +6784,10 @@ contains
       deallocate(skipj)
       if (allocated(gsc)) deallocate(gsc)
       !$ tp(4) = tp(4) + omp_get_wtime() - tq
+#ifndef FORTVINE_NO_IO
       if (prof) print '(a,i3,a,i5,a,4f9.1)', '  [fortvine] tree', t, ' jobs', nj, &
         '  ms crit/info+cands/fits/h:', 1e3 * tp(1:4)
+#endif
       tp(1:4) = 0.0_dp
 
       ! ---------- edges become the next tree's vertices
@@ -6914,9 +6919,12 @@ contains
           !$ tjob = omp_get_wtime()
           call fit_one(n, ju, jf(jk(q), je(q)), jr(jk(q), je(q)), jm(jk(q), je(q)), &
                        jx0(:, jk(q), je(q)), jlb(:, jk(q), je(q)), jub(:, jk(q), je(q)), &
-                       usew, w, jpar(:, jk(q), je(q)), jll(jk(q), je(q)), nin, ax=jaux(:, jk(q), je(q)), bnd=bnd, xr=xr, tgt=tgt, pool=pool)
+                       usew, w, jpar(:, jk(q), je(q)), jll(jk(q), je(q)), nin, &
+                       ax=jaux(:, jk(q), je(q)), bnd=bnd, xr=xr, tgt=tgt, pool=pool)
+#ifndef FORTVINE_NO_IO
           !$ if (prof .and. omp_get_wtime() - tjob > 0.2_dp) print '(a,i3,a,i3,a,f8.3,a,3f9.4)', '  [fortvine] slow job fam', &
           !$   jf(jk(q), je(q)), ' rot', jr(jk(q), je(q)), ' s', omp_get_wtime() - tjob, ' par', jpar(:, jk(q), je(q))
+#endif
         end if
         deallocate(ju)
       end if

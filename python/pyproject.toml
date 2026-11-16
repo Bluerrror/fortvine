@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fortvine"
+dynamic = ["version"]
+description = "Python binding to fortvine, the pure-Fortran vine-copula library"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+authors = [{ name = "Shahab Aldin Shojaeezadeh" }]
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+keywords = ["copula", "vine copula", "pair copula", "dependence modelling", "statistics", "fortran"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Fortran",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+
+[project.urls]
+Homepage = "https://bluerrror.github.io/fortvine/"
+Documentation = "https://bluerrror.github.io/fortvine/python/"
+Source = "https://github.com/Bluerrror/fortvine"
+
+[tool.setuptools]
+packages = ["fortvine"]
+
+[tool.setuptools.dynamic]
+version = { attr = "fortvine.__version__" }
+
+[tool.cibuildwheel]
+build = "cp312-*"                      # one py3-none wheel per platform
+skip = "*-musllinux*"
+test-requires = ["pytest"]
+test-command = "pytest {package}/tests -q"
+
+[tool.cibuildwheel.linux]
+archs = ["x86_64"]
+manylinux-x86_64-image = "manylinux_2_28"
+before-all = "command -v gfortran || dnf -y install gcc-gfortran"
+
+[tool.cibuildwheel.windows]
+archs = ["AMD64"]

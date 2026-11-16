@@ -5,7 +5,7 @@ site_url: https://bluerrror.github.io/fortvine/
 repo_url: https://github.com/Bluerrror/fortvine
 repo_name: Bluerrror/fortvine
 edit_uri: edit/main/docs/
-copyright: Copyright &copy; 2026 Shahab Aldin Shojaeezadeh &mdash; MIT licence
+copyright: Copyright &copy; 2026 Shahab Aldin Shojaeezadeh &mdash; GNU GPL v3 or later
 
 theme:
   name: material
@@ -112,6 +112,8 @@ nav:
       - Tail dependence and asymmetry: examples/tails.md
       - Weighted and discrete data: examples/weights-discrete.md
       - Calling fortvine from Python and C: examples/interop.md
+  - Python package: python.md
+  - R package: r.md
   - Benchmarks: benchmarks.md
   - API reference:
       - api/index.md

@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use fortvine, please cite the paper below (preferred citation)."
+title: "fortvine: vine copulas in Fortran"
+type: software
+authors:
+  - family-names: Shojaeezadeh
+    given-names: Shahab Aldin
+version: 1.0.0
+date-released: 2026-11-16
+license: GPL-3.0-or-later
+repository-code: "https://github.com/Bluerrror/fortvine"
+url: "https://bluerrror.github.io/fortvine/"
+keywords:
+  - copula
+  - vine copula
+  - pair-copula construction
+  - dependence modelling
+  - Fortran
+preferred-citation:
+  type: unpublished
+  title: "fortvine: a complete compendium to work on vine copula modeling"
+  authors:
+    - family-names: Shojaeezadeh
+      given-names: Shahab Aldin
+  year: 2026
+  notes: "In preparation."

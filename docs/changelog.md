@@ -5,7 +5,10 @@ All notable changes to fortvine are recorded here. Versions follow
 
 ## 1.0.0 (2026-11)
 
-First public release.
+First public release, under the GNU General Public License version 3 or later. Preferred
+citation: Shojaeezadeh, S. A. (2026), *fortvine: a complete compendium to work on vine copula
+modeling*, in preparation (also in `CITATION.cff`, R's `citation("fortvine")` and Python's
+`fortvine.cite()`). Python and R packages bind the same Fortran library.
 
 ### Pair copulas
 

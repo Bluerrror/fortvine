@@ -77,7 +77,7 @@ real(dp) function fv_dependence(x, y, kind, weights)
 |---|---|---|---|
 | `x`, `y` | `real(dp)(:)` | in | pseudo-observations of equal length $n$ |
 | `kind` | `integer` | in | `FV_TREE_TAU`, `FV_TREE_RHO`, `FV_TREE_JOE`, `FV_TREE_HOEFFD`, `FV_TREE_XI`, `FV_TREE_MI`, `FV_TREE_FERREIRA` |
-| `weights` | `real(dp)(n)` | in, optional | observation weights; used by tau, rho and joe only |
+| `weights` | `real(dp)(n)` | in, optional | observation weights; used by $\tau$, $\rho$ and Joe only |
 
 The absolute value of the dependence measure that vine selection uses as edge weight, see
 [`tree_crit`](../manual/controls.md#tree_crit). Returns 0 for $n \le 10$.

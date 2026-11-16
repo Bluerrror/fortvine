@@ -1,3 +1,6 @@
+! SPDX-License-Identifier: GPL-3.0-or-later
+! Copyright (C) 2026 Shahab Aldin Shojaeezadeh. Part of fortvine (see LICENSE). If you use it, please cite:
+! Shojaeezadeh, S. A. (2026). fortvine: a complete compendium to work on vine copula modeling.
 ! families_gen.inc -- the generic pair-copula engine, written once and compiled from
 ! fortvine.f90 for real(dp) (REALMODE) and for every dual type VT (exact parameter scores).
 !

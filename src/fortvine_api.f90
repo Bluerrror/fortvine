@@ -1,3 +1,6 @@
+! SPDX-License-Identifier: GPL-3.0-or-later
+! Copyright (C) 2026 Shahab Aldin Shojaeezadeh. Part of fortvine (see LICENSE). If you use it, please cite:
+! Shojaeezadeh, S. A. (2026). fortvine: a complete compendium to work on vine copula modeling.
 ! fortvine_api.f90 -- typed Fortran API for fortvine.
 !
 !   use fortvine_api
@@ -9,7 +12,8 @@
 ! Data layout is Fortran-natural: u(n, d), columns = variables.
 module fortvine_api
   use iso_c_binding, only: c_int, c_double
-  use fortvine, only: NAUX, fam_is_np, gen_name, gen_codes, gen_is, gen_valid, gen_dup, gen_npar, gen_flip, gen_exch, gen_lt, gen_ut, vine_pdf_x, vine_pdf_disc, vine_pdf_disc_x, vine_rosenblatt_x, vine_inverse_rosenblatt_x, &
+  use fortvine, only: NAUX, fam_is_np, gen_name, gen_codes, gen_is, gen_valid, gen_dup, gen_npar, gen_flip, &
+    gen_exch, gen_lt, gen_ut, vine_pdf_x, vine_pdf_disc, vine_pdf_disc_x, vine_rosenblatt_x, vine_inverse_rosenblatt_x, &
     vine_select_x, bicop_eval_x, bicop_fit_x, bicop_select_x, fv_kendall_tau_c, fv_tau_matrix, fv_pseudo_obs, &
     criterion_w, par_bounds, vine_edge_uv, qnorm, fv_fitcache_enable, fv_fitcache_clear, fv_fitcache_disable, fv_fitcache_stats, &
     fv_fitcache_capacity, &
@@ -123,7 +127,8 @@ module fortvine_api
     procedure :: rel_params => vc_rel_params
   end type fv_vinecop
 
-  public :: fv_threads, fv_kendall_tau, fv_tau_mat, fv_pseudo_obs_nd, fv_dependence, NAUX, fv_par_bounds, fam_is_np, gen_is, gen_valid, gen_dup, gen_npar, gen_flip, gen_exch, gen_lt, gen_ut
+  public :: fv_threads, fv_kendall_tau, fv_tau_mat, fv_pseudo_obs_nd, fv_dependence, NAUX, fv_par_bounds, &
+    fam_is_np, gen_is, gen_valid, gen_dup, gen_npar, gen_flip, gen_exch, gen_lt, gen_ut
   public :: fv_fam_name, fv_generic_families
   ! pair-fit memo cache shared by every select/fit (exact reuse across tuning trials)
   public :: fv_fitcache_enable, fv_fitcache_clear, fv_fitcache_disable, fv_fitcache_stats, fv_fitcache_capacity
@@ -533,8 +538,10 @@ contains
           mb = mbt
         end if
       end do
+#ifndef FORTVINE_NO_IO
       if (prof) print '(a,f12.8,a,f14.4,a,f14.4,a,i3)', '  [fortvine] threshold', thr, '  mbicv', mb, &
         '  loglik', cur%loglik(u, u_minus), '  trunc', cur%trunc
+#endif
       if (mb >= mopt) exit
       best = cur; best%threshold = thr; mopt = mb
       if (thr < 0.01_dp) exit
@@ -703,7 +710,14 @@ contains
     integer :: i, j, sd
     logical :: rnd
     if (any(self%disc)) then
+#ifndef FORTVINE_NO_IO
       if (.not. present(u_minus)) error stop 'fv_vinecop%rosenblatt: u_minus is required for discrete variables'
+#else
+      if (.not. present(u_minus)) then      ! ponytail: no stop under R (CRAN); -1 is an impossible value
+        out = -1.0_dp
+        return
+      end if
+#endif
       allocate(ot(self%d, size(u, 1)), om(self%d, size(u, 1)))
       call vine_rosenblatt_disc(size(u, 1), self%d, transpose(u), transpose(u_minus), self%disc, self%order, &
                                 self%trunc, self%st, self%fam, self%rot, self%par, size(self%aux, 1), self%aux, &
@@ -811,6 +825,7 @@ contains
     integer :: u, t, e
     u = 6
     if (present(unit)) u = unit
+#ifndef FORTVINE_NO_IO
     write(u, '(a,i0,a,i0)') 'fortvine vine copula: d = ', self%d, ', trunc = ', self%trunc
     write(u, '(a,*(1x,i0))') 'order:', self%order
     do t = 1, self%trunc
@@ -823,6 +838,7 @@ contains
       write(u, '(2x,a,i0,a,i0,a,*(1x,es10.3))') 'non-simplified tree ', self%erel(2, e), ' edge ', self%erel(1, e), &
         ': first parameter at the w anchors', self%pk(1, :, e)
     end do
+#endif
   end subroutine vc_print
 
 

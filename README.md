@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/Bluerrror/fortvine/actions/workflows/ci.yml/badge.svg)](https://github.com/Bluerrror/fortvine/actions/workflows/ci.yml)
 [![docs](https://github.com/Bluerrror/fortvine/actions/workflows/docs.yml/badge.svg)](https://bluerrror.github.io/fortvine/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: GPL v3+](https://img.shields.io/badge/License-GPLv3%2B-blue.svg)](LICENSE)
 ![Fortran 2008](https://img.shields.io/badge/Fortran-2008-734f96)
 ![OpenMP](https://img.shields.io/badge/OpenMP-parallel-green)
 
@@ -36,10 +36,20 @@ Python.
   Rosenblatt transforms; simulation.
 - **Real data.** Discrete and mixed margins, observation weights, non-simplified
   (covariate-dependent) target edges.
-- **Interfaces.** A typed Fortran API (`fortvine_api`) and a C ABI (`bind(C)` kernels) for C, C++,
-  Python (ctypes), Julia or R.
+- **Three languages, one engine.** A typed Fortran API (`fortvine_api`), a C ABI, and thin
+  **Python** and **R** packages that call the same compiled Fortran library — every density, fit
+  and simulation runs in Fortran whichever language you use.
 
 ## Installation
+
+**Python** — `pip install fortvine` (wheels for Linux, macOS and Windows; no compiler needed), or
+from GitHub: `pip install "git+https://github.com/Bluerrror/fortvine#subdirectory=python"`.
+See [the Python page](https://bluerrror.github.io/fortvine/python/).
+
+**R** — `remotes::install_github("Bluerrror/fortvine", subdir = "r")` (needs Rtools on Windows,
+gfortran on Linux/macOS). See [the R page](https://bluerrror.github.io/fortvine/r/).
+
+**Fortran** — build the library from source:
 
 ```bash
 git clone https://github.com/Bluerrror/fortvine.git
@@ -133,7 +143,9 @@ fortvine and pyvinecopulib reach identical maximum log-likelihoods in every comp
 src/        the library: fortvine_ad (dual numbers), fortvine (kernels, C ABI), fortvine_api (typed API),
             families_core.inc / families_ext.inc (hand-coded families), families_gen.inc (generic engine)
 test/       test_fortvine (every family x rotation), test_genfam (generic engine)
-example/    tutorial programs and micro-benchmarks
+example/    tutorial programs (Fortran, Python, R, C) and micro-benchmarks
+python/     Python package (ctypes binding to the compiled library)
+r/          R package (.Call binding; r/src/fortvine is a synced copy of src/)
 bench/      cross-library benchmark (fv_bench.f90 + run_bench.py)
 tools/      documentation generators: family catalogue (catalogue.f90), figures (figures.py + density_grid.f90, vine_sample.f90)
 docs/       documentation site (MkDocs Material)
@@ -152,16 +164,26 @@ CDF consistency in four rotations, the edge-flip transpose, MLE recovery).
 
 ## Citing
 
+If you use fortvine — from Fortran, C, Python or R — in published work, please cite:
+
+> Shojaeezadeh, S. A. (2026). *fortvine: a complete compendium to work on vine copula modeling.*
+> In preparation.
+
 ```bibtex
-@software{fortvine,
-  author  = {Shojaeezadeh, Shahab Aldin},
-  title   = {fortvine: vine copulas in Fortran},
-  year    = {2026},
-  url     = {https://github.com/Bluerrror/fortvine},
-  version = {1.0.0}
+@unpublished{shojaeezadeh2026fortvine,
+  author = {Shojaeezadeh, Shahab Aldin},
+  title  = {fortvine: a complete compendium to work on vine copula modeling},
+  year   = {2026},
+  note   = {In preparation. Software: https://github.com/Bluerrror/fortvine}
 }
 ```
 
+GitHub's "Cite this repository" button (from [`CITATION.cff`](CITATION.cff)), `citation("fortvine")` in R
+and `fortvine.cite()` in Python give the same reference.
+
 ## Licence
 
-MIT — see [LICENSE](LICENSE).
+fortvine is free software: you can redistribute it and/or modify it under the terms of the
+[GNU General Public License](LICENSE), version 3 or (at your option) any later version. Copyright
+(C) 2026 Shahab Aldin Shojaeezadeh. Distributed versions and derived works must stay under the GPL
+and keep this copyright notice.

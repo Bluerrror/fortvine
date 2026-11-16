@@ -56,17 +56,17 @@ void   fv_vine_inverse_rosenblatt(int n, int d, const double *u, const int *orde
 
 The integer control vector `ci` mirrors `fv_controls`:
 
-| index (0-based) | meaning | default |
+| Index $j$ of `ci[j]` | Meaning | Default |
 |---:|---|---:|
-| 0 | selection criterion: 0 loglik, 1 AIC, 2 BIC, 3 mBIC, 4 mBICv | 2 |
-| 1 | method: 0 MLE, 1 inversion of Kendall's tau | 0 |
+| 0 | selection criterion: 0 log-likelihood, 1 AIC, 2 BIC, 3 mBIC, 4 mBICv | 2 |
+| 1 | method: 0 maximum likelihood, 1 inversion of Kendall's $\tau$ | 0 |
 | 2 | preselect families (1 = yes) | 1 |
-| 3 | allow rotations | 1 |
-| 4 | fast one-parameter fits (tau inversion only) | 0 |
-| 5 | tau estimator: 0 auto, 1 exact, 2 approximate | 1 |
-| 6 | (vine only) tree criterion: 0 tau, 1 rho, 2 Joe, 3 Hoeffding, ... | 0 |
+| 3 | allow rotations (1 = yes) | 1 |
+| 4 | fast one-parameter fits ($\tau$ inversion only) | 0 |
+| 5 | $\tau$ estimator: 0 automatic, 1 exact, 2 approximate | 1 |
+| 6 | (vine only) tree criterion: 0 Kendall's $\tau$, 1 Spearman's $\rho$, 2 Joe, 3 Hoeffding, ... | 0 |
 | 7 | (vine only) spanning-tree algorithm: 0 Prim, 1 Kruskal | 0 |
-| 8 | (vine only) truncation level, -1 = none | -1 |
+| 8 | (vine only) truncation level, $-1$ = none | $-1$ |
 | 9 | (vine only) structure given in `order`/`st_in` (1) or to be selected (0) | 0 |
 
 and `cr = {threshold, psi0}` (default `{0, 0.9}`).
@@ -168,6 +168,21 @@ selected: clayton rotation 0 par 2.061 0.000 0.000
 The program declares the prototypes itself, so no header file is needed. The pairs are
 stored as a row-major `n x 2` array (`u[2*i]`, `u[2*i+1]`), which is the Fortran `u(2, n)`
 the kernel expects. A small xorshift generator makes the run reproducible.
+
+## Same numbers in every language
+
+<figure markdown>
+![Densities from Python ctypes and from C plotted against the Fortran densities on the identity line, and the Kendall taus of data and simulation from the Python demo](img/interop_agree.png)
+<figcaption>(a) Twelve pair copulas (Gaussian, Student t, Clayton, Gumbel, Frank, Joe, BB1,
+Clayton rotated 90°, Tawn, Hüsler-Reiss, Archimax 10203, Khoudraji-Joe 20300) evaluated at
+the same 500 points from Fortran (`fv_bicop%pdf`), from Python through ctypes and from C
+through `fv_bicop_eval`. All 18 000 values of $c$, $h_1$ and $h_1^{-1}$ agree bit for bit:
+the bindings pass the same doubles to the same kernel (`tools/example_interop.f90` and
+`tools/example_interop.c`). (b) The Python demo above: the Kendall $\hat\tau_{ij}$ of the
+four-dimensional data against those of a sample drawn from the vine that `fv_vine_select`
+fitted; the differences are sampling noise of one simulated sample (averaged over 20
+simulations, every pair agrees with the data within 0.006).</figcaption>
+</figure>
 
 !!! warning "Linking statically from C"
     `build/libfortvine.a` can also be linked into a C program, but then the Fortran and

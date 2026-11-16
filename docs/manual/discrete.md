@@ -8,6 +8,10 @@ convention of vinecopulib's `var_types = "d"` (Panagiotelis, Czado & Joe 2012; P
 Czado, Joe & Stöber 2017): each discrete variable is described by two numbers per
 observation.
 
+!!! note "Fortran only"
+    Discrete margins are available from Fortran only; the [Python](../python.md) and
+    [R](../r.md) packages do not expose `discrete` and `u_minus`.
+
 ## Input: `u` and `u_minus`
 
 For a discrete variable $X_j$ with distribution function $F_j$:

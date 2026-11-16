@@ -8,6 +8,10 @@ the parametric choice. Their mathematical background is on the
 [family page](../families/nonparametric.md); this page covers how fortvine estimates, stores
 and uses them.
 
+!!! note "Fortran only"
+    TLL and Bernstein are available from Fortran only: the C interface does not pass their
+    estimate, so the [Python](../python.md) and [R](../r.md) packages reject codes 24 and 25.
+
 ## Using them
 
 ```fortran

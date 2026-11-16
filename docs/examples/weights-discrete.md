@@ -14,6 +14,11 @@ Two features that real data often need:
    $u = F(x)$ together with $u^- = F(x^-)$, the margin's distribution function just below
    the observed value.
 
+!!! note "Fortran only"
+    Observation weights and discrete margins are available from Fortran only: the C
+    interface that the [Python](../python.md) and [R](../r.md) packages call does not pass
+    them. This page therefore has no Python or R version.
+
 ## Code
 
 ```fortran
@@ -63,6 +68,16 @@ wt = [(0.998_dp**(n - i), i = 1, n)]
 call fit%fit(u1, u2, weights=wt)
 ```
 
+<figure markdown>
+![Two-regime Clayton sample coloured by time-decay weight, and the unweighted and weighted Clayton log-likelihood profiles](img/weights_fit.png)
+<figcaption>(a) The 3000 observations in normal scores, coloured by their weight
+$w_i = 0.998^{\,n - i}$: the recent regime ($\theta = 4$, dark) is the tighter cloud. (b) The
+Clayton log-likelihood per unit weight, $\ell_w(\theta) / \sum_i w_i$, each curve shifted to
+a maximum of 0, with equal weights (grey) and with the time-decay weights (blue); the
+triangles mark the estimates $\hat\theta = 1.88$ and $\hat\theta = 3.48$. Fitted to each
+regime alone, the same data give $\hat\theta = 1.03$ and $\hat\theta = 3.81$.</figcaption>
+</figure>
+
 ### Weights as frequencies
 
 With integer weights, a weighted fit is exactly the fit to a sample in which observation
@@ -97,6 +112,17 @@ and for the continuous columns `um = u` (the values are not used). Here the Pois
 distribution function is known; with real data the empirical distribution function of the
 counts plays its role.
 
+<figure markdown>
+![The Poisson count against the two continuous variables, jittered, and the count's copula-scale intervals against u3](img/discrete_data.png)
+<figcaption>The mixed data. (a, b) The count $x_2$ (jittered horizontally for display only)
+against the normal scores of the continuous variables: Gaussian dependence with
+$\rho = 0.7$ on $(1, 2)$ and Clayton dependence with $\theta = 2$ on $(2, 3)$, whose lower
+tail shows as the tight cluster at $x_2 = 0$. (c) On the copula scale an observed count
+only says that $u_2$ lies in the interval $[F(x_2^-), F(x_2)]$ (blue segments, first 150
+rows); the discrete-aware likelihood integrates over that interval, the naive fit replaces it
+by its mid-point (gold).</figcaption>
+</figure>
+
 ### Fitting with and without the discrete information
 
 ```fortran
@@ -120,10 +146,12 @@ so the whole vine sweep carries both $F(x)$ and $F(x^-)$ for discrete nodes.
 The naive alternative pretends the count is continuous by placing each value in the middle
 of its jump, $u = (F(x) + F(x^-))/2$. The table compares the tree-1 pairs:
 
-| pair | truth | discrete-aware | naive (mid-point) |
-|---|---|---|---|
-| (1, 2) | Gaussian 0.700 | Gaussian 0.714 | Gaussian 0.706 |
-| (2, 3) | Clayton 2.000 | Clayton 2.119 | **BB8 3.407** |
+| Pair | Truth | $\theta$ | Discrete-aware | $\hat\theta$ | Naive (mid-point) | $\hat\theta$ |
+|---|---|---:|---|---:|---|---:|
+| $(1, 2)$ | Gaussian | 0.700 | Gaussian | 0.714 | Gaussian | 0.706 |
+| $(2, 3)$ | Clayton | 2.000 | Clayton | 2.119 | **BB8** | **3.407** |
+
+($\theta$ is the first parameter of each family: $\rho$ for the Gaussian copula.)
 
 The discrete-aware fit recovers both families. The naive one keeps the Gaussian pair but
 mistakes the Clayton pair: the ties at only ten distinct values destroy the fine structure
@@ -159,6 +187,16 @@ call vd%rosenblatt(u, r, u_minus=um, seed=1)
   0.082-0.084 (expected $1/12 = 0.0833$), and the pairwise Kendall taus are at most 0.006
   in absolute value. Pass `randomize=.false.` to get $F(x \mid \cdot)$ itself, with
   `out_minus=` receiving $F(x^- \mid \cdot)$.
+
+<figure markdown>
+![Histograms of the three randomised Rosenblatt residual columns, flat at density 1, with the non-randomised discrete column for comparison](img/rosenblatt_residuals.png)
+<figcaption>Histograms (20 bins) of the randomised Rosenblatt residuals $r_1, r_2, r_3$ of
+the discrete-aware fit, $n = 3000$. The shaded band is the uniform density 1 plus or minus
+two binomial standard errors per bin; all three columns scatter about 1 with the expected
+spread. For the discrete variable, the non-randomised $F(x_2 \mid x_1)$ (gold outline) is
+far from uniform: it is the upper end of each conditional jump and therefore piles up
+towards 1, which is why the randomisation is needed before any uniformity check.</figcaption>
+</figure>
 
 See [Discrete and mixed data](../manual/discrete.md) for the full interface, including
 `pdf_grid` with discrete variables.

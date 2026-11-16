@@ -127,57 +127,145 @@ argument.
 
 ## Example
 
-```fortran
-program rot_demo
-  use fortvine_api
-  implicit none
-  integer, parameter :: dp = kind(1.0d0), n = 2000
-  type(fv_bicop) :: c, t
-  real(dp) :: u(4) = [0.1_dp, 0.3_dp, 0.6_dp, 0.95_dp], v(4) = [0.7_dp, 0.2_dp, 0.9_dp, 0.4_dp]
-  real(dp) :: p1(4), p2(4), x1(n), x2(n), w(n)
-  integer :: r, k, i, fams(3) = [FV_TAWN, 10011, 10006]
-  real(dp) :: pars(3, 3)
+=== "Fortran"
 
-  ! Kendall's tau of a Clayton(3) sample under each rotation
-  c%family = FV_CLAYTON; c%par(1) = 3.0_dp
-  call random_seed(put=[(i, i = 1, 33)])
-  call random_number(x1); call random_number(w)
-  do r = 0, 270, 90
-    c%rotation = r
-    call c%hinv1(x1, w, x2)
-    print '(a,i4,a,f7.3)', 'rotation', r, ':  tau =', fv_kendall_tau(x1, x2)
-  end do
+    ```fortran title="rot_demo.f90"
+    program rot_demo
+      use fortvine_api
+      implicit none
+      integer, parameter :: dp = kind(1.0d0), n = 2000
+      type(fv_bicop) :: c, t
+      real(dp) :: u(4) = [0.1_dp, 0.3_dp, 0.6_dp, 0.95_dp], v(4) = [0.7_dp, 0.2_dp, 0.9_dp, 0.4_dp]
+      real(dp) :: p1(4), p2(4), x1(n), x2(n), w(n)
+      integer :: r, k, i, fams(3) = [FV_TAWN, 10011, 10006]
+      real(dp) :: pars(3, 3)
 
-  ! exact transpose of asymmetric families: c_T(u, v) = c(v, u), also under rotation 90 <-> 270
-  pars(:, 1) = [0.4_dp, 0.9_dp, 3.0_dp]; pars(:, 2) = [0.6_dp, 0.3_dp, 0.0_dp]; pars(:, 3) = [2.5_dp, 0.4_dp, 0.0_dp]
-  do k = 1, 3
-    c%family = fams(k); c%par = pars(:, k); c%rotation = 90
-    t = c
-    if (t%family == FV_TAWN) then
-      t%par(1:2) = c%par([2, 1])                      ! Tawn: swap psi1 and psi2
-    else
-      call gen_flip(t%family, t%par)                  ! generic families
-    end if
-    t%rotation = 270
-    call c%pdf(u, v, p1); call t%pdf(v, u, p2)
-    print '(5a,es9.2)', 'transpose of ', trim(fv_fam_name(c%family)), ' is ', trim(fv_fam_name(t%family)), &
-      ': max |c(u,v) - c_T(v,u)| =', maxval(abs(p1 - p2))
-  end do
-end program rot_demo
-```
+      ! Kendall's tau of a Clayton(3) sample under each rotation
+      c%family = FV_CLAYTON; c%par(1) = 3.0_dp
+      call random_seed(put=[(i, i = 1, 33)])
+      call random_number(x1); call random_number(w)
+      do r = 0, 270, 90
+        c%rotation = r
+        call c%hinv1(x1, w, x2)
+        print '(a,i4,a,f7.3)', 'rotation', r, ':  tau =', fv_kendall_tau(x1, x2)
+      end do
+
+      ! exact transpose of asymmetric families: c_T(u, v) = c(v, u), also under rotation 90 <-> 270
+      pars(:, 1) = [0.4_dp, 0.9_dp, 3.0_dp]; pars(:, 2) = [0.6_dp, 0.3_dp, 0.0_dp]; pars(:, 3) = [2.5_dp, 0.4_dp, 0.0_dp]
+      do k = 1, 3
+        c%family = fams(k); c%par = pars(:, k); c%rotation = 90
+        t = c
+        if (t%family == FV_TAWN) then
+          t%par(1:2) = c%par([2, 1])                      ! Tawn: swap psi1 and psi2
+        else
+          call gen_flip(t%family, t%par)                  ! generic families
+        end if
+        t%rotation = 270
+        call c%pdf(u, v, p1); call t%pdf(v, u, p2)
+        print '(5a,es9.2)', 'transpose of ', trim(fv_fam_name(c%family)), ' is ', trim(fv_fam_name(t%family)), &
+          ': max |c(u,v) - c_T(v,u)| =', maxval(abs(p1 - p2))
+      end do
+    end program rot_demo
+    ```
+
+=== "Python"
+
+    ```python title="rot_demo.py"
+    import numpy as np
+    import fortvine as fv
+
+    n = 2000
+    uv = np.array([[0.1, 0.7], [0.3, 0.2], [0.6, 0.9], [0.95, 0.4]])
+
+    # Kendall's tau of a Clayton(3) sample under each rotation
+    rng = np.random.default_rng(1)
+    x1, w = rng.random(n), rng.random(n)
+    for r in (0, 90, 180, 270):
+        c = fv.Bicop("clayton", r, [3.0])
+        x2 = c.hinv1(np.column_stack([x1, w]))
+        print(f"rotation{r:4d}:  tau ={fv.kendall_tau(x1, x2):7.3f}")
+
+    # exact transpose of asymmetric families: c_T(u, v) = c(v, u), also under rotation 90 <-> 270
+    # (gen_flip is Fortran-only; the transposition rules of the table above are applied by hand)
+    pairs = [(fv.Bicop("tawn", 90, [0.4, 0.9, 3.0]), fv.Bicop("tawn", 270, [0.9, 0.4, 3.0])),  # swap psi1, psi2
+             (fv.Bicop(10006, 90, [2.5, 0.4]), fv.Bicop(10007, 270, [2.5, 0.4]))]           # type 1 -> type 2
+    for c, t in pairs:
+        err = np.max(np.abs(c.pdf(uv) - t.pdf(uv[:, ::-1])))
+        print(f"transpose of {c.family} is {t.family}: max |c(u,v) - c_T(v,u)| ={err:9.2E}")
+    ```
+
+    !!! note
+        `gen_flip` is available from Fortran only, so the script applies the transposition
+        rules of the table by hand, to Tawn and to the type 1 / type 2 pair; the
+        asymmetric mixed model (10011) is left out.
+
+=== "R"
+
+    ```r title="rot_demo.R"
+    library(fortvine)
+    n <- 2000
+    uv <- rbind(c(0.1, 0.7), c(0.3, 0.2), c(0.6, 0.9), c(0.95, 0.4))
+
+    # Kendall's tau of a Clayton(3) sample under each rotation
+    set.seed(1)
+    x1 <- runif(n); w <- runif(n)
+    for (r in c(0, 90, 180, 270)) {
+      x2 <- hbicop(cbind(x1, w), 1, bicop_dist("clayton", r, 3), inverse = TRUE)
+      cat(sprintf("rotation%4d:  tau =%7.3f\n", r, cor(x1, x2, method = "kendall")))
+    }
+
+    # exact transpose of asymmetric families: c_T(u, v) = c(v, u), also under rotation 90 <-> 270
+    # (gen_flip is Fortran-only; the transposition rules of the table above are applied by hand)
+    pairs <- list(list(bicop_dist("tawn", 90, c(0.4, 0.9, 3)), bicop_dist("tawn", 270, c(0.9, 0.4, 3))),
+                  list(bicop_dist(10006, 90, c(2.5, 0.4)), bicop_dist(10007, 270, c(2.5, 0.4))))
+    for (p in pairs) {
+      err <- max(abs(dbicop(uv, p[[1]]) - dbicop(uv[, 2:1], p[[2]])))
+      cat(sprintf("transpose of %s is %s: max |c(u,v) - c_T(v,u)| =%9.2E\n", p[[1]]$family,
+                  p[[2]]$family, err))
+    }
+    ```
+
+    !!! note
+        `gen_flip` is available from Fortran only, so the script applies the transposition
+        rules of the table by hand, to Tawn and to the type 1 / type 2 pair; the
+        asymmetric mixed model (10011) is left out.
 
 Output:
 
-```text
-rotation   0:  tau =  0.620
-rotation  90:  tau = -0.594
-rotation 180:  tau =  0.612
-rotation 270:  tau = -0.614
-transpose of tawn is tawn: max |c(u,v) - c_T(v,u)| = 4.44E-16
-transpose of Tawn-asymmixed is Tawn-asymmixed: max |c(u,v) - c_T(v,u)| = 1.11E-15
-transpose of Tawn-type1 is Tawn-type2: max |c(u,v) - c_T(v,u)| = 4.44E-16
-```
+=== "Fortran"
+
+    ```text
+    rotation   0:  tau =  0.620
+    rotation  90:  tau = -0.594
+    rotation 180:  tau =  0.612
+    rotation 270:  tau = -0.614
+    transpose of tawn is tawn: max |c(u,v) - c_T(v,u)| = 4.44E-16
+    transpose of Tawn-asymmixed is Tawn-asymmixed: max |c(u,v) - c_T(v,u)| = 1.11E-15
+    transpose of Tawn-type1 is Tawn-type2: max |c(u,v) - c_T(v,u)| = 4.44E-16
+    ```
+
+=== "Python"
+
+    ```text
+    rotation   0:  tau =  0.586
+    rotation  90:  tau = -0.602
+    rotation 180:  tau =  0.588
+    rotation 270:  tau = -0.593
+    transpose of tawn is tawn: max |c(u,v) - c_T(v,u)| = 8.88E-16
+    transpose of Tawn-type1 is Tawn-type2: max |c(u,v) - c_T(v,u)| = 4.44E-16
+    ```
+
+=== "R"
+
+    ```text
+    rotation   0:  tau =  0.595
+    rotation  90:  tau = -0.596
+    rotation 180:  tau =  0.586
+    rotation 270:  tau = -0.599
+    transpose of tawn is tawn: max |c(u,v) - c_T(v,u)| = 8.88E-16
+    transpose of Tawn-type1 is Tawn-type2: max |c(u,v) - c_T(v,u)| = 4.44E-16
+    ```
 
 The theoretical $\tau$ of Clayton(3) is $3/5 = 0.6$; the four samples differ only by sampling
-noise and sign. The last three lines confirm that the transposed, 270-degree copula evaluated
+noise and sign (and between the languages, which draw different uniforms). The last three lines confirm that the transposed, 270-degree copula evaluated
 at swapped arguments equals the original 90-degree copula to rounding.

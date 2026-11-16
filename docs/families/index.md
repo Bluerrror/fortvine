@@ -151,12 +151,31 @@ Of the valid codes, those that duplicate a hand-coded family or another generic 
 cross-checks but are left out of `fv_generic_families()`. The 85 codes it returns are 6
 Archimedean, 9 extreme-value, 67 Archimax and 3 Khoudraji families.
 
-```fortran
-integer, allocatable :: codes(:)
-codes = fv_generic_families()          ! the 85 new codes
-print *, trim(fv_fam_name(10206))      ! Archimax(gamma|asymlogistic1)
-print *, gen_npar(10206)               ! 3
-```
+=== "Fortran"
+
+    ```fortran
+    integer, allocatable :: codes(:)
+    codes = fv_generic_families()          ! the 85 new codes
+    print *, trim(fv_fam_name(10206))      ! Archimax(gamma|asymlogistic1)
+    print *, gen_npar(10206)               ! 3
+    ```
+
+=== "Python"
+
+    ```python
+    codes = [f.code for f in fv.families() if f.code >= 10000]   # the 85 new codes
+    cop = fv.Bicop(10206, 0, [1.5, 0.5, 2.0])
+    print(cop.family)                      # Archimax(gamma|asymlogistic1)
+    print(cop.npars)                       # 3
+    ```
+
+=== "R"
+
+    ```r
+    fam <- fortvine_families()
+    codes <- fam$code[fam$code >= 10000]   # the 85 new codes
+    fam[fam$code == 10206, ]               # Archimax(gamma|asymlogistic1), npars 3
+    ```
 
 ## Tail dependence at a glance
 

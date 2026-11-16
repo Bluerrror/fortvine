@@ -30,34 +30,72 @@ asymmetric logistic Pickands function) and a Khoudraji-Joe copula.</figcaption>
 
 fortvine fits, evaluates and simulates bivariate (pair) copulas and regular-vine copulas. It is
 standard Fortran 2008 with OpenMP, needs nothing but the compiler, and can be called from
-Fortran, C, Python (ctypes) or any language that speaks the C ABI.
+Fortran, C, Python, R or any language that speaks the C ABI.
 
 ## Thirty seconds of fortvine
 
-```fortran
-program hello_fortvine
-  use fortvine_api
-  implicit none
-  integer, parameter :: dp = kind(1.0d0), n = 2000
-  type(fv_bicop) :: cop
-  real(dp) :: u1(n), w(n), u2(n)
+=== "Fortran"
 
-  cop%family = FV_CLAYTON; cop%par(1) = 2.0_dp       ! Clayton copula, Kendall's tau = 0.5
-  call random_number(u1); call random_number(w)
-  call cop%hinv1(u1, w, u2)                          ! simulate (u1, u2) from it
+    ```fortran title="hello_fortvine.f90"
+    program hello_fortvine
+      use fortvine_api
+      implicit none
+      integer, parameter :: dp = kind(1.0d0), n = 2000
+      type(fv_bicop) :: cop
+      real(dp) :: u1(n), w(n), u2(n)
 
-  call cop%select(u1, u2)                            ! choose family, rotation and parameters by BIC
-  print *, trim(fv_fam_name(cop%family)), cop%rotation, cop%par(1)
-end program hello_fortvine
-```
+      cop%family = FV_CLAYTON; cop%par(1) = 2.0_dp       ! Clayton copula, Kendall's tau = 0.5
+      call random_number(u1); call random_number(w)
+      call cop%hinv1(u1, w, u2)                          ! simulate (u1, u2) from it
 
-```text
- clayton           0   2.1450855929878818
-```
+      call cop%select(u1, u2)                            ! choose family, rotation and parameters by BIC
+      print *, trim(fv_fam_name(cop%family)), cop%rotation, cop%par(1)
+    end program hello_fortvine
+    ```
 
-The sample is random, so the last digits differ from run to run. `bash build.sh` builds
-`build/libfortvine.a`, the module files and a shared library; see
-[Installation](getting-started/installation.md) and the [Quick start](getting-started/quickstart.md).
+    ```text
+     clayton           0   2.1450855929878818
+    ```
+
+    The sample is not seeded, so the last digits differ from run to run.
+
+=== "Python"
+
+    ```python title="hello_fortvine.py"
+    import fortvine as fv
+
+    cop = fv.Bicop("clayton", 0, [2.0])              # Clayton copula, Kendall's tau = 0.5
+    u = cop.simulate(2000, seed=1)                   # simulate (u1, u2) from it
+
+    best = fv.Bicop().select(u)                      # choose family, rotation and parameters by BIC
+    print(best.family, best.rotation, best.parameters[0])
+    ```
+
+    ```text
+    clayton 0 1.956774237371629
+    ```
+
+=== "R"
+
+    ```r title="hello_fortvine.R"
+    library(fortvine)
+    cop <- bicop_dist("clayton", 0, 2)               # Clayton copula, Kendall's tau = 0.5
+    set.seed(1)
+    u <- rbicop(2000, cop)                           # simulate (u1, u2) from it
+
+    best <- bicop(u)                                 # choose family, rotation and parameters by BIC
+    best
+    ```
+
+    ```text
+    Bivariate copula ('bicop_dist'): family = clayton (3), rotation = 0, parameters = 1.879
+    ```
+
+The [Python](python.md) and [R](r.md) packages are bindings: every number above is computed by
+the same compiled Fortran library. The three samples come from different random number
+generators, so the estimates differ. `bash build.sh` builds `build/libfortvine.a`, the module
+files and a shared library; see [Installation](getting-started/installation.md) and the
+[Quick start](getting-started/quickstart.md).
 
 ## What is in the box
 
@@ -92,16 +130,26 @@ All timings and the method are on the [Benchmarks](benchmarks.md) page.
 
 ## Citing
 
-If fortvine is useful in your work, please cite the repository:
+If you use fortvine — from Fortran, C, Python or R — in published work, please cite:
+
+> Shojaeezadeh, S. A. (2026). *fortvine: a complete compendium to work on vine copula modeling.*
+> In preparation.
 
 ```bibtex
-@software{fortvine,
-  author  = {Shojaeezadeh, Shahab Aldin},
-  title   = {fortvine: vine copulas in Fortran},
-  year    = {2026},
-  url     = {https://github.com/Bluerrror/fortvine},
-  version = {1.0.0}
+@unpublished{shojaeezadeh2026fortvine,
+  author = {Shojaeezadeh, Shahab Aldin},
+  title  = {fortvine: a complete compendium to work on vine copula modeling},
+  year   = {2026},
+  note   = {In preparation. Software: https://github.com/Bluerrror/fortvine}
 }
 ```
 
-fortvine is released under the [MIT licence](https://github.com/Bluerrror/fortvine/blob/main/LICENSE).
+The same reference is returned by `citation("fortvine")` in R, by `fortvine.cite()` in Python and by
+GitHub's "Cite this repository" button.
+
+## Licence
+
+fortvine is free software, released under the
+[GNU General Public License, version 3 or later](https://github.com/Bluerrror/fortvine/blob/main/LICENSE).
+You may use, study, modify and redistribute it; distributed copies and derived works must remain
+under the GPL and keep the copyright notice of Shahab Aldin Shojaeezadeh.
