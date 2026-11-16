@@ -1,0 +1,702 @@
+{
+ "machine": {
+  "platform": "Windows-11-10.0.22621-SP0",
+  "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+  "cpus": 32,
+  "python": "3.14.0"
+ },
+ "eval": [
+  {
+   "family": "gaussian",
+   "fortvine": {
+    "logpdf": 21.463,
+    "hfunc1": 62.099,
+    "hinv1": 30.632
+   },
+   "pyvinecopulib": {
+    "logpdf": 122.41399998310953,
+    "hfunc1": 79.25809999384607,
+    "hinv1": 97.85310000491639
+   },
+   "torchvine": {
+    "logpdf": 66.35186666001876,
+    "hfunc1": 60.55683334125206,
+    "hinv1": 57.356233339911945
+   }
+  },
+  {
+   "family": "student",
+   "fortvine": {
+    "logpdf": 314.03,
+    "hfunc1": 461.77,
+    "hinv1": 554.76
+   },
+   "pyvinecopulib": {
+    "logpdf": 331.8839333369397,
+    "hfunc1": 351.9934333356408,
+    "hinv1": 811.8457999856522
+   },
+   "torchvine": {
+    "logpdf": 157.41019998677075,
+    "hfunc1": 1345.3369666822255,
+    "hinv1": 1432.2073666650492
+   }
+  },
+  {
+   "family": "clayton",
+   "fortvine": {
+    "logpdf": 44.44,
+    "hfunc1": 55.321,
+    "hinv1": 42.673
+   },
+   "pyvinecopulib": {
+    "logpdf": 116.82413332164288,
+    "hfunc1": 166.31363332271576,
+    "hinv1": 122.58683333251004
+   },
+   "torchvine": {
+    "logpdf": 64.77156665641814,
+    "hfunc1": 104.12333333321537,
+    "hinv1": 86.1414000003909
+   }
+  },
+  {
+   "family": "gumbel",
+   "fortvine": {
+    "logpdf": 61.452,
+    "hfunc1": 82.173,
+    "hinv1": 164.67
+   },
+   "pyvinecopulib": {
+    "logpdf": 227.95059999528652,
+    "hfunc1": 222.86780000043413,
+    "hinv1": 321.3769000140018
+   },
+   "torchvine": {
+    "logpdf": 190.80486666643992,
+    "hfunc1": 133.1362666678615,
+    "hinv1": 1476.7513000018273
+   }
+  },
+  {
+   "family": "frank",
+   "fortvine": {
+    "logpdf": 29.85,
+    "hfunc1": 30.484,
+    "hinv1": 23.391
+   },
+   "pyvinecopulib": {
+    "logpdf": 80.8801000045302,
+    "hfunc1": 155.75270001621297,
+    "hinv1": 4953.711100000267
+   },
+   "torchvine": {
+    "logpdf": 43.44813333591446,
+    "hfunc1": 42.1404999991258,
+    "hinv1": 15.120966670413813
+   }
+  },
+  {
+   "family": "joe",
+   "fortvine": {
+    "logpdf": 53.688,
+    "hfunc1": 74.534,
+    "hinv1": 352.0
+   },
+   "pyvinecopulib": {
+    "logpdf": 113.17136666427056,
+    "hfunc1": 279.9181333393789,
+    "hinv1": 437.18613332991174
+   },
+   "torchvine": {
+    "logpdf": 281.118966677847,
+    "hfunc1": 188.99993332646167,
+    "hinv1": 2625.549533346202
+   }
+  },
+  {
+   "family": "bb1",
+   "fortvine": {
+    "logpdf": 106.7,
+    "hfunc1": 119.64,
+    "hinv1": 769.68
+   },
+   "pyvinecopulib": {
+    "logpdf": 229.82249998797974,
+    "hfunc1": 372.02376666634035,
+    "hinv1": 12539.903366666598
+   },
+   "torchvine": {
+    "logpdf": 260.93639999938506,
+    "hfunc1": 264.8064666621697,
+    "hinv1": 3324.615999998059
+   }
+  },
+  {
+   "family": "bb6",
+   "fortvine": {
+    "logpdf": 125.4,
+    "hfunc1": 130.17,
+    "hinv1": 977.99
+   },
+   "pyvinecopulib": {
+    "logpdf": 414.9187666674455,
+    "hfunc1": 470.642433327157,
+    "hinv1": 16971.21516665599
+   },
+   "torchvine": {
+    "logpdf": 336.7393333270835,
+    "hfunc1": 266.20163331972435,
+    "hinv1": 4339.837999995022
+   }
+  },
+  {
+   "family": "bb7",
+   "fortvine": {
+    "logpdf": 110.95,
+    "hfunc1": 121.69,
+    "hinv1": 828.81
+   },
+   "pyvinecopulib": {
+    "logpdf": 267.9291000046457,
+    "hfunc1": 411.1916999875878,
+    "hinv1": 15390.62050000454
+   },
+   "torchvine": {
+    "logpdf": 513.08883332725,
+    "hfunc1": 348.0498333422778,
+    "hinv1": 4443.367033343141
+   }
+  },
+  {
+   "family": "bb8",
+   "fortvine": {
+    "logpdf": 92.004,
+    "hfunc1": 99.698,
+    "hinv1": 612.31
+   },
+   "pyvinecopulib": {
+    "logpdf": 284.56416667904705,
+    "hfunc1": 389.02800000505516,
+    "hinv1": 11066.347333330972
+   },
+   "torchvine": {
+    "logpdf": 282.7535333344713,
+    "hfunc1": 255.74870000127703,
+    "hinv1": 3728.515000004942
+   }
+  },
+  {
+   "family": "tawn",
+   "fortvine": {
+    "logpdf": 158.25,
+    "hfunc1": 162.01,
+    "hinv1": 1177.3
+   },
+   "pyvinecopulib": {
+    "logpdf": 390.6638666715784,
+    "hfunc1": 337.87346666213125,
+    "hinv1": 10052.615333348513
+   },
+   "torchvine": {
+    "error": "type object 'BicopFamily' has no attribute 'tawn'"
+   }
+  }
+ ],
+ "fit": [
+  {
+   "family": "gaussian",
+   "fortvine": {
+    "ms": 1.1484,
+    "loglik": 1683.53166
+   },
+   "pyvinecopulib": {
+    "ms": 8.093750005355105,
+    "loglik": 1683.531659419741
+   },
+   "torchvine": {
+    "ms": 1.1118999682366848,
+    "loglik": 1683.5258319708582
+   }
+  },
+  {
+   "family": "student",
+   "fortvine": {
+    "ms": 22.121,
+    "loglik": 1806.78058
+   },
+   "pyvinecopulib": {
+    "ms": 243.5460700013209,
+    "loglik": 1806.7805790141142
+   },
+   "torchvine": {
+    "ms": 34.41349999047816,
+    "loglik": 1806.6691206933765
+   }
+  },
+  {
+   "family": "clayton",
+   "fortvine": {
+    "ms": 1.5983,
+    "loglik": 2112.84356
+   },
+   "pyvinecopulib": {
+    "ms": 9.156299999449402,
+    "loglik": 2112.8435551365765
+   },
+   "torchvine": {
+    "ms": 0.5133000086061656,
+    "loglik": 2104.337352539451
+   }
+  },
+  {
+   "family": "gumbel",
+   "fortvine": {
+    "ms": 1.7118,
+    "loglik": 1835.76374
+   },
+   "pyvinecopulib": {
+    "ms": 5.8168399962596595,
+    "loglik": 1835.7637369852614
+   },
+   "torchvine": {
+    "ms": 0.2099000266753137,
+    "loglik": 1835.2582666224826
+   }
+  },
+  {
+   "family": "frank",
+   "fortvine": {
+    "ms": 1.4639,
+    "loglik": 1539.55741
+   },
+   "pyvinecopulib": {
+    "ms": 5.60154999839142,
+    "loglik": 1539.5574072736645
+   },
+   "torchvine": {
+    "ms": 1.4661999884992838,
+    "loglik": 1515.8465725421568
+   }
+  },
+  {
+   "family": "joe",
+   "fortvine": {
+    "ms": 1.3525,
+    "loglik": 2202.3207
+   },
+   "pyvinecopulib": {
+    "ms": 11.668119998648763,
+    "loglik": 2202.32070366047
+   },
+   "torchvine": {
+    "ms": 0.513700011651963,
+    "loglik": 2189.5476310446775
+   }
+  },
+  {
+   "family": "bb1",
+   "fortvine": {
+    "ms": 4.6633,
+    "loglik": 1554.86437
+   },
+   "pyvinecopulib": {
+    "ms": 66.24493999988772,
+    "loglik": 1554.8643701984115
+   },
+   "torchvine": {
+    "ms": 94.76899995934218,
+    "loglik": 1554.8646043575327
+   }
+  },
+  {
+   "family": "bb6",
+   "fortvine": {
+    "ms": 9.4209,
+    "loglik": 2048.42354
+   },
+   "pyvinecopulib": {
+    "ms": 103.9743900008034,
+    "loglik": 2048.423535951887
+   },
+   "torchvine": {
+    "ms": 89.94460001122206,
+    "loglik": 2048.4235357582174
+   }
+  },
+  {
+   "family": "bb7",
+   "fortvine": {
+    "ms": 5.3116,
+    "loglik": 1928.69454
+   },
+   "pyvinecopulib": {
+    "ms": 36.30096000269987,
+    "loglik": 1928.694540020752
+   },
+   "torchvine": {
+    "ms": 110.28429999714717,
+    "loglik": 1928.6947994867846
+   }
+  },
+  {
+   "family": "bb8",
+   "fortvine": {
+    "ms": 12.244,
+    "loglik": 1347.72158
+   },
+   "pyvinecopulib": {
+    "ms": 81.05086999712512,
+    "loglik": 1347.7215838902878
+   },
+   "torchvine": {
+    "ms": 142.39490003092214,
+    "loglik": 1347.7191557690476
+   }
+  },
+  {
+   "family": "tawn",
+   "fortvine": {
+    "ms": 8.3126,
+    "loglik": 1571.0807
+   },
+   "pyvinecopulib": {
+    "ms": 45.56526999804191,
+    "loglik": 1571.0806975374737
+   },
+   "torchvine": {
+    "error": "type object 'BicopFamily' has no attribute 'tawn'"
+   }
+  }
+ ],
+ "select": [
+  {
+   "truth": "gaussian",
+   "fortvine": {
+    "ms": 50.493,
+    "family": "gaussian",
+    "loglik": 1683.53166
+   },
+   "pyvinecopulib": {
+    "ms": 2085.367900028359,
+    "family": "gaussian",
+    "loglik": 1683.531659419741
+   },
+   "torchvine": {
+    "ms": 798.74529998051,
+    "family": "gaussian",
+    "loglik": 1683.5258319708582
+   }
+  },
+  {
+   "truth": "student",
+   "fortvine": {
+    "ms": 76.949,
+    "family": "student",
+    "loglik": 1806.78058
+   },
+   "pyvinecopulib": {
+    "ms": 1665.3738000313751,
+    "family": "student",
+    "loglik": 1806.7805790141142
+   },
+   "torchvine": {
+    "ms": 1031.9980999920517,
+    "family": "student",
+    "loglik": 1806.6691206933765
+   }
+  },
+  {
+   "truth": "clayton",
+   "fortvine": {
+    "ms": 76.865,
+    "family": "clayton",
+    "loglik": 2112.84356
+   },
+   "pyvinecopulib": {
+    "ms": 2149.9212000053376,
+    "family": "clayton",
+    "loglik": 2112.8435551365765
+   },
+   "torchvine": {
+    "ms": 1140.4989000293426,
+    "family": "bb7",
+    "loglik": 2112.8281464739734
+   }
+  },
+  {
+   "truth": "gumbel",
+   "fortvine": {
+    "ms": 87.86,
+    "family": "gumbel",
+    "loglik": 1835.76374
+   },
+   "pyvinecopulib": {
+    "ms": 1157.685299986042,
+    "family": "gumbel",
+    "loglik": 1835.7637369852614
+   },
+   "torchvine": {
+    "ms": 1391.9532000436448,
+    "family": "gumbel",
+    "loglik": 1835.2582666224826
+   }
+  },
+  {
+   "truth": "frank",
+   "fortvine": {
+    "ms": 50.215,
+    "family": "frank",
+    "loglik": 1539.55741
+   },
+   "pyvinecopulib": {
+    "ms": 1508.6590999853797,
+    "family": "frank",
+    "loglik": 1539.5574072736645
+   },
+   "torchvine": {
+    "ms": 962.9739000229165,
+    "family": "frank",
+    "loglik": 1515.8465725421568
+   }
+  },
+  {
+   "truth": "joe",
+   "fortvine": {
+    "ms": 76.771,
+    "family": "joe",
+    "loglik": 2202.3207
+   },
+   "pyvinecopulib": {
+    "ms": 1868.3576000039466,
+    "family": "joe",
+    "loglik": 2202.32070366047
+   },
+   "torchvine": {
+    "ms": 2206.0443999944255,
+    "family": "bb6",
+    "loglik": 2201.8850731593925
+   }
+  },
+  {
+   "truth": "bb1",
+   "fortvine": {
+    "ms": 80.121,
+    "family": "bb1",
+    "loglik": 1554.86437
+   },
+   "pyvinecopulib": {
+    "ms": 1967.8086999920197,
+    "family": "bb1",
+    "loglik": 1554.8643701984115
+   },
+   "torchvine": {
+    "ms": 1049.7511999565177,
+    "family": "bb1",
+    "loglik": 1554.8646043575327
+   }
+  },
+  {
+   "truth": "bb6",
+   "fortvine": {
+    "ms": 88.804,
+    "family": "bb6",
+    "loglik": 2048.42354
+   },
+   "pyvinecopulib": {
+    "ms": 1360.0735000218265,
+    "family": "bb6",
+    "loglik": 2048.423535951887
+   },
+   "torchvine": {
+    "ms": 1002.5052000419237,
+    "family": "bb6",
+    "loglik": 2048.4235357582174
+   }
+  },
+  {
+   "truth": "bb7",
+   "fortvine": {
+    "ms": 80.584,
+    "family": "bb7",
+    "loglik": 1928.69454
+   },
+   "pyvinecopulib": {
+    "ms": 1435.1134999888018,
+    "family": "bb7",
+    "loglik": 1928.694540020752
+   },
+   "torchvine": {
+    "ms": 1052.8038999764249,
+    "family": "bb7",
+    "loglik": 1928.6947994867846
+   }
+  },
+  {
+   "truth": "bb8",
+   "fortvine": {
+    "ms": 90.825,
+    "family": "bb8",
+    "loglik": 1347.72158
+   },
+   "pyvinecopulib": {
+    "ms": 1473.9784999983385,
+    "family": "bb8",
+    "loglik": 1347.7215838902878
+   },
+   "torchvine": {
+    "ms": 1012.441199971363,
+    "family": "bb8",
+    "loglik": 1347.7191557690476
+   }
+  },
+  {
+   "truth": "tawn",
+   "fortvine": {
+    "ms": 107.87,
+    "family": "tawn",
+    "loglik": 1571.0807
+   },
+   "pyvinecopulib": {
+    "ms": 969.2073999904096,
+    "family": "tawn",
+    "loglik": 1571.0806975374737
+   },
+   "torchvine": {
+    "ms": 994.9821999762207,
+    "family": "bb6",
+    "loglik": 1238.8268188845186
+   }
+  }
+ ],
+ "vine": [
+  {
+   "d": 5,
+   "n": 2000,
+   "threads": 1,
+   "fortvine": {
+    "select_s": 0.49213,
+    "loglik": 2213.9168,
+    "npars": 14.0,
+    "pdf_s": 0.0016297,
+    "simulate_s": 0.0073739
+   },
+   "pyvinecopulib": {
+    "select_s": 6.940985199995339,
+    "loglik": 2213.9166155888397,
+    "npars": 14.0,
+    "pdf_s": 0.004687599954195321,
+    "simulate_s": 0.1065204999758862
+   },
+   "torchvine": {
+    "select_s": 3.982504399958998,
+    "loglik": 2184.595356206175,
+    "npars": 12.0,
+    "pdf_s": 0.01065430004382506,
+    "simulate_s": 0.046620800043456256
+   }
+  },
+  {
+   "d": 5,
+   "n": 2000,
+   "threads": 8,
+   "fortvine": {
+    "select_s": 0.082851,
+    "loglik": 2213.9168,
+    "npars": 14.0,
+    "pdf_s": 0.0003979,
+    "simulate_s": 0.0010477
+   },
+   "pyvinecopulib": {
+    "select_s": 1.256775000016205,
+    "loglik": 2213.9166155888397,
+    "npars": 14.0,
+    "pdf_s": 0.0021122999605722725,
+    "simulate_s": 0.016874199965968728
+   }
+  },
+  {
+   "d": 10,
+   "n": 2000,
+   "threads": 1,
+   "fortvine": {
+    "select_s": 2.0362,
+    "loglik": 4675.31199,
+    "npars": 48.0,
+    "pdf_s": 0.0055535,
+    "simulate_s": 0.014746
+   },
+   "pyvinecopulib": {
+    "select_s": 34.3273778000148,
+    "loglik": 4675.310993181848,
+    "npars": 48.0,
+    "pdf_s": 0.04546320001827553,
+    "simulate_s": 0.3952032999950461
+   },
+   "torchvine": {
+    "select_s": 18.465499000041746,
+    "loglik": 4622.432135347779,
+    "npars": 51.0,
+    "pdf_s": 0.07163830002536997,
+    "simulate_s": 0.1361433999845758
+   }
+  },
+  {
+   "d": 10,
+   "n": 2000,
+   "threads": 8,
+   "fortvine": {
+    "select_s": 0.33255,
+    "loglik": 4675.31199,
+    "npars": 48.0,
+    "pdf_s": 0.0009262,
+    "simulate_s": 0.0020932
+   },
+   "pyvinecopulib": {
+    "select_s": 6.7015830999589525,
+    "loglik": 4675.310993181848,
+    "npars": 48.0,
+    "pdf_s": 0.00892349996138364,
+    "simulate_s": 0.07453159999568015
+   }
+  },
+  {
+   "d": 20,
+   "n": 2000,
+   "threads": 1,
+   "fortvine": {
+    "select_s": 14.054,
+    "loglik": 11702.0785,
+    "npars": 151.0,
+    "pdf_s": 0.018681,
+    "simulate_s": 0.041376
+   },
+   "pyvinecopulib": {
+    "select_s": 158.89917879999848,
+    "loglik": 11702.077607036505,
+    "npars": 151.0,
+    "pdf_s": 0.16540279996115714,
+    "simulate_s": 1.3845360000268556
+   }
+  },
+  {
+   "d": 20,
+   "n": 2000,
+   "threads": 8,
+   "fortvine": {
+    "select_s": 1.1916,
+    "loglik": 11702.0785,
+    "npars": 151.0,
+    "pdf_s": 0.0037531,
+    "simulate_s": 0.0056655
+   },
+   "pyvinecopulib": {
+    "select_s": 27.568642100028228,
+    "loglik": 11702.077607036505,
+    "npars": 151.0,
+    "pdf_s": 0.0220477000111714,
+    "simulate_s": 0.2235021999804303
+   }
+  }
+ ]
+}

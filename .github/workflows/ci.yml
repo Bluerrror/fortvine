@@ -1,0 +1,14 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: gfortran
+        run: sudo apt-get update && sudo apt-get install -y gfortran
+      - name: build and test
+        env:
+          FFLAGS: "-O2 -ffree-line-length-none -fopenmp"
+          OMP_NUM_THREADS: "2"
+        run: bash build.sh test examples

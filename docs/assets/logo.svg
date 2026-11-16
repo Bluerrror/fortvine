@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="fortvine">
+  <title>fortvine</title>
+  <!-- vine stem: a tendril curling into the leaf base -->
+  <path d="M30 98 C 22 106, 20 114, 24 124" fill="none" stroke="#2E7D4F" stroke-width="7" stroke-linecap="round"/>
+  <!-- leaf = three nested density contours, sharp in the lower-left, full in the upper-right (upper-tail dependence) -->
+  <path d="M28 100 C 30 66, 56 30, 104 18 C 122 14, 122 32, 116 50 C 104 84, 70 102, 28 100 Z" fill="#E4DBF3"/>
+  <path d="M44 88 C 48 64, 66 40, 100 30 C 112 27, 112 40, 108 52 C 98 76, 76 88, 44 88 Z" fill="#A58BD8"/>
+  <path d="M64 74 C 68 60, 80 46, 98 40 C 104 38, 104 46, 102 52 C 96 66, 84 74, 64 74 Z" fill="#5B3F8C"/>
+  <!-- midrib -->
+  <path d="M28 100 C 54 82, 82 56, 104 30" fill="none" stroke="#2E7D4F" stroke-width="2.4" stroke-linecap="round" opacity="0.9"/>
+</svg>

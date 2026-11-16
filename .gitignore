@@ -1,0 +1,13 @@
+build/
+site/
+*.o
+*.mod
+*.smod
+*.exe
+*.a
+*.so
+*.dll
+*.dylib
+__pycache__/
+.venv/
+bench/results/*.raw

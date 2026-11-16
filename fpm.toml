@@ -1,0 +1,22 @@
+name = "fortvine"
+version = "1.0.0"
+license = "MIT"
+author = "Shahab Aldin Shojaeezadeh"
+description = "Vine copulas in Fortran: 114 pair-copula families with exact parameter scores, Dissmann selection, vine density, Rosenblatt transforms and simulation (OpenMP)"
+homepage = "https://bluerrror.github.io/fortvine/"
+
+[build]
+auto-executables = false
+auto-tests = true
+auto-examples = true
+
+[fortran]
+implicit-typing = false
+implicit-external = false
+source-form = "free"
+
+[library]
+source-dir = "src"
+
+[preprocess]
+[preprocess.cpp]
