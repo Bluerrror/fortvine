@@ -7,23 +7,19 @@ library sources) through its C interface.
 ## Test environments
 
 * local: Windows 11 x64, R 4.3.2, Rtools43 (gcc / gfortran 12.3.0)
-* local, CRAN-like flags: the same with `-Wall -pedantic` (C) and `-Wall -pedantic -std=f2008`
-  (Fortran): no warnings from the package's own C and Fortran glue
-* GitHub Actions: ubuntu-latest, R release (.github/workflows/r.yml)
-
-To add before submitting: win-builder (R-devel, `devtools::check_win_devel()`) and macOS
-(`devtools::check_mac_release()`), or R-hub (`rhub::rhub_check()`).
+* local, CRAN-like flags: `-Wall -pedantic` (C) and `-Wall -pedantic -std=f2008` (Fortran):
+  no warnings from the package's own C and Fortran glue
+* GitHub Actions: ubuntu-latest, R release, `R CMD check --as-cran` (.github/workflows/r.yml)
 
 ## R CMD check results
 
-`R CMD check --as-cran --no-manual` on the built tarball (Windows, R 4.3.2):
+0 errors | 0 warnings | 1 note
 
-0 errors | 1 warning | 2 notes
+* This is a new submission.
 
-* WARNING: "Non-portable flags in variable 'PKG_FCFLAGS': -ffree-line-length-none".
-  Three statements of the library sources exceed 132 columns. They are being wrapped
-  upstream; the flag is then removed and this warning disappears. **Do not submit before
-  that.**
-* NOTE: "New submission".
-* NOTE: "unable to verify current time" (no time server reachable from the check machine;
-  not a package issue).
+## Notes for the reviewers
+
+* The bundled library writes nothing to the console and never stops the process when built
+  for R (`-DFORTVINE_NO_IO` in Makevars); errors are returned to R and raised there.
+* OpenMP is used through `$(SHLIB_OPENMP_FFLAGS)` / `$(SHLIB_OPENMP_CFLAGS)`; examples and
+  tests use at most 2 threads.
