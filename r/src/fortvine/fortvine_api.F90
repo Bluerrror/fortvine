@@ -19,6 +19,7 @@ module fortvine_api
     fv_fitcache_capacity, &
     vine_rosenblatt_disc, bicop_cdf_x
   use iso_fortran_env, only: int64
+  use, intrinsic :: ieee_arithmetic, only: ieee_value, ieee_quiet_nan
   !$ use omp_lib
   implicit none
   private
@@ -192,7 +193,7 @@ contains
   integer function fv_threads(req)
     integer, intent(in), optional :: req
     character(len=16) :: env
-    integer :: st, v
+    integer :: st, v, k
     fv_threads = 1
     if (present(req)) then
       if (req > 0) then
@@ -200,9 +201,16 @@ contains
       end if
     end if
     call get_environment_variable("FORTVINE_THREADS", env, status=st)
-    if (st == 0) then
-      read(env, *, iostat=st) v
-      if (st == 0 .and. v > 0) then
+    if (st == 0 .and. len_trim(env) <= 6) then
+      ! parsed by hand: no Fortran I/O, so the R build has none (CRAN)
+      v = 0
+      do k = 1, len_trim(env)
+        if (env(k:k) < '0' .or. env(k:k) > '9') then
+          v = 0; exit
+        end if
+        v = 10 * v + (ichar(env(k:k)) - ichar('0'))
+      end do
+      if (v > 0) then
         fv_threads = v; return
       end if
     end if
@@ -766,6 +774,11 @@ contains
     real(dp), allocatable :: w(:, :)
     integer :: ns, k
     integer, allocatable :: sd(:)
+#ifdef FORTVINE_NO_IO
+    ! R draws its own uniforms (CRAN: no compiled-code RNG); this path is unused there
+    out = ieee_value(0.0_dp, ieee_quiet_nan)
+    return
+#endif
     if (present(seed)) then
       call random_seed(size=ns)
       allocate(sd(ns))
