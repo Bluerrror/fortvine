@@ -2,23 +2,39 @@
 % Please edit documentation in R/vinecop.R
 \name{dvine_structure}
 \alias{dvine_structure}
-\title{D-vine structure}
+\alias{cvine_structure}
+\alias{as_rvine_matrix}
+\title{D-vine and C-vine structures, R-vine matrix}
 \usage{
 dvine_structure(order, trunc_lvl = Inf)
+
+cvine_structure(order, trunc_lvl = Inf)
+
+as_rvine_matrix(x)
 }
 \arguments{
 \item{order}{a permutation of \code{1:d}.}
 
 \item{trunc_lvl}{number of trees (\code{Inf} for \eqn{d - 1}).}
+
+\item{x}{an \code{fv_structure} or a \code{\link[=vinecop_dist]{vinecop_dist()}} object.}
 }
 \value{
-An object of class \code{fv_structure} with \code{order}, \code{trunc_lvl} and \code{struct_array}
-(\verb{d x d}, indexed \verb{[edge, tree]}).
+\code{dvine_structure()}, \code{cvine_structure()}: an object of class \code{fv_structure} with
+\code{order}, \code{trunc_lvl} and \code{struct_array} (\verb{d x d}, indexed \verb{[edge, tree]}).
+\code{as_rvine_matrix()}: a \verb{d x d} integer matrix (zero above the truncation level).
 }
 \description{
-The structure of a D-vine (path) in the given order, as built by \code{set_dvine} of the
+\code{dvine_structure()} builds a D-vine (path) in the given order, as \code{set_dvine} of the
 Fortran library: tree 1 links \code{order[1]-order[2]}, \code{order[2]-order[3]}, ...
+\code{cvine_structure()} builds a C-vine (a star in every tree), as \code{set_cvine}: the root of tree
+\code{t} is \code{order[d - t + 1]}, so the \strong{last} element of \code{order} is the root of the first tree.
+\code{as_rvine_matrix()} returns the R-vine matrix of vinecopulib in the original variable labels
+(\verb{fv_vinecop\%matrix}): column \code{e} holds in row \code{t} the partner of \code{order[e]} in tree \code{t}, and
+the anti-diagonal holds \code{order}.
 }
 \examples{
 dvine_structure(1:4)
+cv <- cvine_structure(4:1)       # variable 1 is the root of tree 1
+as_rvine_matrix(cv)
 }

@@ -11,18 +11,21 @@ dvinecop(u, vinecop, cores = 1)
 
 rvinecop(n, vinecop, cores = 1)
 
-rosenblatt(x, model, cores = 1)
+rosenblatt(x, model, cores = 1, randomize_discrete = TRUE)
 
 inverse_rosenblatt(u, model, cores = 1)
 }
 \arguments{
-\item{u, x}{an \verb{n x d} matrix in \eqn{(0, 1)^d}.}
+\item{u, x}{an \verb{n x d} matrix in \eqn{(0, 1)^d} (\verb{n x (d + k)} with discrete variables for
+\code{dvinecop()} and \code{rosenblatt()}).}
 
 \item{vinecop, model}{a \code{\link[=vinecop_dist]{vinecop_dist()}} object.}
 
 \item{cores}{number of OpenMP threads.}
 
 \item{n}{number of samples.}
+
+\item{randomize_discrete}{use the randomised transform for discrete variables.}
 }
 \value{
 \code{dvinecop()}: a vector of length \code{n}; the others: an \verb{n x d} matrix.
@@ -32,6 +35,19 @@ inverse_rosenblatt(u, model, cores = 1)
 sample of the model to independent uniforms) and \code{inverse_rosenblatt()} its inverse.
 \code{rvinecop()} simulates by applying the inverse Rosenblatt transform of the library to
 independent uniforms from \code{\link[stats:Uniform]{stats::runif()}}, so it follows \code{\link[=set.seed]{set.seed()}}.
+}
+\details{
+For a vine with discrete variables (\code{var_types} of \code{\link[=vinecop]{vinecop()}}), \code{u} / \code{x} have the
+\code{d + k} columns described there, \code{dvinecop()} returns the mixed density (a probability
+mass in the discrete directions) and \code{rosenblatt()} returns, for the discrete columns,
+Brockwell's randomised transform \eqn{W F(x \mid \cdot) + (1 - W) F(x^- \mid \cdot)}, whose
+uniforms \eqn{W} come from a seed drawn with R's generator (so \code{\link[=set.seed]{set.seed()}} makes it
+reproducible); \code{randomize_discrete = FALSE} returns \eqn{F(x \mid \cdot)} itself.
+\code{inverse_rosenblatt()} and \code{rvinecop()} work on the continuous (copula) scale.
+
+Relaxed (non-simplified) edges from \code{\link[=vinecop_relax]{vinecop_relax()}} are used by \code{dvinecop()} and
+\code{\link[=dvinecop_grid]{dvinecop_grid()}}; the Rosenblatt transforms and \code{rvinecop()} use the simplified parameters
+(the middle anchor), as the library does.
 }
 \examples{
 vc <- vinecop_dist(list(list(bicop_dist("clayton", 0, 2), bicop_dist("gumbel", 0, 1.5))),

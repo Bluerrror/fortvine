@@ -61,11 +61,12 @@ than an error.
 All evaluation methods take three arrays of the same length: `u1(:)`, `u2(:)` (input) and
 `out(:)` (output). Signatures with argument tables are in the
 [API reference](../api/bicop.md). The Python class `Bicop` has the same methods
-(`cop.pdf(u)`, `cop.hfunc1(u)`, ... on an $n 	imes 2$ array, `cop.npars`); in R they are
-`dbicop(u, cop)`, `dbicop(u, cop, log = TRUE)`, `hbicop(u, 1, cop)`, `hbicop(u, 2, cop)`,
-`hbicop(u, 1, cop, inverse = TRUE)`, `hbicop(u, 2, cop, inverse = TRUE)` and `cop$npars`. R has
-no `cdf` and neither binding has `npars_eff` (see the [Python](../python.md) and
-[R](../r.md) pages).
+(`cop.pdf(u)`, `cop.cdf(u)`, `cop.hfunc1(u)`, ... on an $n \times 2$ array, `cop.npars`); in
+R they are `dbicop(u, cop)`, `dbicop(u, cop, log = TRUE)`, `pbicop(u, cop)`, `hbicop(u, 1, cop)`,
+`hbicop(u, 2, cop)`, `hbicop(u, 1, cop, inverse = TRUE)`, `hbicop(u, 2, cop, inverse = TRUE)`
+and `cop$npars`. In both bindings `npars` is the value of `npars_eff`: the effective degrees
+of freedom for a nonparametric estimate (see the [Python](../python.md) and [R](../r.md)
+pages).
 
 !!! note "No generic `eval`"
     The typed object has one method per quantity instead of a single `eval` with a selector.
@@ -89,6 +90,15 @@ panels. Its accuracy is of the order of $10^{-6}$ (for $\rho = 0.7$, $\nu = 4$ t
 largest deviation of $\partial C/\partial u_1$ from $h_1$ on a $9 \times 9$ grid is
 $2.4 \cdot 10^{-6}$, and $C(1, 0.3) = 0.2999991$), which is ample for probabilities but
 worth knowing if you difference the CDF over very small rectangles.
+
+<figure markdown>
+![Density of a 180-degree rotated Gumbel copula in normal scores with simulated points, and contour lines of its distribution function against those of independence](img/bicop_density_cdf.png){ width="700" }
+<figcaption>The copula of the example below, a Gumbel copula with $\theta = 1.8$ rotated by 180
+degrees. (a) `pdf` on a grid in normal scores $z = \Phi^{-1}(u)$, with 400 draws from
+`hinv1`; the rotation puts the tail dependence in the lower-left corner. (b) `cdf` (blue) at
+the levels $0.1, \ldots, 0.9$, against the independence copula $C = u_1 u_2$ (dashed), and the
+three points evaluated in the example with their values.</figcaption>
+</figure>
 
 ## h-functions and their inverses
 
@@ -120,6 +130,17 @@ result is clipped to $[0, 1]$.
     `hfunc1(u1, hinv1(u1, w))` reproduces `w` to about $10^{-14}$ for the parametric families
     (see the example below), which is what makes Rosenblatt transforms and simulation in a
     vine reliable.
+
+<figure markdown>
+![h-functions h1 and h2 of the rotated Gumbel copula for three conditioning values with inverse h-function points, and the largest round-trip error of hinv1 and hinv2 for sixteen families](img/bicop_hfunc.png){ width="700" }
+<figcaption>(a) $h_1(u_1, u_2)$ as a function of $u_2$ for $u_1 = 0.1, 0.5, 0.9$ (lines) and
+the points $\big(h_1^{-1}(u_1, w), w\big)$ returned by `hinv1` for $w = 0.1, \ldots, 0.9$
+(dots), for the rotated Gumbel copula of the example. (b) The same for $h_2$ as a function of
+$u_1$ and `hinv2`. (c) The largest error of the round trips
+$h_1(u_1, h_1^{-1}(u_1, w))$ and $h_2(h_2^{-1}(w, u_2), u_2)$ over a $60 \times 60$ grid of
+$(u, w)$ in $[0.001, 0.999]^2$, for sixteen families including the generic codes 10203
+(Archimax) and 20200 (Khoudraji-Clayton): every error is below $10^{-12}$.</figcaption>
+</figure>
 
 ## Fitting a given family
 
@@ -214,6 +235,17 @@ The criteria are log-likelihood, AIC, BIC, mBIC (with prior `ctl%psi0`) and mBIC
 single pair copula `FV_MBICV` behaves like `FV_MBIC`. The formulas are in
 [Fitting](fitting.md#selection-criteria). Independence is among the default candidates, so a
 weakly dependent pair can legitimately come back as `FV_INDEP`.
+
+<figure markdown>
+![BIC and AIC differences to the best candidate for the sixteen best family-rotation candidates on a sample of the rotated Gumbel copula](img/bicop_select.png){ width="700" }
+<figcaption>What `select` compares, on the sample of the Python example ($n = 3000$ draws of the
+180-degree Gumbel with $\theta = 1.8$): every family of the default set (codes 0 to 22) was
+fitted with `fit` at rotations 0 and 180 (rotationless families once), and the sixteen
+candidates with the smallest BIC are shown with their BIC and AIC distance to the best one
+(symmetric log scale, $k$ = number of parameters). BIC keeps the true one-parameter family,
+Galambos is a close second; AIC, with its smaller penalty, prefers the two-parameter BB1, as
+in the output of the example. The choices marked on the left are those of `select` itself.</figcaption>
+</figure>
 
 ## Number of parameters
 
@@ -347,11 +379,12 @@ the number of observations $n$, not $\sum_i w_i$.
     print(f"BIC choice: {best.family} rot {best.rotation} par" + "".join(f"{p:8.4f}" for p in best.parameters))
     best = fv.Bicop().select(u, criterion="aic")
     print(f"AIC choice: {best.family} rot {best.rotation}  npars {best.npars}")
-    ```
 
-    !!! note
-        Observation weights (the last lines of the Fortran program) are available from Fortran
-        only.
+    # observation weights: here the second half of the sample counts twice
+    wt = np.ones(n); wt[n // 2:] = 2.0
+    fit = fv.Bicop("gumbel", 180).fit(u, weights=wt)
+    print(f"weighted fit: theta ={fit.parameters[0]:8.4f}  weighted loglik ={fit.loglik():10.2f}")
+    ```
 
 === "R"
 
@@ -363,6 +396,7 @@ the number of observations $n$, not $\sum_i w_i$.
     # a 180-degree rotated Gumbel (lower-tail dependence), theta = 1.8
     cop <- bicop_dist("gumbel", 180, 1.8)
     cat("pdf    ", sprintf("%9.4f", dbicop(a, cop)), "\n", sep = "")
+    cat("cdf    ", sprintf("%9.4f", pbicop(a, cop)), "\n", sep = "")
     cat("hfunc1 ", sprintf("%9.4f", hbicop(a, 1, cop)), "\n", sep = "")
 
     # simulation: u2 = hinv1(u1, w) turns independent uniforms into a sample of the copula
@@ -385,11 +419,12 @@ the number of observations $n$, not $\sum_i w_i$.
         "\n", sep = "")
     best <- bicop(u, selcrit = "aic")
     cat("AIC choice: ", best$family, " rot ", best$rotation, "  npars ", best$npars, "\n", sep = "")
-    ```
 
-    !!! note
-        The distribution function (`cdf`) and observation weights are available from Fortran
-        only (`cdf` also from Python).
+    # observation weights: here the second half of the sample counts twice
+    wt <- rep(c(1, 2), each = n / 2)
+    fit <- bicop(u, family_set = "gumbel", rotation = 180, weights = wt)
+    cat(sprintf("weighted fit: theta =%8.4f  weighted loglik =%10.2f\n", fit$parameters, fit$loglik))
+    ```
 
 Output:
 
@@ -418,18 +453,21 @@ Output:
     fit: theta =  1.7515  loglik =    855.48
     BIC choice: gumbel rot 180 par  1.7515
     AIC choice: bb1 rot 180  npars 2
+    weighted fit: theta =  1.7485  weighted loglik =   1290.62
     ```
 
 === "R"
 
     ```text
     pdf       1.6406   1.3924   1.7906
+    cdf       0.1472   0.3610   0.7544
     hfunc1    0.5258   0.4694   0.8306
     max |hfunc1(u1, hinv1(u1, w)) - w| = 1.58E-14
     max |hinv2(hfunc2(u1, u2), u2) - u1| = 5.44E-15
     fit: theta =  1.8219  loglik =    904.96
     BIC choice: gumbel rot 180 par  1.8219
     AIC choice: bb6 rot 180  npars 2
+    weighted fit: theta =  1.8140  weighted loglik =   1345.34
     ```
 
 The density, CDF and h-function lines are the same in every language; the rest depends on

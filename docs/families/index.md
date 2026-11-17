@@ -223,6 +223,19 @@ The exponents $k$ and $m$ and the per-family formulas are on the
 [catalogue](catalogue.md) record which tails a family can have somewhere in its parameter box;
 they are what fortvine's preselection uses.
 
+<figure markdown>
+![Finite-level tail dependence of twelve families](img/tail_map.png){ width="700" }
+<figcaption>Where the families sit in the tail plane. For each family at Kendall's
+$\tau = 0.5$ (Tawn: $\tau = 0.4$), the finite-level coefficients
+$\lambda_L(q) = C(q, q)/q$ and $\lambda_U(q) = \{2q - 1 + C(1 - q, 1 - q)\}/q$ from fortvine's
+`cdf`, followed from $q = 10^{-1}$ (open circle) to $q = 10^{-8}$ (filled). Clayton ends on the
+$\lambda_L$ axis, the extreme-value and Joe copulas on the $\lambda_U$ axis (Gumbel, Galambos and
+Hüsler-Reiss on top of each other), BB1, BB7 and BB4 inside the plane with both tails, the
+Student t copula ($\nu = 4$) on the diagonal at 0.397 (its limit $\lambda_L = \lambda_U$; its path
+runs under those of the Gaussian and Frank copulas), Frank at the origin. The Gaussian copula is still at 0.017 at $q = 10^{-8}$: its limit is 0, but it is
+approached only logarithmically.</figcaption>
+</figure>
+
 ## Choosing a family set
 
 The family set is the list of candidates that `select` compares for each pair (or vine edge),
@@ -259,6 +272,16 @@ held in `ctl%family_set(1:ctl%nfam)`. Some guidelines:
 - **Preselection** (`ctl%preselect`, on by default) drops rotations and families whose tail
   pattern contradicts the data, using the correlation of the normal scores in the two opposite
   quadrants, so a large family set costs less than its length suggests.
+
+<figure markdown>
+![Selection among look-alike extreme-value families](img/gumbel_lookalikes.png){ width="700" }
+<figcaption>How alike Gumbel, Galambos and Hüsler-Reiss are. (a) The family that BIC selects
+from all 24 parametric families on 100 samples of 1000 points from a Gumbel copula with
+$\theta = 2$: Gumbel 71 times, Galambos 23, Hüsler-Reiss 3. (b) On the same samples, the BIC of
+each alternative fitted on its own, relative to the Gumbel fit (symmetric log scale): Galambos
+is within a few units either way, the two-parameter families pay their extra $\log n$, and Joe,
+whose upper tail is shaped differently, is far behind.</figcaption>
+</figure>
 
 See [fitting and selection](../manual/fitting.md) for the selection criteria and the
 [generic engine](../manual/generic.md) for how the 85 codes are evaluated.

@@ -53,6 +53,27 @@ The h-functions follow in closed form from binomial tail probabilities. The orde
 1 (the independence copula) to 15 and is chosen by AIC with $(m - 1)^2$ free cell weights;
 orders with $(m - 1)^2 \ge n/4$ are not tried.
 
+## How they compare
+
+<figure markdown>
+![TLL and Bernstein estimates of a mixture copula](img/np_estimates.png){ width="700" }
+<figcaption>Density estimates in normal scores from 2000 points of an equal mixture of a
+Clayton ($\theta = 4$) and a 90-degree Gumbel ($\theta = 3$) copula. TLL recovers both arms
+(effective degrees of freedom 114); the Bernstein copula (order $m = 11$, 100 free cell weights)
+only hints at them, because a polynomial of moderate order cannot form the sharp tails; the best
+parametric family by BIC (Student t) is symmetric by construction.</figcaption>
+</figure>
+
+<figure markdown>
+![Held-out log-likelihood and complexity against sample size](img/np_convergence.png){ width="700" }
+<figcaption>The same mixture at training sizes 250 to 8000 (mean of four samples each).
+(a) Log-likelihood per observation on 20 000 independent test points: TLL approaches the true
+density (dashed) as $n$ grows, the Bernstein copula follows more slowly and saturates when its
+order reaches the cap $m = 15$, and the best parametric family stays at the level of the wrong
+shape. (b) Effective number of parameters, which AIC and BIC charge: it grows with $n$ for both
+estimators; Bernstein's is $(m - 1)^2$, at most 196.</figcaption>
+</figure>
+
 ## References
 
 - Geenens, G., Charpentier, A. and Paindaveine, D. (2017). Probit transformation for

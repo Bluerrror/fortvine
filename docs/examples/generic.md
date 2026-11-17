@@ -131,10 +131,8 @@ complete list with bounds is the [family catalogue](../families/catalogue.md).
     gen = [f for f in fv.families() if f.code >= 10000]     # Family(code, name, npars)
     for f in gen[:5]:
         print(f.code, f.name, f.npars)
+    lo, hi = fv.par_bounds(gen[0].code)                      # fv_par_bounds
     ```
-
-    !!! note
-        The parameter bounds (`fv_par_bounds`) are available from Fortran only.
 
 === "R"
 
@@ -142,10 +140,8 @@ complete list with bounds is the [family catalogue](../families/catalogue.md).
     fam <- fortvine_families()                              # code, name, npars
     gen <- fam[fam$code >= 10000, ]
     head(gen, 5)
+    bicop_par_bounds(gen$code[1])                           # fv_par_bounds: lower, upper
     ```
-
-    !!! note
-        The parameter bounds (`fv_par_bounds`) are available from Fortran only.
 
 `fv_fam_name` returns a readable name for any code, `gen_npar` the number of parameters of
 a generic code, and `fv_par_bounds` the box in which maximum likelihood searches. The

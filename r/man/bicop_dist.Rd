@@ -4,22 +4,33 @@
 \alias{bicop_dist}
 \title{Pair-copula model}
 \usage{
-bicop_dist(family = "indep", rotation = 0, parameters = numeric())
+bicop_dist(family = "indep", rotation = 0, parameters = numeric(), aux = NULL)
 }
 \arguments{
 \item{family}{a fortvine family name (case-insensitive, \code{"t"} is accepted for \code{"student"})
 or integer code, generic codes 10000+ included; see \code{\link[=fortvine_families]{fortvine_families()}}.}
 
-\item{rotation}{0, 90, 180 or 270 (counter-clockwise, as in vinecopulib).}
+\item{rotation}{0, 90, 180 or 270 (counter-clockwise, as in vinecopulib). Ignored (set to 0)
+for \code{tll} and \code{bernstein}.}
 
-\item{parameters}{numeric vector with as many entries as the family has parameters.}
+\item{parameters}{numeric vector with as many entries as the family has parameters (none for
+\code{tll} and \code{bernstein}).}
+
+\item{aux}{the estimate of a \code{tll} / \code{bernstein} copula (a numeric vector of length 933, as
+stored by \code{\link[=bicop]{bicop()}} in \verb{$aux}); \code{NULL} for the parametric families.}
 }
 \value{
 An object of class \code{bicop_dist}: a list with \code{family} (name), \code{code}, \code{rotation},
-\code{parameters} and \code{npars}; fitted models also hold \code{loglik}, \code{nobs} and \code{selcrit}.
+\code{parameters} and \code{npars} (and \code{aux} for \code{tll} / \code{bernstein}); fitted models also hold
+\code{loglik}, \code{nobs} and \code{selcrit}.
 }
 \description{
 Builds a pair-copula model from a family, a rotation and its parameters.
+}
+\details{
+The nonparametric families \code{"tll"} (code 24) and \code{"bernstein"} (25) are described by an
+estimate instead of parameters: get them from \code{\link[=bicop]{bicop()}} (or from a fitted vine), which
+stores the estimate in \code{aux}. Their \code{npars} is the effective degrees of freedom of the fit.
 }
 \examples{
 cop <- bicop_dist("clayton", 0, 2)

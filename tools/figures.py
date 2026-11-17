@@ -14,6 +14,9 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(ROOT, "bench"))
+from run_bench import unthrottle                          # noqa: E402
+unthrottle()          # Windows: no efficiency-core throttling, so timing figures are not slowed
 EXE = ".exe" if sys.platform == "win32" else ""
 GRID = os.path.join(ROOT, "build", "density_grid" + EXE)
 VSAMPLE = os.path.join(ROOT, "build", "vine_sample" + EXE)
@@ -27,6 +30,10 @@ plt.rcParams.update({"font.family": "serif", "font.serif": ["Times New Roman", "
 INK, MUTED, GRIDC = "#1E2230", "#5A5F73", "#E3E4EC"
 BLUE, GREEN = "#1F5FA6", "#2E8B57"
 LIBC = {"fortvine": "#1F5FA6", "pyvinecopulib": "#2E8B57", "torchvine": "#C7922B"}   # validated, light surface
+# benchmark series: colour = library (fortvine / vinecopulib / torchvine), marker + dash = interface
+LSTY = {"fortvine": ("#1F5FA6", "o", "-", "fortvine (Fortran)"), "fortvine_py": ("#1F5FA6", "s", "--", "fortvine (Python)"),
+        "fortvine_r": ("#1F5FA6", "^", ":", "fortvine (R)"), "pyvinecopulib": ("#2E8B57", "s", "--", "pyvinecopulib"),
+        "rvinecopulib": ("#2E8B57", "^", ":", "rvinecopulib"), "torchvine": ("#C7922B", "D", "-.", "torchvine")}
 CMAP = LinearSegmentedColormap.from_list("fv", ["#FFFFFF", "#E3EDF8", "#AFCBEA", "#5F95D0", "#1F5FA6", "#0D2C52"])
 TAU, NU, RHO = r"$\tau$", r"$\nu$", r"$\rho$"
 
@@ -177,29 +184,30 @@ def hero():
 
 # ------------------------------------------------------------------------------------------ benchmarks
 def _libs(rows, key):
-    return [l for l in LIBC if any(isinstance(r.get(l), dict) and key in r[l] for r in rows)]
+    return [l for l in LSTY if any(isinstance(r.get(l), dict) and key in r[l] for r in rows)]
 
 
 def bench():
     res = json.load(open(os.path.join(ROOT, "bench", "results", "results.json")))
     out = os.path.join(ROOT, "docs", "assets")
     # 1. vine selection time against dimension, one panel per thread count (one axis each, same scale)
-    f, ax = plt.subplots(1, 2, figsize=(7.2, 3.0), sharey=True)
+    f, ax = plt.subplots(1, 2, figsize=(7.2, 3.3), sharey=True)
     for a, thr in zip(ax, (1, 8)):
         rows = [r for r in res["vine"] if r["threads"] == thr]
         for lib in _libs(rows, "select_s"):
             pts = [(r["d"], r[lib]["select_s"]) for r in rows if isinstance(r.get(lib), dict) and "select_s" in r[lib]]
             d, t = zip(*pts)
-            a.plot(d, t, color=LIBC[lib], lw=2, marker="o", ms=5, mec="white", mew=1.2, zorder=3)
-            a.annotate(f"{lib}", (d[-1], t[-1]), xytext=(6, 0), textcoords="offset points", va="center",
-                       fontsize=8.5, color=INK)
-        a.set_yscale("log"); a.set_xticks([5, 10, 20]); a.set_xlim(3.5, 26)
+            c, m, ls, lab = LSTY[lib]
+            a.plot(d, t, color=c, lw=1.6, ls=ls, marker=m, ms=5.5, mec="white", mew=1.0, zorder=3, label=lab)
+        a.set_yscale("log"); a.set_xticks([5, 10, 20]); a.set_xlim(4, 21)
         a.grid(True, which="major", color=GRIDC, lw=0.6); a.set_axisbelow(True)
         for sp in ("top", "right"):
             a.spines[sp].set_visible(False)
         a.set_title(f"{thr} thread" + ("s" if thr > 1 else ""), fontsize=10, color=INK)
         a.set_xlabel("dimension d  (n = 2000)")
     ax[0].set_ylabel("vine selection time [s]")
+    h, l = ax[0].get_legend_handles_labels()
+    f.legend(h, l, loc="upper center", ncol=3, frameon=False, fontsize=8.5, bbox_to_anchor=(0.53, 1.10))
     f.tight_layout()
     save(f, os.path.join(out, "bench_vine.png"), dpi=150, bbox_inches="tight", facecolor="white")
     plt.close(f)
@@ -214,7 +222,8 @@ def bench():
             a.axhline(y, color=GRIDC, lw=0.6, zorder=0)
         for lib in _libs(rows, key):
             x = [r[lib][key] if isinstance(r.get(lib), dict) and key in r[lib] else np.nan for r in rows]
-            a.scatter(x, yy, s=34, color=LIBC[lib], edgecolor="white", linewidth=1.0, zorder=3, label=lib)
+            c, m, _, ll = LSTY[lib]
+            a.scatter(x, yy, s=34, color=c, marker=m, edgecolor="white", linewidth=0.9, zorder=3, label=ll)
         a.set_xscale("log"); a.set_xlabel(lab)
         for sp in ("top", "right", "left"):
             a.spines[sp].set_visible(False)
@@ -222,11 +231,42 @@ def bench():
     pretty = {"student": "Student $t$", "bb1": "BB1", "bb6": "BB6", "bb7": "BB7", "bb8": "BB8"}
     ax[0].set_yticks(yy); ax[0].set_yticklabels([pretty.get(f, f.capitalize()) for f in fams])
     h, l = ax[0].get_legend_handles_labels()
-    f.legend(h, l, loc="upper center", ncol=3, frameon=False, fontsize=9, bbox_to_anchor=(0.55, 1.03))
-    f.tight_layout(rect=(0, 0, 1, 0.94))
+    f.legend(h, l, loc="upper center", ncol=3, frameon=False, fontsize=9, bbox_to_anchor=(0.55, 1.06))
+    f.tight_layout(rect=(0, 0, 1, 0.92))
     save(f, os.path.join(out, "bench_pair.png"), dpi=150, bbox_inches="tight", facecolor="white")
     plt.close(f)
-    print("bench_vine.png, bench_pair.png")
+    # 3. every library relative to fortvine (Fortran): geometric mean of the time ratio per task
+    gm = lambda v: float(np.exp(np.mean(np.log(v)))) if len(v) else np.nan
+    def ratio(sec, key, lib, sel=lambda r: True):
+        v = [r[lib][key] / r["fortvine"][key] for r in res[sec] if sel(r) and isinstance(r.get(lib), dict)
+             and key in r[lib] and isinstance(r.get("fortvine"), dict) and r["fortvine"].get(key)]
+        return gm(v)
+    v1 = lambda r: r["threads"] == 1
+    tasks = [("pair density", "eval", "logpdf", None), ("inverse h-function", "eval", "hinv1", None),
+             ("pair MLE fit", "fit", "ms", None), ("family selection", "select", "ms", None),
+             ("vine selection", "vine", "select_s", v1), ("vine density", "vine", "pdf_s", v1),
+             ("vine simulation", "vine", "simulate_s", v1)]
+    others = [l for l in LSTY if l != "fortvine"]
+    f, a = plt.subplots(figsize=(7.2, 3.5))
+    yy = np.arange(len(tasks))[::-1]
+    for y in yy:
+        a.axhline(y, color=GRIDC, lw=0.6, zorder=0)
+    a.axvline(1.0, color=MUTED, lw=0.9, ls="--", zorder=1)
+    for k, lib in enumerate(others):
+        x = [ratio(sec, key, lib, sel or (lambda r: True)) for _, sec, key, sel in tasks]
+        c, m, _, lab = LSTY[lib]
+        a.scatter(x, yy + (k - 2) * 0.09, s=36, color=c, marker=m, edgecolor="white", linewidth=0.9, zorder=3,
+                  label=lab)
+    a.set_xscale("log"); a.set_yticks(yy); a.set_yticklabels([t[0] for t in tasks])
+    a.set_xlabel("time relative to fortvine (Fortran), one thread (geometric mean over families / dimensions)")
+    for sp in ("top", "right", "left"):
+        a.spines[sp].set_visible(False)
+    a.tick_params(axis="y", length=0)
+    a.legend(loc="upper center", ncol=3, frameon=False, fontsize=8.5, bbox_to_anchor=(0.45, 1.17))
+    f.tight_layout()
+    save(f, os.path.join(out, "bench_bindings.png"), dpi=150, bbox_inches="tight", facecolor="white")
+    plt.close(f)
+    print("bench_vine.png, bench_pair.png, bench_bindings.png")
 
 
 # ------------------------------------------------------------------------------------------ vine pairs plot

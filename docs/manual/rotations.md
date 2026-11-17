@@ -70,6 +70,17 @@ the corners after rotation are:
 Here $(1, 0)$ means $u_1 \to 1$ while $u_2 \to 0$. Two-tailed families such as BB1 or BB7
 carry both of their tails along.
 
+<figure markdown>
+![Densities of the Clayton and Gumbel copulas under the four rotations, in normal scores, with the Kendall tau of a simulated sample](img/rotations_grid.png){ width="700" }
+<figcaption>The four rotations of Clayton ($\theta = 3$, top) and Gumbel ($\theta = 2.5$,
+bottom), densities in normal scores $z = \Phi^{-1}(u)$ with $u_1$ on the horizontal axis.
+The sharp tip of each density is its tail-dependent corner, at the positions of the table above:
+Clayton's moves from $(0, 0)$ at 0° to $(1, 0)$, $(1, 1)$ and $(0, 1)$, Gumbel's from
+$(1, 1)$ to $(0, 1)$, $(0, 0)$ and $(1, 0)$. $\hat\tau$ is Kendall's tau of 2000 pairs
+$(u_1, h_1^{-1}(u_1, w))$ from the same uniforms in every panel: 90 and 270 degrees flip its
+sign, 180 degrees keeps it.</figcaption>
+</figure>
+
 In selection, the sign of the sample $\tau$ decides which rotations are tried: 0 and 180 for
 $\tau > 0$, 90 and 270 for $\tau < 0$. Preselection may then remove one of the two, depending
 on where the data show stronger tail dependence
@@ -110,7 +121,8 @@ not refitted:
 The rotation is transposed too: since $(C_{90})^\top = (C^\top)_{270}$ and vice versa, a
 flipped edge with rotation 90 becomes 270 and the other way round; 0 and 180 stay. The routine
 for the generic families is the public `gen_flip(fam, par)`, which may change both the code and
-the parameters in place.
+the parameters in place (Python: `fv.gen_flip(family, parameters)` returns the new code and
+parameters; R: `gen_flip(model)` returns the transposed `bicop_dist`, with 90 and 270 swapped).
 
 !!! note "Why the transpose is exact"
     For the outer generator nothing changes (it is symmetric in $s$ and $t$). For the Pickands
@@ -120,6 +132,17 @@ the parameters in place.
     $\theta' = \theta + 3\phi$, $\phi' = -\phi$. For the Khoudraji construction
     $C_K(u,v) = u^{1-a}v^{1-b}C(u^a, v^b)$ with exchangeable $C$, swapping the arguments is
     the same as swapping $a$ and $b$.
+
+<figure markdown>
+![Densities of three asymmetric copulas and of their exact transposes, mirror images across the diagonal](img/rotations_transpose.png){ width="640" }
+<figcaption>Top: three asymmetric copulas, Tawn type 1 (10006), the asymmetric mixed model
+(10011) rotated by 90 degrees and the hand-coded Tawn (11), densities in normal scores with the
+diagonal $u_1 = u_2$ dotted. Bottom: their transposes, from `gen_flip` for the generic codes
+(type 1 becomes type 2 with the same parameters; 10011 gets new $(\theta, \kappa)$ and rotation
+270) and by swapping $\psi_1, \psi_2$ for Tawn. Each bottom density is the top one mirrored
+across the diagonal; the largest difference of $c(u, v)$ and $c^\top(v, u)$ over 1000 random
+points is printed below each column.</figcaption>
+</figure>
 
 If you build a vine by hand with asymmetric pair copulas, you are responsible for the
 orientation: the copula you assign to edge $(e, t)$ is applied with `order(e)` as its first
@@ -186,18 +209,16 @@ argument.
         print(f"rotation{r:4d}:  tau ={fv.kendall_tau(x1, x2):7.3f}")
 
     # exact transpose of asymmetric families: c_T(u, v) = c(v, u), also under rotation 90 <-> 270
-    # (gen_flip is Fortran-only; the transposition rules of the table above are applied by hand)
-    pairs = [(fv.Bicop("tawn", 90, [0.4, 0.9, 3.0]), fv.Bicop("tawn", 270, [0.9, 0.4, 3.0])),  # swap psi1, psi2
-             (fv.Bicop(10006, 90, [2.5, 0.4]), fv.Bicop(10007, 270, [2.5, 0.4]))]           # type 1 -> type 2
-    for c, t in pairs:
+    for fam, par in [("tawn", [0.4, 0.9, 3.0]), (10011, [0.6, 0.3]), (10006, [2.5, 0.4])]:
+        c = fv.Bicop(fam, 90, par)
+        if c.family == "tawn":
+            tfam, tpar = c.family_code, c.parameters[[1, 0, 2]]     # Tawn: swap psi1 and psi2
+        else:
+            tfam, tpar = fv.gen_flip(c.family_code, c.parameters)   # generic families
+        t = fv.Bicop(tfam, 270, tpar)
         err = np.max(np.abs(c.pdf(uv) - t.pdf(uv[:, ::-1])))
         print(f"transpose of {c.family} is {t.family}: max |c(u,v) - c_T(v,u)| ={err:9.2E}")
     ```
-
-    !!! note
-        `gen_flip` is available from Fortran only, so the script applies the transposition
-        rules of the table by hand, to Tawn and to the type 1 / type 2 pair; the
-        asymmetric mixed model (10011) is left out.
 
 === "R"
 
@@ -215,20 +236,18 @@ argument.
     }
 
     # exact transpose of asymmetric families: c_T(u, v) = c(v, u), also under rotation 90 <-> 270
-    # (gen_flip is Fortran-only; the transposition rules of the table above are applied by hand)
-    pairs <- list(list(bicop_dist("tawn", 90, c(0.4, 0.9, 3)), bicop_dist("tawn", 270, c(0.9, 0.4, 3))),
-                  list(bicop_dist(10006, 90, c(2.5, 0.4)), bicop_dist(10007, 270, c(2.5, 0.4))))
-    for (p in pairs) {
-      err <- max(abs(dbicop(uv, p[[1]]) - dbicop(uv[, 2:1], p[[2]])))
-      cat(sprintf("transpose of %s is %s: max |c(u,v) - c_T(v,u)| =%9.2E\n", p[[1]]$family,
-                  p[[2]]$family, err))
+    models <- list(bicop_dist("tawn", 90, c(0.4, 0.9, 3)), bicop_dist(10011, 90, c(0.6, 0.3)),
+                   bicop_dist(10006, 90, c(2.5, 0.4)))
+    for (cop in models) {
+      tr <- if (cop$family == "tawn") {
+        bicop_dist("tawn", 270, cop$parameters[c(2, 1, 3)])   # Tawn: swap psi1 and psi2
+      } else {
+        gen_flip(cop)                                         # generic families (rotation 90 -> 270)
+      }
+      err <- max(abs(dbicop(uv, cop) - dbicop(uv[, 2:1], tr)))
+      cat(sprintf("transpose of %s is %s: max |c(u,v) - c_T(v,u)| =%9.2E\n", cop$family, tr$family, err))
     }
     ```
-
-    !!! note
-        `gen_flip` is available from Fortran only, so the script applies the transposition
-        rules of the table by hand, to Tawn and to the type 1 / type 2 pair; the
-        asymmetric mixed model (10011) is left out.
 
 Output:
 
@@ -252,6 +271,7 @@ Output:
     rotation 180:  tau =  0.588
     rotation 270:  tau = -0.593
     transpose of tawn is tawn: max |c(u,v) - c_T(v,u)| = 8.88E-16
+    transpose of Tawn-asymmixed is Tawn-asymmixed: max |c(u,v) - c_T(v,u)| = 1.11E-15
     transpose of Tawn-type1 is Tawn-type2: max |c(u,v) - c_T(v,u)| = 4.44E-16
     ```
 
@@ -263,6 +283,7 @@ Output:
     rotation 180:  tau =  0.586
     rotation 270:  tau = -0.599
     transpose of tawn is tawn: max |c(u,v) - c_T(v,u)| = 8.88E-16
+    transpose of Tawn-asymmixed is Tawn-asymmixed: max |c(u,v) - c_T(v,u)| = 1.11E-15
     transpose of Tawn-type1 is Tawn-type2: max |c(u,v) - c_T(v,u)| = 4.44E-16
     ```
 

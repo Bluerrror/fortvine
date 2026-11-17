@@ -2,11 +2,14 @@
 % Please edit documentation in R/bicop.R
 \name{dbicop}
 \alias{dbicop}
+\alias{pbicop}
 \alias{hbicop}
 \alias{rbicop}
-\title{Pair-copula density, h-functions and simulation}
+\title{Pair-copula density, distribution, h-functions and simulation}
 \usage{
 dbicop(u, family, rotation = 0, parameters = numeric(), log = FALSE, cores = 1)
+
+pbicop(u, family, rotation = 0, parameters = numeric(), cores = 1)
 
 hbicop(
   u,
@@ -37,32 +40,31 @@ as \code{family}.}
 \item{n}{number of samples.}
 }
 \value{
-\code{dbicop()} and \code{hbicop()}: a numeric vector of length \code{n}; \code{rbicop()}: an \verb{n x 2}
-matrix.
+\code{dbicop()}, \code{pbicop()} and \code{hbicop()}: a numeric vector of length \code{n}; \code{rbicop()}:
+an \verb{n x 2} matrix.
 }
 \description{
-\code{dbicop()} evaluates the density, \code{hbicop()} the h-functions and their inverses, and
-\code{rbicop()} simulates. The model is given either by \code{family}, \code{rotation} and \code{parameters}
-or by a \code{\link[=bicop_dist]{bicop_dist()}} object in place of \code{family}.
+\code{dbicop()} evaluates the density, \code{pbicop()} the distribution function, \code{hbicop()} the
+h-functions and their inverses, and \code{rbicop()} simulates. The model is given either by
+\code{family}, \code{rotation} and \code{parameters} or by a \code{\link[=bicop_dist]{bicop_dist()}} object in place of \code{family}.
 }
 \details{
 \code{hbicop(u, 1)} is \eqn{h_1(u_1, u_2) = P(U_2 \le u_2 \mid U_1 = u_1)} and \code{hbicop(u, 2)} is
 \eqn{h_2(u_1, u_2) = P(U_1 \le u_1 \mid U_2 = u_2)}. With \code{inverse = TRUE}, \code{hbicop(u, 1)}
 returns \eqn{v} with \eqn{h_1(u_1, v) = u_2} and \code{hbicop(u, 2)} returns \eqn{v} with
-\eqn{h_2(v, u_2) = u_1}.
+\eqn{h_2(v, u_2) = u_1}. \code{pbicop()} is \eqn{C(u_1, u_2)} as computed by the library (closed
+form, or quadrature of the h-function for the Gaussian and Student copulas).
 
 \code{rbicop()} draws independent uniforms with \code{\link[stats:Uniform]{stats::runif()}}, so it follows \code{\link[=set.seed]{set.seed()}},
 and maps them through the inverse h-function of the library:
 \eqn{(u_1, h_1^{-1}(u_1, w))}.
-
-The distribution function (\code{pbicop} in rvinecopulib) is not available: the fortvine C
-interface does not export it.
 }
 \examples{
 cop <- bicop_dist("gumbel", 0, 2)
 u <- rbind(c(0.2, 0.3), c(0.7, 0.9))
 dbicop(u, cop)
 dbicop(u, "gumbel", 0, 2, log = TRUE)
+pbicop(u, cop)
 w <- hbicop(u, 1, cop)
 hbicop(cbind(u[, 1], w), 1, cop, inverse = TRUE)   # gives back u[, 2]
 set.seed(1)

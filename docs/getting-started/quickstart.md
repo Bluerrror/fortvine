@@ -130,10 +130,10 @@ data `x(n, d)` into `u(n, d)` (`fv.to_pseudo_obs(x)` in Python, `pseudo_obs(x)` 
     best <- bicop(u12, family_set = "all", selcrit = "bic") # family and rotation by BIC
     best
 
-    # ---- a 4-dimensional vine with Clayton pairs as the truth (a D-vine: R has no C-vine constructor)
+    # ---- a 4-dimensional vine: a C-vine with Clayton pairs as the truth
     pcs <- list(rep(list(bicop_dist("clayton", 0, 3)), 3),  # tree 1: Clayton(3)
                 rep(list(bicop_dist("clayton", 0, 1)), 2))  # tree 2: Clayton(1)
-    truth <- vinecop_dist(pcs, dvine_structure(1:4))
+    truth <- vinecop_dist(pcs, cvine_structure(1:4))
     set.seed(1)
     u <- rvinecop(n, truth)
 
@@ -145,10 +145,6 @@ data `x(n, d)` into `u(n, d)` (`fv.to_pseudo_obs(x)` in Python, `pseudo_obs(x)` 
     set.seed(2)
     round(rvinecop(5, vc), 4)
     ```
-
-    !!! note "C-vines in R"
-        The R package has no C-vine constructor (only `dvine_structure()`), so the R
-        script draws its sample from a D-vine with the same Clayton pair copulas.
 
 The Fortran program is compiled and run like any program that uses the library:
 
@@ -219,23 +215,23 @@ The scripts run with `python quickstart.py` and `Rscript quickstart.R`.
     sample Kendall tau: 0.3225
     Gumbel MLE theta : 1.4637   loglik 147.021
     Bivariate copula ('bicop_dist'): family = gumbel (4), rotation = 0, parameters = 1.464
-    Vine copula ('vinecop_dist'): d = 4, trunc_lvl = 3, order = 1 2 3 4
-      npars = 6, loglik = 2453.48 (n = 1000)
-     tree edge conditioned conditioning       family rotation parameters
-        1    1        1, 3                       joe      180      4.208
-        1    2        2, 4                   clayton        0       3.35
-        1    3        3, 4                       joe      180      3.775
-        2    1        1, 4            3 husler_reiss      180     0.8208
-        2    2        2, 3            4      clayton        0     0.6149
-        3    1        1, 2         3, 4      clayton        0     0.4422
-    loglik 2453.48   (truth 2456.12)   parameters 6
+    Vine copula ('vinecop_dist'): d = 4, trunc_lvl = 3, order = 2 3 1 4
+      npars = 6, loglik = 2460.13 (n = 1000)
+     tree edge conditioned conditioning  family rotation parameters
+        1    1        2, 3                  joe      180      4.034
+        1    2        3, 1                  joe      180      4.149
+        1    3        1, 4                  joe      180      3.878
+        2    1        2, 1            3     joe      180      1.183
+        2    2        3, 4            1 clayton        0     0.6081
+        3    1        2, 4         3, 1 clayton        0     0.5673
+    loglik 2460.13   (truth 2457.28)   parameters 6
     five draws from the fitted vine:
            [,1]   [,2]   [,3]   [,4]
-    [1,] 0.6970 0.9803 0.8043 0.8535
-    [2,] 0.7983 0.5926 0.6752 0.9764
-    [3,] 0.4029 0.4314 0.3599 0.2258
-    [4,] 0.2736 0.4033 0.3235 0.4448
-    [5,] 0.1822 0.0879 0.0755 0.0750
+    [1,] 0.5822 0.9702 0.7077 0.8535
+    [2,] 0.9080 0.6337 0.7635 0.9764
+    [3,] 0.2744 0.5037 0.3733 0.2258
+    [4,] 0.3182 0.3388 0.2763 0.4448
+    [5,] 0.2027 0.0952 0.1070 0.0750
     ```
 
 The density and h-function values agree to every printed digit in the three languages: they
@@ -273,6 +269,16 @@ flip. That is normal behaviour, not an error; the candidate set and criterion ar
 configured with an [`fv_controls`](../manual/controls.md) argument (keyword arguments in
 Python and R).
 
+<figure markdown>
+![The simulated Gumbel pair and the BIC of every candidate family](img/quickstart_pair.png){ width="700" }
+<figcaption>The pair-copula part of the Python run. (a) The 1000 simulated pairs in normal scores
+with the density contours of the fitted ($\hat\theta = 1.554$) and of the true Gumbel copula
+($\theta = 1.5$), which nearly coincide. (b) BIC of every family of the default set, each fitted
+in its best rotation and shown relative to the selected one (the 12 best of 23): Galambos trails
+Gumbel by less than one BIC unit, which is why the Fortran sample, drawn with different
+uniforms, ends up with Galambos.</figcaption>
+</figure>
+
 **A vine.** `set_cvine` and `set_dvine` create a fixed C- or D-vine structure whose edge
 families and parameters are then filled in by hand (`fam(edge, tree)`,
 `par(1:3, edge, tree)`; in Python `fam[tree, edge]`); `simulate` draws from it.
@@ -283,6 +289,16 @@ true one edge for edge (survival Joe and Clayton have similar lower tails, and t
 tree absorbs a small amount of dependence that the second tree's choice left over), but its
 log-likelihood (2329.6) is within 12 units of the truth's (2341.6), using six parameters
 where the truth has five.
+
+<figure markdown>
+![True and selected four-dimensional vine](img/quickstart_vine.png){ width="700" }
+<figcaption>The vine of the Python run, tree by tree: the true C-vine (a star around variable 4
+with Clayton($\theta = 3$) edges, Clayton(1) in tree 2, independence in tree 3) and the vine that
+`Vinecop.from_data` selects from its sample. Each edge shows its family and its Kendall's
+$\tau$; tree-1 edges that are not in the true vine are gold. The selection replaces the star by
+the path 2-3-1-4 and two Clayton edges by survival Joe, yet its log-likelihood is within 12
+units of the truth's.</figcaption>
+</figure>
 
 `print` lists every edge, `loglik` and `npars` give what an information criterion needs,
 and `simulate(m, out, seed=)` draws new observations reproducibly.

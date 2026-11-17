@@ -105,7 +105,7 @@ files and a shared library; see [Installation](getting-started/installation.md) 
 | Pair copulas | density, log-density, CDF, both h-functions and their inverses, maximum-likelihood fit with exact scores, family selection (log-likelihood, AIC, BIC, mBIC), Kendall's tau inversion, weights, discrete margins. See [Pair copulas](manual/bicop.md). |
 | Vines | R-, C- and D-vine structures; Dissmann selection with Kendall's tau, Spearman's rho, Hoeffding's D, Chatterjee's xi, mutual information and other tree criteria; truncation and thresholding by mBICv; fixed structures. See [Vine copulas](manual/vinecop.md). |
 | Vine functions | density on samples and on prediction grids, log-likelihood, Rosenblatt and inverse Rosenblatt, simulation, parameter counts, structure matrix, printing. |
-| Interfaces | a typed Fortran API (`fortvine_api`) and a C ABI (`bind(C)` kernels). See [C interface](manual/c-api.md). |
+| Interfaces | a typed Fortran API (`fortvine_api`), a C ABI (`bind(C)` kernels and `fortvine_capi`), and [Python](python.md) and [R](r.md) packages with every feature of the Fortran API. See [C interface](manual/c-api.md). |
 | Quality | test suites over every family and rotation (density / h-function / CDF consistency, inverses, MLE recovery); the generic engine reproduces the hand-coded families to 1e-15-1e-9. See [Validation](theory/validation.md). |
 
 ## How it compares
@@ -113,7 +113,8 @@ files and a shared library; see [Installation](getting-started/installation.md) 
 fortvine follows the conventions of [vinecopulib](https://github.com/vinecopulib/vinecopulib)
 (rotations, structure arrays, selection algorithm), so the two can be compared one to one: on
 the benchmark data they reach the same maximum log-likelihoods, and fortvine gets there
-11-23 times faster.
+7-12 times faster, from Fortran or from Python (2-3 times slower from R on Windows, still
+7-9 times faster than rvinecopulib).
 
 ![Vine selection time against dimension for fortvine, pyvinecopulib and torchvine](assets/bench_vine.png)
 

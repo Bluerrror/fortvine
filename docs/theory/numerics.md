@@ -51,6 +51,16 @@ Every family returns $\log c$, never $c$, and every product is a sum of logarith
 * **Likelihoods** are sums of log-densities, accumulated in 128 fixed blocks in a fixed
   order, so the value does not depend on the number of OpenMP threads.
 
+<figure markdown>
+![Log-density of a Gumbel copula over the square](img/density_range.png){ width="700" }
+<figcaption>Why fortvine works in log space. (a) $\log_{10} c$ of a Gumbel copula with
+$\theta = 5$ ($\tau = 0.8$) over normal scores in $[-5, 5]^2$: more than 50 orders of magnitude
+between the diagonal near the corners and the off-diagonal corners. (b) The same density along
+the diagonal and the anti-diagonal up to the input clamp ($z = \pm 6.3$), and the anti-diagonal
+of a weaker Gumbel copula ($\theta = 2$). Every value is `logpdf`; the density itself is formed
+only at the end, so none of these magnitudes is ever computed as an intermediate product.</figcaption>
+</figure>
+
 ### Elementary functions without cancellation
 
 Three helpers appear throughout, in real and in dual-number form:
@@ -208,6 +218,27 @@ The *residual* $|h(h^{-1}(w)) - w|$, not the forward error $|h^{-1}(w) - v|$, is
 accuracy measure: where the density is nearly zero (deep in a tail of a strongly dependent
 copula), $h$ is flat and any $v$ in a wide interval maps to the same $w$ to machine
 precision.
+
+<figure markdown>
+![Residual of the inverse h-functions over the square](img/hinv_residual.png){ width="700" }
+<figcaption>The residual $|h_1(h_1^{-1}(w \mid u) \mid u) - w|$ on a $181 \times 181$ grid of
+normal scores $\Phi^{-1}(u), \Phi^{-1}(w) \in [-4.5, 4.5]$ for the specialised monotone Newton
+iteration of Gumbel and the generic safeguarded Newton iteration of BB7 and a three-parameter
+Archimax copula. Most of the square is at rounding level ($10^{-16}$ and below); the largest
+residuals, $10^{-11}$ to $10^{-10}$, sit in bands of extreme conditioning values $u$, where
+$h_1(\cdot \mid u)$ is steepest; that is the scale of the $10^{-10}$ input clamp, to which the
+test suite checks the round trip.</figcaption>
+</figure>
+
+<figure markdown>
+![Cost per point of density, h-function and inverse h-function](img/eval_cost.png){ width="700" }
+<figcaption>Time per point of `pdf`, `hfunc1` and `hinv1` on 200 000 random points, one thread
+(best of three, one Windows laptop; absolute numbers depend on the machine). The number next to
+each group is the cost of the inverse relative to the h-function: below 1 for the closed-form
+inverses (Gaussian, Student, Clayton, Frank), about 2 (Gumbel) and 5 (Joe) for the monotone
+Newton iterations, and 6 to 7 for the safeguarded Newton iteration of every other family, in line
+with the three to six evaluations quoted above.</figcaption>
+</figure>
 
 ## How accurate is it?
 

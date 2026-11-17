@@ -30,25 +30,37 @@ Iref, Dref = ct.POINTER(I), ct.POINTER(D)
 dptr = np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS")
 iptr = np.ctypeslib.ndpointer(dtype=np.int32, flags="C_CONTIGUOUS")
 
+I64ref = ct.POINTER(ct.c_int64)
+
 _SIG = {
     # src/fortvine.f90
     "fv_version": ([], I),
     "fv_kendall_tau": ([I, dptr, dptr], D),
     "fv_bicop_eval": ([I, I, dptr, I, dptr, I, dptr, I], None),
-    "fv_bicop_fit": ([I, dptr, I, I, iptr, dptr, Dref, I], None),
-    "fv_bicop_select": ([I, dptr, I, iptr, iptr, D, Iref, Iref, dptr, Dref, I], None),
     "fv_pseudo_obs": ([I, I, dptr, dptr, I], None),
-    "fv_vine_select": ([I, I, dptr, I, iptr, iptr, dptr, iptr, iptr, iptr, iptr, iptr, dptr, dptr, I, Iref], None),
-    "fv_vine_pdf": ([I, I, I, I, dptr, iptr, I, iptr, iptr, iptr, dptr, dptr, I], None),
-    "fv_vine_rosenblatt": ([I, I, dptr, iptr, I, iptr, iptr, iptr, dptr, dptr, I], None),
-    "fv_vine_inverse_rosenblatt": ([I, I, dptr, iptr, I, iptr, iptr, iptr, dptr, dptr, I], None),
-    # python/fortvine_py.f90
-    "fvpy_fam_name": ([I, ct.c_char_p], None),
-    "fvpy_npars": ([I], I),
-    "fvpy_families": ([I, iptr], I),
-    "fvpy_bicop_cdf": ([I, I, dptr, I, dptr, dptr], None),
-    "fvpy_vine_structure": ([I, I, iptr, I, iptr, Iref], None),
-    "fvpy_vine_matrix": ([I, iptr, I, iptr, iptr], None),
+    # src/fortvine_capi.f90: C interface to the typed API (fortvine_api)
+    "fvc_naux": ([], I),
+    "fvc_nk": ([], I),
+    "fvc_fam_name": ([I, ct.c_char_p], None),
+    "fvc_families": ([I, iptr, iptr], I),
+    "fvc_par_bounds": ([I, dptr, dptr], None),
+    "fvc_gen_flip": ([Iref, dptr], None),
+    "fvc_set_abort": ([I], None),
+    "fvc_fitcache": ([I, I, I64ref, I64ref, Iref], None),
+    "fvc_bicop_eval": ([I, I, dptr, I, dptr, I, dptr, I, dptr], None),
+    "fvc_bicop_fit": ([I, dptr, I, dptr, I, I, iptr, iptr, dptr, Iref, Iref, dptr, Dref, I, dptr, Dref], None),
+    "fvc_vine_select": ([I, I, dptr, dptr, iptr, I, dptr, I, I, iptr, iptr, dptr, Iref, iptr, iptr, iptr, iptr,
+                         dptr, dptr, I, dptr, Dref, Dref, Dref, Iref], None),
+    "fvc_vine_eval": ([I, I, iptr, iptr, iptr, iptr, dptr, I, dptr, iptr, I, iptr, dptr, dptr, dptr,
+                       I, I, dptr, dptr, I, I, dptr], None),
+    "fvc_vine_pdf_grid": ([I, I, iptr, iptr, iptr, iptr, dptr, I, dptr, iptr, I, iptr, dptr, dptr, dptr,
+                           I, I, dptr, dptr, I, I, dptr], None),
+    # (fvc_vine_relax takes trunc by reference)
+    "fvc_vine_relax": ([I, I, dptr, I, dptr, I, I, I, iptr, iptr, dptr, Iref, iptr, iptr, iptr, iptr, dptr, dptr,
+                        I, dptr, iptr, I, Iref, iptr, dptr, dptr, dptr, Dref, Dref], None),
+    "fvc_vine_rel_params": ([I, I, dptr, dptr, dptr, I, dptr, dptr], None),
+    "fvc_vine_structure": ([I, I, iptr, I, iptr, Iref], None),
+    "fvc_vine_matrix": ([I, iptr, I, iptr, iptr], None),
 }
 for _n, (_a, _r) in _SIG.items():
     getattr(lib, _n).argtypes = _a

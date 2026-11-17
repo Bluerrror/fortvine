@@ -141,6 +141,18 @@ model, so the box constraints are enough to keep $A$ a valid Pickands function. 
 are the Khoudraji asymmetrisations of ie 3 and 4 written as Pickands functions, so that they
 can be combined with an outer generator.
 
+<figure markdown>
+![Pickands dependence functions of the thirteen inner functions, computed from the extreme-value codes 10001 to 10013](img/generic_pickands_all.png){ width="700" }
+<figcaption>All thirteen inner functions, as the Pickands functions of the extreme-value codes
+$10000 + \text{ie}$ (og = 0), recovered from the library's distribution function as
+$A(w) = -\log C(e^{-(1-w)}, e^{-w})$; the shaded triangle between
+$\max(w, 1 - w)$ (comonotone) and 1 (independence) is the admissible region. (a) The symmetric
+ones, $A(w) = A(1 - w)$. (b) The asymmetric logistic family: types 1 and 2 (ie 6, 7 and 9, 10,
+dashed for type 2) with the same parameters are mirror images, $A_7(w) = A_6(1 - w)$, which is
+what `gen_flip` uses. (c) The asymmetric mixed model and the two Khoudraji-type inner
+functions.</figcaption>
+</figure>
+
 ### Examples of codes
 
 | code | $k$ | og | ie | name (`fv_fam_name`) |
@@ -193,6 +205,17 @@ codes = fv_generic_families()                   ! 85 codes, duplicates left out 
 codes = fv_generic_families(new_only=.false.)   ! all 114 valid codes
 ```
 
+<figure markdown>
+![Map of all code combinations of outer generator and inner function, for plain and Khoudraji-wrapped codes, coloured by new family, valid duplicate or excluded](img/generic_codes.png){ width="700" }
+<figcaption>The code space, one cell per (og, ie): top the plain codes $10000 + 100\,\text{og}
++ \text{ie}$, bottom the Khoudraji-wrapped ones ($20000 + \dots$, ie 0 to 4; ie 5 to 13 are
+already asymmetric and excluded). Dark: the 85 new families listed by `fv.families()`; light:
+the 29 valid codes that duplicate another family; white: excluded codes (`fv_fam_name` returns
+`invalid`). The vertical line separates the single generators (og 0 to 7) from the
+compositions po.pin (og 11 to 26); most compositions combine with the Archimedean inner part
+(ie 0) or the symmetric Pickands functions (ie 1 to 4) only.</figcaption>
+</figure>
+
 ## Names
 
 `fv_fam_name(fam)` returns the literature name where one exists (`Gumbel`, `BB4`,
@@ -213,6 +236,17 @@ and `po.pin` for compositions. Invalid codes return `invalid`.
 
 The two tail flags drive the [preselection](fitting.md#preselection-by-tail-asymmetry) of
 generic candidates.
+
+<figure markdown>
+![Lower and upper tail functions of the six new Archimedean compositions against the distance from the corner](img/generic_tails.png){ width="700" }
+<figcaption>The tail flags checked numerically for the six new Archimedean compositions:
+(a) $\lambda_L(q) = C(q, q)/q$ and (b) $\lambda_U(q) = \{2q - 1 + C(1-q, 1-q)\}/q$ from the
+library's `cdf`, down to $q = 10^{-5}$ ($\tau$ from 20 000 simulated pairs). The three codes
+with a gamma part (11700, 11800, 12400) level off at a positive $\lambda_L$, the others decay
+to 0; the four with a PS or Sibuya part (11300, 11700, 12300, 12500) level off at a positive
+$\lambda_U$, while gamma.logseries and logseries.gamma have none, as `gen_lt` and `gen_ut`
+state.</figcaption>
+</figure>
 
 ## Exactness
 

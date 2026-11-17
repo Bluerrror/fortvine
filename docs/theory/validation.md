@@ -189,6 +189,17 @@ corners, while the generic engine stays at $10^{-15}$
 the suite's list: its hand-coded counterpart differs from it by up to $1.5 \times 10^{-7}$
 at $(0.997, 0.003)$, again the hand-coded side's error.
 
+<figure markdown>
+![Hand-coded against generic log-density over the square](img/generic_vs_hand.png){ width="700" }
+<figcaption>$|\log c_{\text{hand}} - \log c_{\text{generic}}|$ for four families with both
+implementations, on a $161 \times 161$ grid of normal scores covering $u, v \in [0.001, 0.999]$
+(a wider range than the suite's grid): Gumbel ($\theta = 3$), Galambos ($\theta = 1.3$), BB5
+$(1.4, 1.2)$ and BB4 $(1.1, 1.3)$. Gumbel agrees to rounding everywhere; for the other three the
+difference grows towards the off-diagonal corners, where the hand-coded Pickands expressions
+cancel (the [Numerics](numerics.md#how-accurate-is-it) comparison with a multiple-precision
+reference attributes it to the hand-coded side).</figcaption>
+</figure>
+
 ### Derivative consistency in four rotations
 
 For **every** valid generic code (including the duplicates, `fv_generic_families(.false.)`),
@@ -241,3 +252,18 @@ Finally, the list `fv_generic_families()` must contain more than 80 codes, all v
 * Near-comonotone parameters ($|\beta| > 0.9$), see above.
 * The C interface beyond what the examples exercise
   ([interop example](../examples/interop.md)).
+
+The figure below is such a cross-library check, run outside the test suites by
+`tools/page_figures.py validation` with pyvinecopulib 1.0.1: the 11 parametric families both
+libraries share, 20 random parameter sets and rotations each.
+
+<figure markdown>
+![fortvine against pyvinecopulib](img/pyvinecopulib_agreement.png){ width="700" }
+<figcaption>fortvine against pyvinecopulib. (a) Largest log-density difference on 500 random
+points per parameter set, (b) the same for both h-functions: rounding level for most families,
+up to $10^{-9}$ for some Frank and BB6 parameter sets. (c) Maximised log-likelihoods of
+the two libraries on 1000 points simulated from the family (10 per family; symmetric log scale,
+linear within $\pm 10^{-6}$). They agree to within $1.1 \times 10^{-5}$ with one exception, a
+Student fit whose $\nu$ runs into fortvine's upper bound of 30 (pyvinecopulib allows 50): there
+the parameter boxes differ, not the maximisers.</figcaption>
+</figure>

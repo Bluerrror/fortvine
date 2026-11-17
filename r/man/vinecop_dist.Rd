@@ -4,13 +4,21 @@
 \alias{vinecop_dist}
 \title{Vine copula model}
 \usage{
-vinecop_dist(pair_copulas, structure)
+vinecop_dist(
+  pair_copulas,
+  structure,
+  var_types = rep("c", length(structure$order))
+)
 }
 \arguments{
 \item{pair_copulas}{a list of trees; tree \code{t} is a list of \code{d - t} \code{\link[=bicop_dist]{bicop_dist()}} objects,
 one per edge. Trees beyond the length of the list are independence.}
 
-\item{structure}{a structure from \code{\link[=dvine_structure]{dvine_structure()}} or the \code{structure} of a fitted vine.}
+\item{structure}{a structure from \code{\link[=dvine_structure]{dvine_structure()}} or \code{\link[=cvine_structure]{cvine_structure()}}, or the
+\code{structure} of a fitted vine.}
+
+\item{var_types}{\code{"c"} (continuous) or \code{"d"} (discrete) for each variable; see \code{\link[=vinecop]{vinecop()}}
+for the data layout with discrete variables.}
 }
 \value{
 An object of class \code{vinecop_dist}.

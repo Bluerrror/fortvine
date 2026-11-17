@@ -3479,8 +3479,8 @@ contains
       ! stage 1: Newton from each start (subsample when two-stage)
       nopt = 0
       ! multi-start only where the likelihood is known to be multimodal / ridge-shaped
-      ! (BB5, BB9); single-start Newton reproduces vinecopulib's optima elsewhere
-      do i = 1, merge(MS, 1, fam == 19 .or. fam == 20 .or. gen_is(fam))
+      ! (BB5, BB9, BB8 on its theta-delta ridge); single-start Newton reproduces vinecopulib's optima elsewhere
+      do i = 1, merge(MS, merge(2, 1, fam == 10), fam == 19 .or. fam == 20 .or. gen_is(fam))
         if (fs0(i) <= -huge(1.0_dp)) exit
         if (two) then
           call newton_fit(cs, npar_of(fam), xs0(:, i), lb, ub, pj, fj)
@@ -5596,15 +5596,18 @@ contains
       if (has_cdf(fam)) then
         out(i) = cdf_x(fam, rot, pp, ax, u1(i), u2(i))
       else
-        np = 8; s = 0.0_dp
+        ! C(u1, u2) = int_0^u1 h1(s, u2) ds in normal scores s = Phi(z): the integrand h1(Phi(z), u2) phi(z)
+        ! is smooth, so 16-point Gauss-Legendre on panels of width <= 1 from z = -8.5 is exact to
+        ! rounding (in s, the steep part of h1 near the corners needed far more nodes)
+        x = qnorm(clampu(u1(i)))
+        np = max(1, ceiling(x + 8.5_dp)); s = 0.0_dp
         do ip = 1, np
-          pl = clampu(u1(i)) * (ip - 1) / np; ph = clampu(u1(i)) * ip / np
+          pl = -8.5_dp + (x + 8.5_dp) * (ip - 1) / np; ph = -8.5_dp + (x + 8.5_dp) * ip / np
           c0 = 0.5_dp * (pl + ph); hw = 0.5_dp * (ph - pl)
           do q = 1, 8
             do sg = -1, 1, 2
-              x = c0 + sg * hw * gx(q)
-              call eval_x(fam, rot, pp, ax, x, u2(i), .true., l1, g1, g2)
-              s = s + gw(q) * hw * g1
+              call eval_x(fam, rot, pp, ax, pnorm(c0 + sg * hw * gx(q)), u2(i), .true., l1, g1, g2)
+              s = s + gw(q) * hw * g1 * dnorm(c0 + sg * hw * gx(q))
             end do
           end do
         end do

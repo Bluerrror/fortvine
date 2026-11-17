@@ -128,8 +128,8 @@ $3 \cdot 0.25^{-3} \cdot 7^{-5/2} = 1.4810$, as printed. The density is largest 
 origin (5.37 at $(0.1, 0.1)$) because Clayton has lower tail dependence,
 $\lambda_L = 2^{-1/\theta} \approx 0.71$; at $(0.9, 0.9)$ it is smaller (2.16) since
 $\lambda_U = 0$. The same calling pattern serves `logpdf`, `cdf`, `hfunc1`, `hfunc2`,
-`hinv1` and `hinv2` (in R: `dbicop(u, b, log = TRUE)` and `hbicop(u, 1 or 2, b, inverse =)`;
-R has no `cdf`). Long arrays (more than 4096 points) are evaluated in parallel.
+`hinv1` and `hinv2` (in R: `dbicop(u, b, log = TRUE)`, `pbicop(u, b)` and
+`hbicop(u, 1 or 2, b, inverse =)`). Long arrays (more than 4096 points) are evaluated in parallel.
 
 ### Simulating
 
@@ -211,7 +211,7 @@ inverting Kendall's tau, and the likelihood is maximised by Fisher-scoring steps
 parameter scores (see [Exact parameter scores](../theory/scores.md)). Passing an
 `fv_controls` with `method = FV_ITAU` instead returns the tau-inversion estimate itself
 (`method="itau"` in Python, `par_method = "itau"` in R), and `weights=` gives observation
-weights ([example](weights-discrete.md); Fortran only).
+weights (`weights=` in Python and R; [example](weights-discrete.md)).
 
 <figure markdown>
 ![The 2000 simulated Clayton pairs in copula scale and in normal scores, with fitted and true density contours](img/pair_sample.png)
@@ -321,6 +321,6 @@ exact h-function.
 
 === "R"
 
-    !!! note
-        The distribution function is available from Fortran and Python only: the C interface
-        that the R package calls has no routine for it.
+    ```r
+    out <- pbicop(u, truth)
+    ```

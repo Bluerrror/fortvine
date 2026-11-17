@@ -214,6 +214,19 @@ best. Several properties of copula likelihoods make this worse in practice:
   sum; with finite differences that is $n \times 2k$ density evaluations stored or
   recomputed, with each per-observation difference noisier than the total.
 
+<figure markdown>
+![Finite-difference error of the score against the step size](img/fd_error.png){ width="700" }
+<figcaption>Relative error of forward and central finite differences of fortvine's
+log-likelihood ($n = 2000$ points from the family itself, derivative taken at 0.85 times the true
+parameter) against the relative step $h/\theta$. The reference is Ridders' extrapolation of the
+same function; the dotted line is its error estimate. The V shape is the trade-off described
+above: truncation error to the right, rounding
+error to the left. Even with the step chosen after the fact from the reference, forward
+differences stop at $10^{-8}$ to $10^{-7}$; central differences reach $10^{-11}$ to $10^{-10}$
+here, but at a step that moves with the family and the parameter and costs two extra
+likelihood passes per parameter. Exact dual-number scores need neither.</figcaption>
+</figure>
+
 Dual numbers avoid all four: the gradient costs one pass whose arithmetic is roughly
 $(1 + k)$ times that of the value, it is exact wherever the value is accurate, it needs no
 step size, and it is available per observation for free. In fortvine the one pass that

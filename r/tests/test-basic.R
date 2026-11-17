@@ -68,4 +68,18 @@ stopifnot(max(abs(hbicop(cbind(u[, 1], h), 1, gcop, inverse = TRUE) - u[, 2])) <
 
 # pseudo-observations: average ranks / (n + 1)
 stopifnot(all.equal(pseudo_obs(c(3.1, 0.2, 5, 0.2)), c(3, 1.5, 4, 1.5) / 5))
+
+# non-simplified vine: the (1, 3 | 2) correlation grows with u2
+set.seed(6)
+ur <- matrix(runif(1500), 500, 3)
+rr <- 0.9 * (2 * ur[, 2] - 1)
+ur[, 3] <- pnorm(rr * qnorm(ur[, 1]) + sqrt(1 - rr^2) * qnorm(ur[, 3]))
+fr <- vinecop(ur, family_set = "gaussian", structure = dvine_structure(1:3), cores = 2)
+rel <- vinecop_relax(fr, ur, mode = 2, cores = 2)
+p <- vinecop_rel_params(rel, ur)
+stopifnot(!is.null(rel$relaxed), dim(p) == c(500, ncol(rel$relaxed$erel), 3),
+          cor(p[, 1, 1], ur[, 2]) > 0.9, rel$loglik > fr$loglik,
+          abs(rel$loglik - sum(log(dvinecop(ur, rel)))) < 1e-6)
+un <- vinecop_unrelax(rel, ur)
+stopifnot(is.null(un$relaxed), un$npars < rel$npars, is.finite(un$loglik))
 cat("fortvine tests passed\n")

@@ -13,15 +13,19 @@ bicop(
   presel = TRUE,
   allow_rotations = TRUE,
   rotation = NULL,
-  cores = 1
+  cores = 1,
+  weights = numeric(),
+  fast_mle = FALSE,
+  tau_mode = "exact"
 )
 }
 \arguments{
 \item{data}{an \verb{n x 2} matrix of pseudo-observations.}
 
 \item{family_set}{family names or codes, and the groups \code{"all"} (codes 0-22, fortvine's
-default set), \code{"parametric"} (0-11, vinecopulib's parametric families) and \code{"generic"}
-(the 85 generic families).}
+default set), \code{"parametric"} (0-11, vinecopulib's parametric families),
+\code{"nonparametric"} (\code{"tll"} and \code{"bernstein"}, codes 24 and 25) and \code{"generic"} (the 85
+generic families).}
 
 \item{par_method}{\code{"mle"} or \code{"itau"} (Kendall's tau inversion, one-parameter families).}
 
@@ -37,9 +41,20 @@ default set), \code{"parametric"} (0-11, vinecopulib's parametric families) and 
 \code{family_set} with that rotation.}
 
 \item{cores}{number of OpenMP threads.}
+
+\item{weights}{optional vector of \code{n} non-negative observation weights.}
+
+\item{fast_mle}{with \code{par_method = "mle"}, fit the one-parameter Gaussian, Clayton, Gumbel,
+Frank and Joe copulas by Kendall's tau inversion only.}
+
+\item{tau_mode}{how Kendall's tau is computed for start values and preselection:
+\code{"exact"}, \code{"approx"} (normal-score approximation) or \code{"auto"} (exact below 800
+observations).}
 }
 \value{
-A \code{\link[=bicop_dist]{bicop_dist()}} object with \code{loglik}, \code{nobs} and \code{selcrit}.
+A \code{\link[=bicop_dist]{bicop_dist()}} object with \code{loglik}, \code{nobs} and \code{selcrit}. For \code{tll} and
+\code{bernstein}, \code{aux} holds the estimate and \code{npars} the effective degrees of freedom, which
+\code{logLik()}, \code{AIC()} and \code{BIC()} use.
 }
 \description{
 Selects the family, rotation and parameters among \code{family_set} (as \code{Bicop::select} of
@@ -53,4 +68,8 @@ fit <- bicop(u, family_set = c("gaussian", "clayton", "gumbel", "frank"))
 summary(fit)
 logLik(fit)
 bicop(u, family_set = "clayton", rotation = 0)$parameters
+np <- bicop(u, family_set = "tll")                # nonparametric
+c(edf = np$npars, loglik = np$loglik)
+w <- rep(1:2, length.out = 500)                   # weighted fit
+bicop(u, family_set = "clayton", rotation = 0, weights = w)$parameters
 }

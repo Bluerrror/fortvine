@@ -47,9 +47,10 @@ print(vc.loglik(), vc.npars)
 sim = vc.simulate(1000, seed=2)
 ```
 
-`fv.families()` lists every family with its code and number of parameters. The nonparametric
-families `tll` and `bernstein` need the Fortran API (their estimate is not passed through the
-C interface).
+`fv.families()` lists every family with its code and number of parameters. Observation
+weights, discrete margins (`var_types`), the nonparametric families `tll` and `bernstein`,
+every selection control, non-simplified vines (`relax`), `pdf_grid` and the fit cache are all
+available; see the [documentation](https://bluerrror.github.io/fortvine/python/).
 
 ## Citing
 

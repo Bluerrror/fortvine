@@ -41,12 +41,12 @@ It then asks which family BIC selects from 2000 observations of each copula.
     ```
 
 !!! note "The distribution function in R"
-    The R package has no copula distribution function (the C interface it calls does not
-    export one), so the R script computes the finite-level coefficients from the h-function
-    of the library instead: $C(q, q) = \int_0^q h_1(s, q)\, ds$ and
+    The R script computes the finite-level coefficients from the h-function of the library:
+    $C(q, q) = \int_0^q h_1(s, q)\, ds$ and
     $P(U_1 > 1 - q, U_2 > 1 - q) = \int_{1-q}^1 \bigl(1 - h_1(s, 1 - q)\bigr)\, ds$, by
     adaptive quadrature (`integrate`). The values agree with the CDF of the Fortran and Python
-    programs to the printed digits.
+    programs to the printed digits. `pbicop(u, cop)` evaluates $C$ directly and gives the same
+    values, e.g. `pbicop(cbind(q, q), cop) / q` for $\lambda_L(q)$.
 
 ## Output
 

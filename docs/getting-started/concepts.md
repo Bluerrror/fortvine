@@ -63,6 +63,15 @@ maximum likelihood is the semiparametric (canonical) maximum-likelihood method o
 Ghoudi & Rivest (1995). If the margins have been modelled parametrically instead, the
 probability integral transforms $\hat F_j(x_{ij})$ can be used directly.
 
+<figure markdown>
+![Raw data, pseudo-observations and normal scores](img/pseudo_obs.png){ width="700" }
+<figcaption>From data to the copula scale. (a) 800 draws with a log-normal and a gamma margin
+and a Gumbel copula ($\theta = 2$). (b) Their pseudo-observations (`to_pseudo_obs`): the margins
+are gone and only the ranks remain; the upper-right cluster is the Gumbel upper tail.
+(c) The same points in normal scores $\Phi^{-1}(\hat u)$, the scale used for every density plot on
+this site, with the density of a Gumbel copula fitted to the pseudo-observations.</figcaption>
+</figure>
+
 fortvine never sees raw data: every routine expects copula data in $(0, 1)$. Values are
 clamped internally to $[10^{-10}, 1 - 10^{-10}]$ (see [Numerics](../theory/numerics.md)).
 
@@ -171,6 +180,16 @@ Clayton and Frank families and use specialised monotone Newton iterations for Gu
 Joe; every other family is inverted by a safeguarded Newton iteration whose derivative is
 the exact density, falling back to bisection inside a maintained bracket.
 
+<figure markdown>
+![h-functions, density and inverse h-functions of a Clayton copula](img/hfunctions.png){ width="700" }
+<figcaption>The conditional functions of a Clayton copula ($\theta = 2$, $\tau = 0.5$) for five
+conditioning values $u$. (a) $h_1(v \mid u)$ rises from 0 to 1 in $v$; it is steep for small $u$
+because Clayton concentrates mass in the lower tail. (b) Its slope in $v$ is the density
+$c(u, v)$ (log scale). (c) The inverse $h_1^{-1}(w \mid u)$: feeding it uniform $w$ draws $V$ given
+$U = u$, which is how every simulation in fortvine works. All curves are `hfunc1`, `pdf` and
+`hinv1` of `fv.Bicop("clayton", parameters=[2])`.</figcaption>
+</figure>
+
 ## Rotations
 
 Many families can only express positive dependence, and many have a tail in one corner
@@ -191,6 +210,14 @@ tail of $C_0$ in the $(1, 0)$ or $(0, 1)$ corner respectively. Families that are
 radially symmetric and cover negative dependence (Gaussian, Student, Frank, Plackett, FGM,
 AMH) are not rotated; for the rest, family selection tries the rotations that match the sign
 of the empirical tau. See [Rotations and asymmetry](../manual/rotations.md).
+
+<figure markdown>
+![Gumbel copula in the four rotations](img/rotations.png){ width="700" }
+<figcaption>A Gumbel copula ($\theta = 2$) in the four rotations, density in normal scores. The
+upper tail of the unrotated copula moves to the lower-left corner under 180 degrees (the
+survival copula) and to the off-diagonal corners under 90 and 270 degrees, where the dependence
+becomes negative.</figcaption>
+</figure>
 
 ## Pair-copula constructions and vines
 
@@ -253,6 +280,15 @@ Two special shapes have their own constructors:
   variable drives the rest. `set_cvine(order)`.
 * **D-vine** (drawable): every tree is a path; $T_1$ links neighbours in `order`, and
   later trees follow. Natural for ordered variables such as time lags. `set_dvine(order)`.
+
+<figure markdown>
+![C-vine and D-vine structures on five variables](img/vine_shapes.png){ width="700" }
+<figcaption>The four trees of a five-dimensional C-vine (`set_cvine([5, 4, 3, 2, 1])`, roots 1,
+2, 3 in turn) and D-vine (`set_dvine([1, 2, 3, 4, 5])`), read from fortvine's structure arrays.
+Nodes of tree $T_{k+1}$ are the edges of $T_k$, labelled by conditioned pair | conditioning set;
+in path-shaped trees each edge is also labelled with the pair copula it carries. Both vines
+satisfy the proximity condition: nodes joined in $T_{k+1}$ share a node of $T_k$.</figcaption>
+</figure>
 
 ### Structure selection
 

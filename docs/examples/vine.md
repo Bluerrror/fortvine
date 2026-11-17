@@ -328,21 +328,17 @@ and tree 2 by name with `fv_fam_name` (in Python `vc.families[t]`, in R the `fam
 === "Python"
 
     ```python
+    vc = fv.Vinecop.from_data(u, select_trunc_lvl=True)   # mBICv chooses the truncation level
     vc = fv.Vinecop.from_data(u, trunc_lvl=2, tree_criterion="rho", tree_algorithm="kruskal")
     m = vc.matrix                     # R-vine matrix, original labels
     ```
 
-    !!! note
-        `select_trunc` (the truncation level chosen by mBICv) is available from Fortran only.
-
 === "R"
 
     ```r
+    vc <- vinecop(u, trunc_lvl = NA)  # mBICv chooses the truncation level
     vc <- vinecop(u, trunc_lvl = 2, tree_crit = "rho", tree_algorithm = "mst_kruskal")
+    m <- as_rvine_matrix(vc)          # R-vine matrix, original labels
     ```
-
-    !!! note
-        `select_trunc` and the R-vine matrix are available from Fortran only (the matrix also
-        from Python); an R vine stores its structure as `order` and `struct_array`.
 
 See [Vine copulas](../manual/vinecop.md) and [Fitting and selection](../manual/fitting.md).

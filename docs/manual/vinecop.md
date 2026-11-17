@@ -94,8 +94,8 @@ pair copulas directly:
     ```
 
 Such a model can be evaluated, transformed and simulated straight away. Python also has
-`set_cvine`; R builds D-vine structures only (`dvine_structure()`), or takes the structure
-of a selected vine (`fit$structure`). For a nonparametric
+`set_cvine`; R builds D- and C-vine structures (`dvine_structure()`, `cvine_structure()`), or
+takes the structure of a selected vine (`fit$structure`). For a nonparametric
 edge, allocate `vc%aux(NAUX, d, d)` yourself (`init` only allocates a first extent of 1) and
 copy the `aux` vector of a fitted `fv_bicop` into `vc%aux(:, e, t)`.
 
@@ -111,22 +111,18 @@ copy the `aux` vector of a fitted `fv_bicop` into `vc%aux(:, e, t)`.
 
     ```python
     vc = fv.Vinecop.from_data(u, family_set=None, criterion="bic", trunc_lvl=None, threshold=0.0,
-                              tree_criterion="tau", tree_algorithm="prim", num_threads=1)
+                              tree_criterion="tau", tree_algorithm="prim", num_threads=1,
+                              weights=None, var_types=None)
     vc.select(u, fixed=True)            # on a Vinecop that holds a structure
     ```
-
-    !!! note
-        Observation weights and discrete margins are available from Fortran only.
 
 === "R"
 
     ```r
     vc <- vinecop(u, family_set = "all", structure = NA, selcrit = "bic", trunc_lvl = Inf,
-                  threshold = 0, tree_crit = "tau", tree_algorithm = "mst_prim", cores = 1)
+                  threshold = 0, tree_crit = "tau", tree_algorithm = "mst_prim", cores = 1,
+                  weights = numeric(), var_types = NULL)
     ```
-
-    !!! note
-        Observation weights and discrete margins are available from Fortran only.
 
 `u(n, d)` are pseudo-observations; every other argument is optional (the controls are
 keyword arguments in Python and R). `select` chooses the
@@ -152,6 +148,17 @@ With a free structure, selection proceeds tree by tree (Dissmann et al. 2013):
 Selecting the tree by dependence strength first places the strongest dependencies in the low
 trees, where estimation error propagates least. The tree criteria available are listed in
 [Controls](controls.md#tree_crit).
+
+<figure markdown>
+![The three trees of the hand-made C-vine of the example and of the vine selected from its sample with a free structure, edges labelled with family and Kendall tau](img/vinecop_trees.png){ width="700" }
+<figcaption>Left: the C-vine of the [example](#example) (Clayton $\theta = 2$ in tree 1, Frank
+$\theta = -3$ in tree 2, Gumbel 90° in tree 3), drawn tree by tree; the nodes of tree $t \ge 2$
+are the edges of tree $t - 1$ (conditioned pair | conditioning set). Right: `select` with a free
+structure on 2000 draws from it (Python `Vinecop.from_data`). The Dissmann algorithm recovers
+the star around variable 1 and the second tree; the last edge is the same copula with its
+arguments in the other order, hence Gumbel 270° instead of 90°. Edge labels give the family and
+Kendall's $\tau$ of each pair copula; $\ell$ is the log-likelihood on the sample.</figcaption>
+</figure>
 
 ### Fixed structure
 
@@ -195,10 +202,11 @@ each pass.
 ### Other options
 
 * `weights(n)`: observation weights for every pair fit and for the weighted tree criteria
-  (tau, rho, joe; the other criteria ignore weights).
+  (tau, rho, joe; the other criteria ignore weights). Python and R: `weights`.
 * `discrete(d)`, `u_minus(n, d)`: discrete or mixed margins, see
   [Discrete and mixed data](discrete.md). `u_minus` is required when any variable is
-  discrete.
+  discrete. Python and R: `var_types` (`"c"` or `"d"` per variable), with the $F(x^-)$
+  columns of the discrete variables appended to the data.
 * `info`: 0 on success. Non-zero values (2, 3, 4) mean that the internal spanning-tree or
   tree-to-matrix step failed; they are not expected for valid input and indicate a bug.
 
@@ -219,20 +227,16 @@ each pass.
     ```python
     dens = vc.pdf(u)                    # dens[n]
     ll = vc.loglik(u)                   # sum(log(dens))
+    out = vc.pdf_grid(ug, tgt)          # ug[n, bins, d], out[n, bins]
     ```
-
-    !!! note
-        `pdf_grid` is available from Fortran only; `pdf` at the same points gives the same values.
 
 === "R"
 
     ```r
     dens <- dvinecop(u, vc)             # dens[n]
     ll <- sum(log(dens))
+    out <- dvinecop_grid(u, vc, tgt, grid)   # variable tgt of each row set to grid[b]; out[n, bins]
     ```
-
-    !!! note
-        `pdf_grid` is available from Fortran only; `dvinecop` at the same points gives the same values.
 
 `pdf` evaluates the joint copula density at every row of `u(n, d)`; `loglik` is the sum of
 its logarithms. With discrete variables both need `u_minus`.
@@ -242,6 +246,19 @@ samples, `bins` points that differ only in variable `tgt` (1-based label). Edges
 do not involve `tgt` are evaluated once per sample rather than once per bin, which saves most
 of the work when only one variable varies. The result is `out(bins, n)`. With discrete
 variables pass the matching `ugm(d, bins, n)` of $F(x^-)$ values.
+
+<figure markdown>
+![Conditional densities of variable 2 given the others for three samples, computed with pdf_grid, and the speed-up of pdf_grid over pdf against the number of bins](img/vinecop_pdf_grid.png){ width="700" }
+<figcaption>(a) Predictive densities from `pdf_grid` with target 2 on 200 bins, for the vine
+selected on the fixed C-vine structure of the example and three of its samples (other
+variables held at their observed values). As a function of $u_2$ the joint density is
+proportional to the conditional density $c(u_2 \mid u_1, u_3, u_4)$, so each curve is divided by
+its integral; the dotted lines are the observed $u_2$. (b) Time of `pdf` on the expanded
+$(n \cdot \text{bins}, d)$ array divided by the time of `pdf_grid` on the same points, for a
+10-dimensional D-vine (500 samples, 4 threads). For the end variable of the path (10) only 9 of
+the 45 edges depend on it and `pdf_grid` is up to 6.5 times faster; for a variable in the
+middle (5) more edges involve it and the gain is about 2.</figcaption>
+</figure>
 
 ## Rosenblatt transform and simulation
 
@@ -279,6 +296,18 @@ after them in `order`; for a D-vine with order $(1, \dots, d)$ the output is
 $w_d = u_d$, $w_{d-1} = F(u_{d-1} \mid u_d)$, ..., $w_1 = F(u_1 \mid u_2, \dots, u_d)$.
 The columns of `w` keep the original variable labels.
 
+<figure markdown>
+![A dependent pair of the sample, the same pair after the Rosenblatt transform, and the Kendall tau of all transformed pairs for a well-fitting and a truncated vine](img/vinecop_rosenblatt.png){ width="700" }
+<figcaption>The Rosenblatt transform as a goodness-of-fit check, on the 2000 draws of the
+example's C-vine. (a) Variables 2 and 3 of the sample, in normal scores. (b) The same columns
+after `rosenblatt` under the vine selected on the C-vine structure: no dependence is left.
+(c) Kendall's $\tau$ of every pair of transformed columns, under that vine (blue) and under a
+vine truncated after tree 1 (gold). Under a correct model the $w_j$ are independent and the
+$\hat\tau$ stay inside the band of $\pm 2$ standard deviations of $\hat\tau$ for independent
+data; the truncated vine ignores the Frank and Gumbel edges of trees 2 and 3, and the dependence
+they carry remains in $w$.</figcaption>
+</figure>
+
 `simulate(n, out, seed, nthreads)` draws `w` with the Fortran intrinsic `random_number` and
 applies `inverse_rosenblatt`. If `seed` is given, it reseeds the intrinsic generator
 (which changes the generator state of the calling program too); without `seed` the current
@@ -301,7 +330,8 @@ freedom for nonparametric edges and `(NK - 1)` extra parameter sets per non-simp
 (family name, rotation, parameters) to `unit` (default 6). Generic family names are cut to 12
 characters in this listing; use `fv_fam_name(vc%fam(e, t))` for the full name.
 
-`vc%matrix()` returns the `d x d` R-vine matrix described [above](#how-the-structure-is-stored).
+`vc%matrix()` returns the `d x d` R-vine matrix described [above](#how-the-structure-is-stored)
+(Python: `vc.matrix`; R: `as_rvine_matrix(vc)`).
 
 ## Non-simplified edges (`relax`)
 
@@ -318,13 +348,21 @@ estimation of conditional copulas (Acar, Craiu & Yao 2011):
 
 === "Python"
 
-    !!! note
-        Non-simplified edges (`relax`, `unrelax`, `rel_params`) are available from Fortran only.
+    ```python
+    vc.relax(u, target=0, mode="test", weights=None)   # mode="all": every eligible edge
+    vc.nrel, vc.relaxed_edges                          # count; (tree, edge), 0-based
+    p = vc.rel_params(u)                               # (n, nrel, 3) parameters at each sample
+    vc.unrelax()
+    ```
 
 === "R"
 
-    !!! note
-        Non-simplified edges (`relax`, `unrelax`, `rel_params`) are available from Fortran only.
+    ```r
+    rel <- vinecop_relax(vc, u, tgt = 0, mode = 1)     # mode = 2: every eligible edge
+    rel$relaxed$erel                                   # edge (row 1) and tree (row 2)
+    p <- vinecop_rel_params(rel, u)                    # n x nrel x 3 parameters at each sample
+    un <- vinecop_unrelax(rel, u)                      # delete the relaxed edges
+    ```
 
 For every parametric edge of tree $t \ge 2$ whose conditioned pair contains variable `tgt`
 (`tgt = 0`: any edge) and whose conditioning set $D$ does not:
@@ -345,6 +383,21 @@ For every parametric edge of tree $t \ge 2$ whose conditioned pair contains vari
 `nrel_out` returns the number of relaxed edges. `relax` does nothing if `trunc < 2` or any
 variable is discrete. `vc%rel_params(uc)` returns the per-sample parameters
 `prel(3, nrel, n)` of the relaxed edges for samples `uc(d, n)`.
+
+<figure markdown>
+![The parameter of a relaxed Frank edge against the conditioning variable compared with the simplified constant and the best Frank fit to the true conditional copula, and predictive densities of variable 3 from the simplified and the non-simplified vine](img/vinecop_relax.png){ width="700" }
+<figcaption>The non-simplified example of the [Python page](../python.md#non-simplified-vines):
+three variables whose copula of $(U_1, U_3)$ given $U_2$ is Gaussian with correlation
+$-0.6 + 1.4\,u_2$, selected as a D-vine and then relaxed with `mode = 1` (the test relaxes the
+single tree-2 edge). (a) The Frank parameter of edge (1, 3 | 2) at the five anchors `wk` (dots)
+with the linear interpolation between them and the constant beyond, the single parameter of
+the simplified vine (dashed) and, for reference, the Frank copula fitted to 20 000 draws of
+the true conditional Gaussian copula at each $u_2$ (diamonds). The log-likelihood rises by 179.
+(b) Predictive density of $u_3$ at $u_1 = 0.5$ for three values of $u_2$ (`pdf_grid`, target 3):
+in the non-simplified vine (solid) the dependence between $u_1$ and $u_3$ changes sign with
+$u_2$; the simplified vine (dashed) applies the same edge copula for every $u_2$, so its curves
+differ only through the tree-1 edges.</figcaption>
+</figure>
 
 Which methods honour relaxed edges:
 
@@ -452,18 +505,14 @@ Which methods honour relaxed edges:
     free = fv.Vinecop.from_data(u, trunc_lvl=1, num_threads=4)
     print(f"trunc = {free.trunc}   loglik{free.loglik(u):10.2f}   (full C-vine:{fitd.loglik(u):10.2f})")
 
-    # density of the fitted vine at points that differ only in variable 2 (pdf_grid is Fortran-only;
-    # pdf at the same points gives the same values)
-    grid = np.array([0.1, 0.5, 0.9])
-    for s, other in enumerate([0.3, 0.7]):
-        ug = np.full((3, d), other)
-        ug[:, 1] = grid
-        print(f"pdf at grid, sample {s + 1}:" + "".join(f"{x:9.4f}" for x in fitd.pdf(ug)))
+    # conditional density of variable 2 on a 3-point grid, other variables fixed per sample
+    ug = np.empty((2, 3, d))                             # (samples, bins, d)
+    ug[0], ug[1] = 0.3, 0.7
+    ug[:, :, 1] = [0.1, 0.5, 0.9]
+    dens = fitd.pdf_grid(ug, target=2)
+    for s in range(2):
+        print(f"pdf_grid sample {s + 1}:" + "".join(f"{x:9.4f}" for x in dens[s]))
     ```
-
-    !!! note
-        `pdf_grid` is available from Fortran only; the script evaluates `pdf` at the grid
-        points, which gives the same values.
 
 === "R"
 
@@ -471,47 +520,36 @@ Which methods honour relaxed edges:
     library(fortvine)
     n <- 2000; d <- 4
 
-    # a D-vine written by hand (R has no C-vine constructor): the pair copulas of the C-vine example
+    # a C-vine written by hand; cvine_structure roots tree t at order[d - t + 1]
     pcs <- list(rep(list(bicop_dist("clayton", 0, 2)), 3),
                 rep(list(bicop_dist("frank", 0, -3)), 2),
                 list(bicop_dist("gumbel", 90, 1.4)))
-    dv <- vinecop_dist(pcs, dvine_structure(1:4))
-    cat("structure array [edge, tree] (natural order):\n")
-    print(dv$struct_array)
+    cv <- vinecop_dist(pcs, cvine_structure(c(4, 3, 2, 1)))   # roots: variable 1, then 2, then 3
+    cat("R-vine matrix (original labels):\n")
+    print(as_rvine_matrix(cv))
     set.seed(11)
-    u <- rvinecop(n, dv)
+    u <- rvinecop(n, cv)
 
     # Rosenblatt transform and its inverse
-    r <- rosenblatt(u, dv)
-    back <- inverse_rosenblatt(r, dv)
+    r <- rosenblatt(u, cv)
+    back <- inverse_rosenblatt(r, cv)
     cat(sprintf("max round-trip error:%9.2E\n", max(abs(back - u))))
 
-    # keep the D-vine structure, let vinecop choose families and parameters
-    fitd <- vinecop(u, structure = dvine_structure(1:4), cores = 4)
+    # keep the C-vine structure, let vinecop choose families and parameters
+    fitd <- vinecop(u, structure = cvine_structure(c(4, 3, 2, 1)), cores = 4)
     for (t in 1:(d - 1))
       cat("tree ", t, ": ", paste(vapply(fitd$pair_copulas[[t]], function(b) b$family, ""),
                                  collapse = " "), "\n", sep = "")
 
     # a free structure search, truncated after the first tree
     free <- vinecop(u, trunc_lvl = 1, cores = 4)
-    cat(sprintf("trunc = %d   loglik%10.2f   (full D-vine:%10.2f)\n", free$trunc,
+    cat(sprintf("trunc = %d   loglik%10.2f   (full C-vine:%10.2f)\n", free$trunc,
                 sum(log(dvinecop(u, free))), sum(log(dvinecop(u, fitd)))))
 
-    # density of the fitted vine at points that differ only in variable 2 (pdf_grid is Fortran-only;
-    # dvinecop at the same points gives the same values)
-    for (s in 1:2) {
-      ug <- matrix(c(0.3, 0.7)[s], 3, d)
-      ug[, 2] <- c(0.1, 0.5, 0.9)
-      cat("pdf at grid, sample ", s, ":", sprintf("%9.4f", dvinecop(ug, fitd)), "\n", sep = "")
-    }
+    # conditional density of variable 2 on a 3-point grid, other variables fixed per sample
+    dens <- dvinecop_grid(matrix(c(0.3, 0.7), 2, d), fitd, tgt = 2, grid = c(0.1, 0.5, 0.9))
+    for (s in 1:2) cat("pdf_grid sample ", s, ":", sprintf("%9.4f", dens[s, ]), "\n", sep = "")
     ```
-
-    !!! note
-        C-vines (`set_cvine`), the R-vine matrix and `pdf_grid` are available from Fortran
-        only (the first two also from Python). The R script therefore puts the same pair
-        copulas on a D-vine, prints its natural-order structure array instead of the
-        matrix, and evaluates `dvinecop` at the grid points, which gives the values of
-        `pdf_grid`.
 
 Output:
 
@@ -545,31 +583,31 @@ Output:
     tree 2: frank frank
     tree 3: gumbel
     trunc = 1   loglik   2658.64   (full C-vine:   3354.12)
-    pdf at grid, sample 1:   0.4293   9.0746   1.4403
-    pdf at grid, sample 2:   0.0825   3.6496   1.8278
+    pdf_grid sample 1:   0.4293   9.0746   1.4403
+    pdf_grid sample 2:   0.0825   3.6496   1.8278
     ```
 
 === "R"
 
     ```text
-    structure array [edge, tree] (natural order):
+    R-vine matrix (original labels):
          [,1] [,2] [,3] [,4]
-    [1,]    2    3    4    0
-    [2,]    3    4    0    0
-    [3,]    4    0    0    0
-    [4,]    0    0    0    0
-    max round-trip error: 8.60E-13
+    [1,]    1    1    1    1
+    [2,]    2    2    2    0
+    [3,]    3    3    0    0
+    [4,]    4    0    0    0
+    max round-trip error: 2.03E-13
     tree 1: clayton clayton clayton
-    tree 2: frank plackett
-    tree 3: clayton
-    trunc = 1   loglik   2415.69   (full D-vine:   3188.69)
-    pdf at grid, sample 1:   0.4441   0.6836   0.0221
-    pdf at grid, sample 2:   0.0032   2.3330   4.0243
+    tree 2: frank frank
+    tree 3: gumbel
+    trunc = 1   loglik   2469.68   (full C-vine:   3202.69)
+    pdf_grid sample 1:   0.3102   8.1820   1.2356
+    pdf_grid sample 2:   0.0740   3.5746   1.5104
     ```
 
 Each language draws its own uniforms, so the samples and everything fitted to them differ;
 the matrix does not depend on the sample.
 
-Reading the (Fortran and Python) matrix column by column: column 1 has `4` on the anti-diagonal and `1` above it,
+Reading the matrix column by column: column 1 has `4` on the anti-diagonal and `1` above it,
 so the tree-1 edge is (4, 1); column 2 gives (3, 1) in tree 1 and (3, 2 | 1) in tree 2, and so
 on. Variable 1 is the root of tree 1 and variable 2 the root of tree 2, as intended.

@@ -6,8 +6,11 @@ Fortran compiler on the caller's side. They cover pair-copula evaluation, fittin
 vine selection, vine density and Rosenblatt transforms, and the rank utilities.
 
 The C interface is lower-level than the [typed Fortran API](../api/index.md): no derived
-types, no optional arguments, and some features are Fortran-only (see
-[Limitations](#limitations)).
+types and no optional arguments. A second module, `fortvine_capi` (`src/fortvine_capi.f90`),
+adds C routines over the typed API for everything the 13 kernel routines leave out:
+observation weights, discrete margins, TLL and Bernstein, every control, non-simplified vines,
+`pdf_grid`, the fit cache and the abort flag (see [The extended interface](#the-extended-interface)).
+The Python and R packages are built on both.
 
 ## Conventions
 
@@ -224,19 +227,89 @@ void   fv_tau_matrix(int n, int d, const double *x, double *tm, int nthreads);
 Kendall's $\tau_b$ (tie-corrected, $O(n \log n)$) of two vectors, and the symmetric `d x d`
 matrix of all pairwise values for `x(d, n)` (diagonal 1).
 
+## The extended interface
+
+`fortvine_capi` passes a pair copula or a vine as its arrays and rebuilds the
+`fv_bicop` / `fv_vinecop` object inside each call, so the caller owns all state (the Python
+and R objects are plain arrays and can be saved). Each routine only converts its arguments and
+calls the typed API.
+
+**Controls.** One integer vector `ci(12)` and `cr(2) = [threshold, psi0]` carry every field of
+`fv_controls`, together with the family set `famset(nf)`:
+
+| entry | meaning |
+|---|---|
+| `ci(1:6)` | as above: criterion, method, preselect, allow rotations, fast MLE, tau mode |
+| `ci(7:9)` | as above: tree criterion, tree algorithm, truncation level ($-1$: $d - 1$) |
+| `ci(10)` | threads (0: `FORTVINE_THREADS` or half the CPUs) |
+| `ci(11)` | `select_trunc`: truncation level chosen by mBICv |
+| `ci(12)` | `select_threshold`: threshold chosen by mBICv |
+
+**A vine as arrays.** `d`, `trunc`, `order(d)`, `st(d, d)`, `fam(d, d)`, `rot(d, d)`,
+`par(3, d, d)`, `aux(naux, d, d)`, `disc(d)` (1 for a discrete variable), and the relaxed
+edges `nrel`, `erel(2, *)`, `wa(d, *)`, `wk(nk, *)`, `pk(3, nk, *)` (each sized
+$\max(\mathrm{nrel}, 1)$). `naux` is `fvc_naux()` when an edge is TLL or Bernstein, otherwise 1;
+`nk = fvc_nk()` is the number of anchors of a relaxed edge.
+
+```c
+int  fvc_naux(void);                         /* length of a TLL / Bernstein estimate */
+int  fvc_nk(void);                           /* anchors of a relaxed edge */
+void fvc_fam_name(int fam, char buf[48]);    /* blank padded */
+int  fvc_families(int nmax, int *codes, int *npars);   /* all 111; npars -1 for tll, bernstein */
+void fvc_par_bounds(int fam, double lb[3], double ub[3]);
+void fvc_gen_flip(int *fam, double par[3]);  /* generic family of C(u2, u1) */
+void fvc_set_abort(int flag);                /* fv_abort: stop a running selection */
+void fvc_fitcache(int op, int capacity, int64_t *hits, int64_t *misses, int *used);
+                                             /* op 0 disable, 1 enable, 2 clear, 3 stats */
+
+void fvc_bicop_eval(int fam, int rot, const double par[3], int naux, const double *aux,
+                    int n, const double *u, int what, double *out);
+                    /* what 0 logpdf, 1 pdf, 2 h1, 3 h2, 4 hinv1, 5 hinv2, 6 cdf */
+void fvc_bicop_fit(int n, const double *u, int usew, const double *w, int sel, int nf,
+                   const int *famset, const int ci[12], const double cr[2], int *fam, int *rot,
+                   double par[3], double *ll, int naux, double *aux, double *npe);
+
+void fvc_vine_select(int n, int d, const double *u, const double *um, const int *disc,
+                     int usew, const double *w, int fixed, int nf, const int *famset,
+                     const int ci[12], const double cr[2], int *trunc, int *order, int *st,
+                     int *fam, int *rot, double *par, double *edge_ll, int naux, double *aux,
+                     double *ll, double *npe, double *thr, int *info);
+void fvc_vine_eval(int d, int trunc, const int *order, const int *st, const int *fam,
+                   const int *rot, const double *par, int naux, const double *aux,
+                   const int *disc, int nrel, const int *erel, const double *wa,
+                   const double *wk, const double *pk, int what, int n, const double *u,
+                   const double *um, int seed, int nthreads, double *out);
+                   /* what 0 density (out(1, :)), 1 Rosenblatt, 2 inverse, 3 simulate */
+void fvc_vine_pdf_grid(/* vine arrays as in fvc_vine_eval */ ..., int nb, int n,
+                       const double *ug, const double *ugm, int tgt, int nthreads, double *out);
+void fvc_vine_relax(int n, int d, const double *u, int usew, const double *w, int tgt, int mode,
+                    int nf, const int *famset, const int ci[12], const double cr[2],
+                    int trunc, const int *order, const int *st, int *fam, int *rot, double *par,
+                    double *edge_ll, int naux, double *aux, const int *disc, int nmax, int *nrel,
+                    int *erel, double *wa, double *wk, double *pk, double *ll, double *npe);
+void fvc_vine_rel_params(int d, int nrel, const double *wa, const double *wk, const double *pk,
+                         int n, const double *uc, double *prel);   /* prel(3, nrel, n) */
+void fvc_vine_structure(int kind, int d, const int *order, int trunc, int *st, int *trunc_out);
+void fvc_vine_matrix(int d, const int *order, int trunc, const int *st, int *m);
+```
+
+`fvc_bicop_fit` fits the given `fam`/`rot` (`sel = 0`) or selects among `famset` (`sel = 1`),
+with weights `w(n)` if `usew = 1`; `npe` is the number of parameters (effective degrees of
+freedom for TLL and Bernstein). `fvc_vine_select` takes `u(d, n)` and, for discrete variables,
+`um(d, n)` $= F(x^-)$; with `fixed = 1` the structure in `order`, `st`, `trunc` is kept; `info`
+is 0, or $-2$ if `naux` is too small for the family set. In `fvc_vine_eval` the Rosenblatt
+transform of a vine with discrete variables is randomised with `seed` (0: the conditional
+distribution function itself), and simulation is reproducible for `seed > 0`.
+`fvc_vine_relax` updates the vine in place (later trees are refitted) and writes the relaxed
+edges (`nrel = -1` if more than `nmax`). `tgt`, `mode`, `nb` and the grid layout are those of
+[`relax` and `pdf_grid`](vinecop.md).
+
 ## Limitations
 
-The following need the Fortran API:
-
-* observation weights (except the shared weight vector of `fv_fit_jobs`);
-* discrete margins;
-* the nonparametric families TLL and Bernstein: their estimate (`aux`) is not passed through
-  the C routines, so do not include codes 24 or 25 in a C family set;
-* `select_trunc`, `select_threshold`, `relax`, the fit cache and `pdf_grid` with discrete
-  data;
-* the abort flag `fv_abort` (a module variable without a C binding).
-
-The generic families (codes $\ge 10000$) work through every C routine.
+None: every feature of the typed API can be reached from C through `fortvine_capi`. The 13
+kernel routines above do not take weights, discrete margins or TLL/Bernstein estimates (do
+not include codes 24 or 25 in their family sets); use the `fvc_*` routines for those. The
+generic families (codes $\ge 10000$) work through every routine.
 
 ## Example in C
 

@@ -1,5 +1,5 @@
-"""Build step: compile the Fortran sources of the repository (../src) plus the small
-bind(C) shim fortvine_py.f90 into fortvine/_lib/libfortvine.{so,dylib,dll}.
+"""Build step: compile the Fortran sources of the repository (../src), including the C
+interface fortvine_capi.f90 that the package calls, into fortvine/_lib/libfortvine.{so,dylib,dll}.
 
 An sdist carries a copy of ../src in fsrc/ and of ../LICENSE (made by the sdist command),
 so it builds outside the repository.  Environment: FC (default gfortran), FFLAGS (default: portable
@@ -20,7 +20,7 @@ from setuptools.command.sdist import sdist
 from setuptools.dist import Distribution
 
 HERE = Path(__file__).resolve().parent
-SOURCES = ["fortvine_ad.f90", "fortvine.f90", "fortvine_api.f90"]
+SOURCES = ["fortvine_ad.f90", "fortvine.f90", "fortvine_api.f90", "fortvine_capi.f90"]
 LIBNAME = {"win32": "libfortvine.dll", "darwin": "libfortvine.dylib"}.get(sys.platform, "libfortvine.so")
 FFLAGS = "-O3 -funroll-loops -fno-math-errno -ffree-line-length-none -fopenmp"
 
@@ -33,7 +33,7 @@ def fortran_src():
 
 def compile_library(target):
     src = fortran_src()
-    if not (src / "fortvine.f90").is_file():
+    if not all((src / f).is_file() for f in SOURCES):
         sys.exit(f"fortvine: Fortran sources not found in {src} (build from a clone of the "
                  "repository or from the sdist, or set FORTVINE_SRC)")
     fc = os.environ.get("FC", "gfortran")
@@ -42,7 +42,7 @@ def compile_library(target):
     # loads in any environment; elsewhere the compiler's shared runtimes are used (wheels
     # get them bundled by auditwheel / delocate)
     link = ["-static"] if sys.platform == "win32" else []
-    files = [src / f for f in SOURCES] + [HERE / "fortvine_py.f90"]
+    files = [src / f for f in SOURCES]
     with tempfile.TemporaryDirectory() as tmp:
         objs = []
         for f in files:

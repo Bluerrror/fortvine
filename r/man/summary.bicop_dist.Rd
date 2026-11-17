@@ -27,7 +27,9 @@
 \code{summary()} returns a data frame: one row for a pair copula, one row per edge for a vine
 (tree, edge, conditioned and conditioning variables, family, rotation, parameters,
 number of parameters and edge log-likelihood). \code{logLik()} returns the log-likelihood of a
-fitted model as a \code{logLik} object, so \code{\link[stats:AIC]{stats::AIC()}} and \code{\link[stats:AIC]{stats::BIC()}} work.
+fitted model as a \code{logLik} object, so \code{\link[stats:AIC]{stats::AIC()}} and \code{\link[stats:AIC]{stats::BIC()}} work; its \code{df} is
+the number of parameters, with the effective degrees of freedom for \code{tll} and \code{bernstein}
+and the anchor parameters of relaxed edges.
 }
 \examples{
 set.seed(3)

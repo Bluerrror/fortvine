@@ -8,7 +8,8 @@ fortvine_families()
 }
 \value{
 A data frame with columns \code{code}, \code{name} and \code{npars} (\code{NA} for the nonparametric
-families \code{tll} and \code{bernstein}, which the C interface cannot use).
+families \code{tll} (24) and \code{bernstein} (25), whose number of parameters is the effective
+degrees of freedom of each fit).
 }
 \description{
 Returns the 111 distinct families of the library: the 26 hand-coded families (codes 0-25)

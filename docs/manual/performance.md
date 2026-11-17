@@ -122,6 +122,20 @@ pair fits are then looked up instead of recomputed.
 calling `pdf` on an expanded array; edges that do not involve the varying variable are
 evaluated once per sample.
 
+<figure markdown>
+![Vine selection time against the sample size for four family sets, and selection time against the truncation level in twenty dimensions](img/performance_cost.png){ width="700" }
+<figcaption>Two of the knobs, measured with the Python package and 8 threads (one run each;
+timings depend on the machine). (a) Candidates: selection time of a five-dimensional vine (the
+BB1 / Student D-vine of the [fitting example](fitting.md#example-what-the-options-cost)) for
+four family sets. Each larger set costs a roughly constant factor; the 109-family set with the
+generic codes is 7 times ($n = 20\,000$) to 80 times ($n = 1000$) slower than the default set, and *faster* above
+$n = 1800$ than below, where the generic pre-screen on a 600-row subsample starts (shaded).
+(b) Edges: selection time of a 20-dimensional vine ($n = 2000$, Kendall's $\tau$ fading from
+0.5 in tree 1 to 0.03 from tree 5 on) against `trunc_lvl`, with the number of fitted edges in
+grey; the time grows with the number of fitted edges. The dashed line is the level chosen by `select_trunc_lvl` (mBICv), which
+here keeps 17 of the 19 trees because even $\tau = 0.03$ is detectable at $n = 2000$.</figcaption>
+</figure>
+
 ## Example: thread scaling
 
 ```fortran
@@ -151,14 +165,26 @@ end program perf_demo
 ```
 
 Output (an 8-dimensional vine, 10 000 observations, default family set; timings from one test
-machine, compiled with `-O2`):
+machine, compiled with `-O3 -march=native`):
 
 ```text
-nthreads 1:  16.14 s   loglik  27197.910281
-nthreads 2:   9.34 s   loglik  27197.910281
-nthreads 4:   4.87 s   loglik  27197.910281
-nthreads 8:   2.99 s   loglik  27197.910281
+nthreads 1:  10.17 s   loglik  27197.910281
+nthreads 2:   5.13 s   loglik  27197.910281
+nthreads 4:   2.61 s   loglik  27197.910281
+nthreads 8:   1.40 s   loglik  27197.910281
 ```
 
 The selected vine, and with it the log-likelihood to the last printed digit, is the same for
 every thread count.
+
+<figure markdown>
+![Wall-clock time and speed-up against the number of threads for vine selection and for density, Rosenblatt and inverse Rosenblatt evaluation](img/performance_threads.png){ width="700" }
+<figcaption>The same program in Python, with 1, 2, 4, 8 and 16 threads (`num_threads`) on a
+32-thread machine (8 performance cores with two threads each, 16 efficiency cores); the sample
+comes from NumPy, so the numbers differ from the Fortran output above. (a) Wall-clock time of
+the vine selection ($n = 10\,000$, one run) and of `pdf`, `rosenblatt` and `inverse_rosenblatt`
+of the selected vine on 200 000 points (best of three). (b) Speed-up over one thread, with the
+ideal line. Scaling is close to ideal up to 8 threads; at 16 threads, which share cores or run
+on efficiency cores, selection reaches about 9 and the evaluations 9 to 10. The selected vine and
+its log-likelihood (27899.336747) are identical for every thread count.</figcaption>
+</figure>

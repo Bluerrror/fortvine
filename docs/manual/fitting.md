@@ -35,6 +35,17 @@ vinecopulib's `adjust_parameters_bounds`; they make the optimisation cheap and a
 never binding because the MLE of these families is close to the $\tau$-inversion. The full
 boxes are listed in [Pair copulas](bicop.md#parameter-bounds).
 
+<figure markdown>
+![Log-likelihood profile of a Gumbel copula with the narrowed search box, the MLE and the tau-inversion, and log-likelihood contours of a BB1 copula with its MLE](img/fitting_loglik.png){ width="700" }
+<figcaption>The likelihood the optimiser climbs. (a) $\ell(\theta) - \ell(\hat\theta)$ of a
+Gumbel copula on 500 draws with $\theta = 1.6$ (each point a `loglik` call), the narrowed box of
+the parameters with Kendall's $\tau$ in $\hat\tau \pm 0.1$ (shaded), the MLE of `fit` and the
+$\tau$-inversion of `fit(method="itau")`, which is a fraction of a log-likelihood unit lower.
+(b) $\ell(\theta, \delta) - \ell_{\max}$ of BB1 on 1000 draws with $(\theta, \delta) = (0.6,
+1.4)$: a tilted ridge, along which the BHHH curvature and the BFGS polish find the maximum
+returned by `fit` (gold).</figcaption>
+</figure>
+
 ## One-parameter families in closed form
 
 For the Gaussian, Clayton, Gumbel, Frank and Joe families on continuous margins fortvine
@@ -100,6 +111,18 @@ For $n > 1800$ every multi-parameter fit runs in two stages:
 
 The stopping rule of stage 2 is the full-data one, so the result is still the full-data MLE;
 the subsample only provides a good start.
+
+<figure markdown>
+![Root mean square error of the MLE and the tau-inversion against the sample size for Clayton and Gumbel, and the time of one fit against the sample size for five families](img/fitting_accuracy_cost.png){ width="700" }
+<figcaption>(a) Accuracy: root mean square error of $\hat\theta$ over 200 samples per $n$
+(true $\theta = 2$) for the MLE and the $\tau$-inversion (`method="itau"`). Both decrease like
+$n^{-1/2}$; the MLE is the more efficient estimator, by a factor of about 1.5 in RMSE for
+Clayton. (b) Cost: wall-clock time of one `fit` (one thread, best of five) on the first $n$ rows of
+a BB1 sample. The closed-form one-parameter fits and the inversion are linear in $n$; the
+multi-parameter fits of BB1 and Tawn become *cheaper* when $n$ crosses 1800, where the
+two-stage scheme starts (shaded): the start grid and most Newton steps then run on the 600-row
+subsample.</figcaption>
+</figure>
 
 ## Multi-start grids
 
@@ -189,13 +212,23 @@ margins, the family, rotation, method, start and box:
 
 === "Python"
 
-    !!! note
-        The fit cache is available from Fortran only.
+    ```python
+    fv.fitcache_enable(20000)               # room for 20000 fits
+    vc = fv.Vinecop.from_data(u)            # fills the cache
+    vc = fv.Vinecop.from_data(u)            # identical pairs: cache hits
+    hits, misses, used = fv.fitcache_stats()
+    fv.fitcache_disable()                   # frees the table
+    ```
 
 === "R"
 
-    !!! note
-        The fit cache is available from Fortran only.
+    ```r
+    fitcache_enable(20000)                  # room for 20000 fits
+    vc <- vinecop(u)                        # fills the cache
+    vc <- vinecop(u)                        # identical pairs: cache hits
+    fitcache_stats()                        # hits, misses, used
+    fitcache_disable()                      # frees the table
+    ```
 
 * A hit returns exactly the fit computed earlier for identical input, so results do not
   change.
@@ -254,7 +287,7 @@ bracket. Two controls use them:
 * `ctl%method = FV_ITAU` (`method="itau"` in Python, `par_method = "itau"` in R): every candidate is fitted by inversion; families without an
   inversion (codes above 6) are not considered in selection. The log-likelihood is evaluated
   at the inverted parameter so that criteria remain comparable.
-* `ctl%fast_mle = .true.` (with `FV_MLE`; `fast_mle=True` in Python, not available in R): only the five one-parameter families above use the
+* `ctl%fast_mle = .true.` (with `FV_MLE`; `fast_mle=True` in Python, `fast_mle = TRUE` in R): only the five one-parameter families above use the
   inversion; everything else, including the Student, is fitted by MLE. Since the closed-form
   MLE of those families is already cheap, the saving is small in fortvine.
 
@@ -341,11 +374,15 @@ the $\tau$ tree criterion, the exact $\tau$ matrix computed for the tree weights
     run("fast_mle", fast_mle=True)
     run("itau", method="itau")
     run("MLE, mBICv", criterion="mbicv")
-    # the fit cache (fv_fitcache_*) is available from Fortran only
-    ```
 
-    !!! note
-        The fit cache (`fv_fitcache_*`) is available from Fortran only.
+    # the fit cache: a repeated selection on identical data reuses every cached pair fit
+    fv.fitcache_enable(20000)
+    run("cache, first pass")
+    run("cache, second pass")
+    s = fv.fitcache_stats()
+    print(f"cache hits {s.hits}  misses {s.misses}  slots used {s.used}")
+    fv.fitcache_disable()
+    ```
 
 === "R"
 
@@ -363,13 +400,18 @@ the $\tau$ tree criterion, the exact $\tau$ matrix computed for the tree weights
       cat(sprintf("%20s  loglik%10.2f  npars%3d  time%7.3f s\n", label, logLik(vc), vc$npars, t))
     }
     run("MLE, BIC (default)")
+    run("fast_mle", fast_mle = TRUE)
     run("itau", par_method = "itau")
     run("MLE, mBICv", selcrit = "mbicv")
-    # fast_mle and the fit cache (fv_fitcache_*) are available from Fortran only
-    ```
 
-    !!! note
-        `fast_mle` and the fit cache (`fv_fitcache_*`) are available from Fortran only.
+    # the fit cache: a repeated selection on identical data reuses every cached pair fit
+    fitcache_enable(20000)
+    run("cache, first pass")
+    run("cache, second pass")
+    s <- fitcache_stats()
+    cat(sprintf("cache hits %.0f  misses %.0f  slots used %.0f\n", s[["hits"]], s[["misses"]], s[["used"]]))
+    fitcache_disable()
+    ```
 
 Output (4 threads; timings depend on the machine):
 
@@ -388,23 +430,31 @@ Output (4 threads; timings depend on the machine):
 === "Python"
 
     ```text
-      MLE, BIC (default)  loglik   6820.85  npars 14  time  0.415 s
-                fast_mle  loglik   6820.85  npars 14  time  0.410 s
-                    itau  loglik   6743.91  npars 14  time  0.108 s
-              MLE, mBICv  loglik   6820.85  npars 14  time  0.418 s
+      MLE, BIC (default)  loglik   6820.85  npars 14  time  0.428 s
+                fast_mle  loglik   6820.85  npars 14  time  0.419 s
+                    itau  loglik   6743.91  npars 14  time  0.107 s
+              MLE, mBICv  loglik   6820.85  npars 14  time  0.422 s
+       cache, first pass  loglik   6820.85  npars 14  time  0.424 s
+      cache, second pass  loglik   6820.85  npars 14  time  0.021 s
+    cache hits 252  misses 388  slots used 372
     ```
 
 === "R"
 
     ```text
-      MLE, BIC (default)  loglik   7099.77  npars 14  time  1.060 s
-                    itau  loglik   7019.80  npars 14  time  0.240 s
-              MLE, mBICv  loglik   7099.77  npars 14  time  1.080 s
+      MLE, BIC (default)  loglik   7099.77  npars 14  time  1.070 s
+                fast_mle  loglik   7099.77  npars 14  time  1.050 s
+                    itau  loglik   7019.80  npars 14  time  0.230 s
+              MLE, mBICv  loglik   7099.77  npars 14  time  1.070 s
+       cache, first pass  loglik   7099.77  npars 14  time  1.060 s
+      cache, second pass  loglik   7099.77  npars 14  time  0.060 s
+    cache hits 268  misses 391  slots used 355
     ```
 
 The Python and R samples come from other random streams, so their log-likelihoods differ
-from the Fortran ones; the pattern is the same. The R package is compiled with R's own
-compiler flags (`-O2`, no `-march=native`), which makes it two to three times slower here.
+from the Fortran ones; the pattern is the same. The R package is compiled by R's own
+toolchain (on Windows Rtools43, gfortran 12.3), which makes the same code two to three times
+slower here; see [Benchmarks](../benchmarks.md).
 
 `FV_ITAU` is fastest because it drops every family above code 6 (here the true BB1 is no
 longer available, which costs about 92 log-likelihood units). The second cached selection
@@ -412,9 +462,24 @@ takes 6 % of the time of the first and returns the same vine. It needs fewer loo
 hits) than the first pass had misses (402), because a candidate that was screened and then
 polished in the first pass costs two fits there but is found at once under its final key.
 
+<figure markdown>
+![Selection time and log-likelihood of the selected vine for the options of the example, including two passes with the fit cache](img/fitting_options.png){ width="700" }
+<figcaption>The Python example re-run with the fit cache, which the Python package now exposes
+(`fitcache_enable`, `fitcache_stats`). (a) Selection time with 4 threads (best of three runs,
+one run for the cache passes). (b) Log-likelihood of the selected vine relative to the best:
+every option except `itau` selects the same vine (6820.9); `itau` loses 77 units because the
+true BB1 family is no longer a candidate. The second cached pass returns the same vine in
+under 10 % of the time of the first. Timings depend on the machine.</figcaption>
+</figure>
+
 ## Aborting a running fit
 
 The kernel module exposes a `volatile` logical `fv_abort` (in module `fortvine`, not
 re-exported by `fortvine_api`). Setting it to `.true.` from another thread makes fits in
 flight stop at their next Newton step and new ones return immediately; the results are then
 meaningless and are not cached. Reset it to `.false.` before the next call.
+
+In Python, `fv.set_abort(True)` / `fv.set_abort(False)` set and clear the flag (through
+`fvc_set_abort`), and Ctrl-C interrupts a running vine selection or `relax` (see the
+[Python page](../python.md#fit-cache-abort-flag-bounds)). R has no abort function: R cannot
+run code while a computation is in progress.

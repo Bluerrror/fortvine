@@ -14,35 +14,104 @@ Two features that real data often need:
    $u = F(x)$ together with $u^- = F(x^-)$, the margin's distribution function just below
    the observed value.
 
-!!! note "Fortran only"
-    Observation weights and discrete margins are available from Fortran only: the C
-    interface that the [Python](../python.md) and [R](../r.md) packages call does not pass
-    them. This page therefore has no Python or R version.
-
 ## Code
 
-```fortran
---8<-- "example/ex05_weights_discrete.f90"
-```
+=== "Fortran"
+
+    ```fortran
+    --8<-- "example/ex05_weights_discrete.f90"
+    ```
+
+=== "Python"
+
+    ```python
+    --8<-- "example/python/ex05_weights_discrete.py"
+    ```
+
+=== "R"
+
+    ```r
+    --8<-- "example/r/ex05_weights_discrete.R"
+    ```
 
 ## Output
 
-```text
-Clayton fit, equal weights:          theta =  1.877
-Clayton fit, time-decay weights:     theta =  3.479   (effective n =  994.1)
-weights 1/2:     theta =  1.87489409  loglik =   1746.7519
-duplicated rows: theta =  1.87489409  loglik =   1746.7519
+The three languages draw their random numbers differently, so the numbers differ within
+sampling error; the conclusions are the same.
 
-count variable: 389 zeros, maximum 9, mean  2.027
-tree-1 pair      truth             discrete-aware    naive
-  (1,2)    gaussian    0.700 gaussian    0.714 gaussian    0.706
-  (2,3)    clayton     2.000 clayton     2.119 bb8         3.407
-loglik of the mixed data: truth   2241.17   discrete-aware fit   2246.63
-first three mixed densities:  6.789E-02  2.063E+00  3.971E+00
-Rosenblatt column means (1/2):         0.5032  0.5040  0.4932
-Rosenblatt column variances (1/12):    0.0820  0.0827  0.0844
-Kendall tau (1,2) (1,3) (2,3), ~0:     0.0003  0.0057 -0.0035
-```
+=== "Fortran"
+
+    ```text
+    Clayton fit, equal weights:          theta =  1.877
+    Clayton fit, time-decay weights:     theta =  3.479   (effective n =  994.1)
+    weights 1/2:     theta =  1.87489409  loglik =   1746.7519
+    duplicated rows: theta =  1.87489409  loglik =   1746.7519
+
+    count variable: 389 zeros, maximum 9, mean  2.027
+    tree-1 pair      truth             discrete-aware    naive
+      (1,2)    gaussian    0.700 gaussian    0.714 gaussian    0.706
+      (2,3)    clayton     2.000 clayton     2.119 bb8         3.407
+    loglik of the mixed data: truth   2241.17   discrete-aware fit   2246.63
+    first three mixed densities:  6.789E-02  2.063E+00  3.971E+00
+    Rosenblatt column means (1/2):         0.5032  0.5040  0.4932
+    Rosenblatt column variances (1/12):    0.0820  0.0827  0.0844
+    Kendall tau (1,2) (1,3) (2,3), ~0:     0.0003  0.0057 -0.0035
+    ```
+
+=== "Python"
+
+    ```text
+    Clayton fit, equal weights:          theta =  1.877
+    Clayton fit, time-decay weights:     theta =  3.511   (effective n =  994.1)
+    weights 1/2:     theta = 1.84226030  loglik = 1668.8314
+    duplicated rows: theta = 1.84226030  loglik = 1668.8314
+
+    count variable: 424 zeros, maximum 8, mean 2.010
+    discrete-aware fit:
+    fortvine vine copula: d = 3, trunc = 2
+    order: 3 2 1
+    discrete: 2
+      tree 1 edge 1: clayton      rot   0 par 1.9618
+      tree 1 edge 2: gaussian     rot   0 par 0.6982
+      tree 2 edge 1: plackett     rot   0 par 3.1518
+    naive fit:
+    fortvine vine copula: d = 3, trunc = 2
+    order: 3 2 1
+      tree 1 edge 1: bb8          rot 180 par 3.1311 0.9439
+      tree 1 edge 2: gaussian     rot   0 par 0.6894
+      tree 2 edge 1: plackett     rot   0 par 3.1118
+    loglik of the mixed data: truth   2207.76   discrete-aware fit   2215.21
+    first three mixed densities: [ 1.499  2.302 22.639]
+    Rosenblatt column means (1/2):       [0.4996 0.5023 0.4962]
+    Rosenblatt column variances (1/12):  [0.0824 0.0849 0.0834]
+    Kendall tau (1,2) (1,3) (2,3), ~0:   [0.0212 0.0061 0.0113]
+    ```
+
+=== "R"
+
+    ```text
+    Clayton fit, equal weights:          theta =  1.867
+    Clayton fit, time-decay weights:     theta =  3.703   (effective n =  994.1)
+    weights 1/2:     theta = 1.87948422  loglik = 1716.0245
+    duplicated rows: theta = 1.87948422  loglik = 1716.0245
+
+    count variable: 401 zeros, maximum 8, mean 2.016
+    discrete-aware fit:
+      tree conditioned   family parameters
+    1    1        3, 2  clayton      1.895
+    2    1        2, 1 gaussian     0.7019
+    3    2        3, 1    frank       2.33
+    naive fit:
+      tree conditioned   family    parameters
+    1    1        3, 2      bb8 3.118, 0.9377
+    2    1        2, 1 gaussian        0.6927
+    3    2        3, 1 gaussian        0.3533
+    loglik of the mixed data: truth   2117.99   discrete-aware fit   2123.58
+    first three mixed densities: 1.432 1.703 2.184 
+    Rosenblatt column means (1/2):       0.5051 0.5026 0.4935 
+    Rosenblatt column variances (1/12):  0.0836 0.0829 0.084 
+    Kendall tau (1,2) (1,3) (2,3), ~0:   -0.0052 6e-04 -9e-04 
+    ```
 
 The seeds are fixed; the output is reproducible.
 

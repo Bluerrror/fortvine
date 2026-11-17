@@ -287,7 +287,7 @@ contains
     call bc_eval(self, u1, u2, 0, out)
   end subroutine bc_logpdf
   ! copula distribution function C(u1, u2) (closed form for every family except gaussian /
-  ! student: Gauss-Legendre over the exact h-function; tll: exact integral of the interpolant)
+  ! student: Gauss-Legendre over the exact h-function in normal scores; tll: exact integral of the interpolant)
   subroutine bc_cdf(self, u1, u2, out)
     class(fv_bicop), intent(in) :: self
     real(dp), intent(in) :: u1(:), u2(:)
@@ -855,6 +855,7 @@ contains
     real(dp) :: prel(3, self%nrel, size(uc, 2))
     integer :: i, r, j, k, nk
     real(dp) :: w, a
+    if (self%nrel == 0) return             ! simplified vine: prel is empty (wk unallocated)
     nk = size(self%wk, 1)
     do i = 1, size(uc, 2)
       do r = 1, self%nrel

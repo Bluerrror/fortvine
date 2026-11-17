@@ -5,15 +5,18 @@ Version: 1.0.0
 Authors@R: person("Shahab Aldin", "Shojaeezadeh", role = c("aut", "cre", "cph"),
     email = "shahab@uni-kassel.de")
 Description: Bindings to 'fortvine', a vine-copula library written in Fortran
-    with 'OpenMP'. Pair-copula densities, h-functions and their inverses for 111
-    families, maximum likelihood fitting and family selection, vine selection by
-    the algorithm of Dissmann et al. (2013) <doi:10.1016/j.csda.2012.08.010>
-    for pair-copula constructions (Aas et al. 2009
-    <doi:10.1016/j.insmatheco.2007.02.001>), the vine criterion 'mBICv' of
-    Nagler et al. (2019) <doi:10.1016/j.jmva.2019.03.004>, vine densities and
-    Rosenblatt transforms are all computed by the Fortran code through its C
-    interface; the R functions only convert arguments and wrap the results.
-    Function names follow the 'rvinecopulib' package.
+    with 'OpenMP'. Pair-copula densities, distribution functions, h-functions
+    and their inverses for 111 families, including the nonparametric
+    transformation local-likelihood and Bernstein estimators; maximum
+    likelihood fitting and family selection with observation weights; vine
+    selection by the algorithm of Dissmann et al. (2013)
+    <doi:10.1016/j.csda.2012.08.010> for pair-copula constructions (Aas et al.
+    2009 <doi:10.1016/j.insmatheco.2007.02.001>), with discrete margins, the
+    vine criterion 'mBICv' and automatic truncation and thresholding of Nagler
+    et al. (2019) <doi:10.1016/j.jmva.2019.03.004>; non-simplified vines, vine
+    densities and Rosenblatt transforms are all computed by the Fortran code
+    through its C interface; the R functions only convert arguments and wrap
+    the results. Function names follow the 'rvinecopulib' package.
 License: GPL (>= 3)
 URL: https://bluerrror.github.io/fortvine/, https://github.com/Bluerrror/fortvine
 BugReports: https://github.com/Bluerrror/fortvine/issues
@@ -22,4 +25,4 @@ Imports: stats
 SystemRequirements: a Fortran compiler with a C preprocessor (gfortran)
 NeedsCompilation: yes
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2

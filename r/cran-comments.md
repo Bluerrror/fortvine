@@ -2,7 +2,7 @@
 
 First submission of fortvine 1.0.0: R bindings to the fortvine Fortran vine-copula library.
 All computations are done by the bundled Fortran code (src/fortvine/, a copy of the
-library sources) through its C interface.
+library sources) through its C interface (fortvine_capi).
 
 ## Test environments
 
@@ -22,4 +22,7 @@ library sources) through its C interface.
 * The bundled library writes nothing to the console and never stops the process when built
   for R (`-DFORTVINE_NO_IO` in Makevars); errors are returned to R and raised there.
 * OpenMP is used through `$(SHLIB_OPENMP_FFLAGS)` / `$(SHLIB_OPENMP_CFLAGS)`; examples and
-  tests use at most 2 threads.
+  tests use at most 2 threads (the default is 1). The Fortran sources live in src/fortvine/
+  and are compiled by explicit rules in Makevars, whose flags are in the variable
+  `FV_FCFLAGS`; R applies `PKG_FCFLAGS` only to free-form sources at the top of src/.
+  `$(FLIBS)` is in `PKG_LIBS` for the same reason (the C compiler links the package).

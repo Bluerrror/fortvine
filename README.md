@@ -113,20 +113,23 @@ The complete list with codes, parameter boxes, symmetry and tail behaviour is in
 
 ## Performance
 
-Against pyvinecopulib 1.0.1 (vinecopulib) and torchvine 0.2.2 on the same data, family set and
-criterion (one machine, see the [benchmark page](https://bluerrror.github.io/fortvine/benchmarks/)
+fortvine from Fortran, Python and R against pyvinecopulib 1.0.1 / rvinecopulib 0.7.2.1.0
+(vinecopulib) and torchvine 0.2.2, on the same data, family set and criterion (one Windows machine,
+one thread unless stated; see the [benchmark page](https://bluerrror.github.io/fortvine/benchmarks/)
 for the method and all tables):
 
-| task | fortvine | pyvinecopulib | torchvine |
-|---|---:|---:|---:|
-| Clayton density, ns per point | 44 | 117 | 65 |
-| BB1 inverse h-function, ns per point | 770 | 12 540 | 3 325 |
-| BB1 MLE fit, n = 5000 | 4.7 ms | 66 ms | 95 ms |
-| family selection (12 families, rotations), n = 5000 | 50-110 ms | 1-2 s | 0.8-2.2 s |
-| vine selection, d = 10, n = 2000, 1 thread | 2.0 s | 34.3 s | 18.5 s |
-| vine selection, d = 20, n = 2000, 8 threads | 1.2 s | 27.6 s | — |
+| task | fortvine Fortran | fortvine Python | fortvine R | pyvinecopulib | rvinecopulib | torchvine |
+|---|---:|---:|---:|---:|---:|---:|
+| Clayton density, ns per point | 43 | 39 | 160 | 66 | 110 | 39 |
+| BB1 inverse h-function, ns per point | 752 | 756 | 2 700 | 8 282 | 19 080 | 1 691 |
+| BB1 MLE fit, n = 5000 | 4.5 ms | 4.6 ms | 11.9 ms | 33 ms | 84 ms | 34 ms |
+| family selection (12 families, rotations), n = 5000 | 51-100 ms | 49-100 ms | 137-265 ms | 0.68-1.0 s | 1.9-3.1 s | 0.39-0.81 s |
+| vine selection, d = 10, n = 2000 | 2.1 s | 2.1 s | 5.8 s | 18.3 s | 40.6 s | 5.9 s |
+| vine selection, d = 20, n = 2000, 8 threads | 1.2 s | 1.2 s | 3.3 s | 14.9 s | 29.8 s | — |
 
-fortvine and pyvinecopulib reach identical maximum log-likelihoods in every comparison.
+fortvine (from every language), pyvinecopulib and rvinecopulib reach identical maximum
+log-likelihoods in every comparison. The Python package runs at the native library's speed; the
+R package is slower on Windows only because R's compiler (Rtools, gfortran 12) is.
 
 ## Documentation
 

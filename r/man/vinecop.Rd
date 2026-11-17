@@ -17,36 +17,54 @@ vinecop(
   tree_crit = "tau",
   tree_algorithm = "mst_prim",
   threshold = 0,
-  cores = 1
+  cores = 1,
+  var_types = NULL,
+  weights = numeric(),
+  fast_mle = FALSE,
+  tau_mode = "exact"
 )
 }
 \arguments{
-\item{data}{an \verb{n x d} matrix of pseudo-observations.}
+\item{data}{an \verb{n x d} matrix of pseudo-observations (\verb{n x (d + k)} with discrete
+variables).}
 
-\item{family_set, par_method, selcrit, psi0, presel, allow_rotations}{see \code{\link[=bicop]{bicop()}}; \code{selcrit}
-\code{"mbicv"} is the vine criterion of Nagler et al. (2019).}
+\item{family_set, par_method, selcrit, psi0, presel, allow_rotations, weights, fast_mle, tau_mode}{see \code{\link[=bicop]{bicop()}}; \code{selcrit} \code{"mbicv"} is the vine criterion of Nagler et al. (2019).}
 
-\item{structure}{\code{NA} to select the structure, or an \code{\link[=dvine_structure]{dvine_structure()}} object.}
+\item{structure}{\code{NA} to select the structure, or an \code{fv_structure} from
+\code{\link[=dvine_structure]{dvine_structure()}} / \code{\link[=cvine_structure]{cvine_structure()}}.}
 
-\item{trunc_lvl}{number of trees (\code{Inf} for all).}
+\item{trunc_lvl}{number of trees (\code{Inf} for all); \code{NA} selects the truncation level by
+mBICv (vinecopulib's \code{select_trunc_lvl}).}
 
 \item{tree_crit}{\code{"tau"}, \code{"rho"}, \code{"joe"}, \code{"hoeffd"}, \code{"xi"}, \code{"mi"} or \code{"ferreira"}.}
 
 \item{tree_algorithm}{\code{"mst_prim"} or \code{"mst_kruskal"}.}
 
-\item{threshold}{edges with \eqn{|\tau|} below it are set to independence.}
+\item{threshold}{edges with a tree criterion below it are set to independence; \code{NA}
+selects the threshold by mBICv (vinecopulib's \code{select_threshold}).}
 
 \item{cores}{number of OpenMP threads.}
+
+\item{var_types}{\code{"c"} (continuous) or \code{"d"} (discrete) for each variable; \code{NULL} for all
+continuous.}
 }
 \value{
-A \code{\link[=vinecop_dist]{vinecop_dist()}} object with \code{loglik}, \code{nobs} and \code{names} (the column names of
-\code{data}, used by \code{print()} and \code{summary()}); each pair copula holds its edge log-likelihood.
+A \code{\link[=vinecop_dist]{vinecop_dist()}} object with \code{loglik}, \code{nobs}, \code{threshold} (the value used),
+\code{names} (the column names of \code{data}, used by \code{print()} and \code{summary()}) and \code{npars} (with
+the effective degrees of freedom of \code{tll} / \code{bernstein} edges); each pair copula holds its
+edge log-likelihood.
 }
 \description{
 Dissmann's algorithm as implemented by \verb{fv_vinecop\%select}: the structure (maximum
 spanning trees of \code{tree_crit}), the pair-copula families among \code{family_set} and their
 parameters, all chosen by the Fortran library. With \code{structure} given only the families
 and parameters are selected.
+}
+\details{
+\strong{Discrete variables} follow rvinecopulib: with \code{k} entries \code{"d"} in \code{var_types}, \code{data}
+has \code{d + k} columns, the \code{d} columns \eqn{F_j(x_j)} followed by the columns
+\eqn{F_j(x_j^-)} of the \code{k} discrete variables (in the order of \code{var_types}). The same
+layout is used by \code{\link[=dvinecop]{dvinecop()}} and \code{\link[=rosenblatt]{rosenblatt()}} of the fitted model.
 }
 \examples{
 set.seed(4)
@@ -56,4 +74,12 @@ z[, 3] <- z[, 3] + z[, 2]
 fit <- vinecop(pseudo_obs(z), family_set = "parametric", cores = 2)
 fit
 summary(fit)
+# automatic truncation and threshold
+vinecop(pseudo_obs(z), family_set = "parametric", trunc_lvl = NA, threshold = NA)$trunc
+# variable 3 observed as a count: F(x) and F(x-) of the count, appended as column 4
+k <- cut(z[, 3], c(-Inf, -1, 0, 1, Inf), labels = FALSE)
+Fx <- ecdf(k)
+x <- cbind(pseudo_obs(z[, 1:2]), Fx(k) * 500 / 501, Fx(k - 1) * 500 / 501)
+vd <- vinecop(x, family_set = "parametric", var_types = c("c", "c", "d"))
+summary(vd)[, c("tree", "family", "parameters")]
 }

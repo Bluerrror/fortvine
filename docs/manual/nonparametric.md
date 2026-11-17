@@ -8,21 +8,36 @@ the parametric choice. Their mathematical background is on the
 [family page](../families/nonparametric.md); this page covers how fortvine estimates, stores
 and uses them.
 
-!!! note "Fortran only"
-    TLL and Bernstein are available from Fortran only: the C interface does not pass their
-    estimate, so the [Python](../python.md) and [R](../r.md) packages reject codes 24 and 25.
-
 ## Using them
 
-```fortran
-cop%family = FV_TLL
-call cop%fit(u1, u2)               ! cop%aux holds the estimate
-call cop%pdf(x1, x2, dens)         ! evaluated from cop%aux
-print *, cop%npars_eff()           ! effective degrees of freedom
-```
+=== "Fortran"
+
+    ```fortran
+    cop%family = FV_TLL
+    call cop%fit(u1, u2)               ! cop%aux holds the estimate
+    call cop%pdf(x1, x2, dens)         ! evaluated from cop%aux
+    print *, cop%npars_eff()           ! effective degrees of freedom
+    ```
+
+=== "Python"
+
+    ```python
+    cop = fv.Bicop("tll").fit(u)       # cop.aux holds the estimate
+    dens = cop.pdf(x)                  # evaluated from cop.aux
+    print(cop.npars)                   # effective degrees of freedom
+    ```
+
+=== "R"
+
+    ```r
+    cop <- bicop(u, family_set = "tll")    # cop$aux holds the estimate
+    dens <- dbicop(x, cop)                 # evaluated from cop$aux
+    cop$npars                              # effective degrees of freedom
+    ```
 
 In selection they are candidates like any other family, but they are **not** in the default
-family set: use `ctl%nfam = FV_NCLASSIC` (codes 0 to 25) or list them in `family_set`. Their
+family set: use `ctl%nfam = FV_NCLASSIC` (codes 0 to 25) or list them in `family_set`
+(Python: the groups `"nonparametric"` or `"all"`; R: `"nonparametric"` or the codes `0:25`). Their
 penalty in AIC/BIC/mBIC is the effective number of parameters.
 
 Both families ignore `rotation` (an estimate already has whatever orientation the data have)
@@ -43,7 +58,8 @@ The estimate lives in `aux`, a vector of length `NAUX = 933`:
 `fv_bicop%fit` and `select` allocate `aux` with `NAUX` entries for these families (and with one
 entry otherwise). In a vine, `vc%aux` has first extent `NAUX` whenever the family set of the
 last `select` contained code 24 or 25, and `vc%aux(:, e, t)` is the estimate of edge
-$(e, t)$.
+$(e, t)$. Python (`Bicop.aux`; `aux[t, e]` of a `Vinecop`, indexed from 0) and R (`$aux` of a
+`bicop_dist`) hold the same vector.
 
 ## TLL: transformation local likelihood
 
@@ -125,58 +141,166 @@ vine selection the nonparametric candidates are scheduled among the first of the
     log-likelihood criterion do so more readily. That is the intended trade-off, but compare
     the numbers above before relying on BIC to choose between the two worlds.
 
+<figure markdown>
+![Effective degrees of freedom of TLL and Bernstein estimates and the time of one fit against the sample size, with BB1 for comparison](img/nonparametric_cost.png){ width="700" }
+<figcaption>The table above as curves, from the Python package on the first $n$ rows of one
+Gaussian sample ($\rho = 0.5$), one thread. (a) Effective degrees of freedom (`npars`): TLL
+grows slightly faster than $n^{1/3}$ (dotted); Bernstein follows the order $m$ chosen by AIC
+and stops at $(m - 1)^2 = 196$, the largest order $m = 15$. (b) Time of one `fit`: both
+estimators are linear in $n$ and within a small factor of the BB1 maximum-likelihood fit.</figcaption>
+</figure>
+
 ## Example
 
 An equal mixture of a Clayton copula and a 90-degree rotated Gumbel copula, a shape no single
 parametric family can represent:
 
-```fortran
-program np_demo
-  use fortvine_api
-  implicit none
-  integer, parameter :: dp = kind(1.0d0), n = 3000
-  type(fv_bicop) :: a, b, tll, bern, best
-  type(fv_controls) :: ctl
-  real(dp) :: u1(n), u2(n), w(n), v(n), pick(n), d3(3)
-  integer :: i
+=== "Fortran"
 
-  ! an equal mixture of a Clayton and a 90-degree Gumbel: no parametric family fits it
-  a%family = FV_CLAYTON; a%par(1) = 4.0_dp
-  b%family = FV_GUMBEL; b%rotation = 90; b%par(1) = 3.0_dp
-  call random_seed(put=[(5 * i, i = 1, 33)])
-  call random_number(u1); call random_number(w); call random_number(pick)
-  call a%hinv1(u1, w, u2); call b%hinv1(u1, w, v)
-  where (pick > 0.5_dp) u2 = v
+    ```fortran title="np_demo.f90"
+    program np_demo
+      use fortvine_api
+      implicit none
+      integer, parameter :: dp = kind(1.0d0), n = 3000
+      type(fv_bicop) :: a, b, tll, bern, best
+      type(fv_controls) :: ctl
+      real(dp) :: u1(n), u2(n), w(n), v(n), pick(n), d3(3)
+      integer :: i
 
-  tll%family = FV_TLL; call tll%fit(u1, u2)
-  bern%family = FV_BERNSTEIN; call bern%fit(u1, u2)
-  print '(a,f9.2,a,f7.2,a,i0)', 'tll:       loglik', tll%loglik, '  edf ', tll%npars_eff(), '  aux size ', size(tll%aux)
-  print '(a,f9.2,a,f7.2,a,i0)', 'bernstein: loglik', bern%loglik, '  edf ', bern%npars_eff(), '  order m = ', nint(bern%aux(3))
-  call tll%pdf([0.1_dp, 0.5_dp, 0.9_dp], [0.1_dp, 0.5_dp, 0.1_dp], d3)
-  print '(a,3f8.3)', 'tll density at (0.1,0.1), (0.5,0.5), (0.9,0.1):', d3
+      ! an equal mixture of a Clayton and a 90-degree Gumbel: no parametric family fits it
+      a%family = FV_CLAYTON; a%par(1) = 4.0_dp
+      b%family = FV_GUMBEL; b%rotation = 90; b%par(1) = 3.0_dp
+      call random_seed(put=[(5 * i, i = 1, 33)])
+      call random_number(u1); call random_number(w); call random_number(pick)
+      call a%hinv1(u1, w, u2); call b%hinv1(u1, w, v)
+      where (pick > 0.5_dp) u2 = v
 
-  call best%select(u1, u2)                                    ! parametric families only (default)
-  print '(3a,f9.2)', 'best parametric: ', trim(fv_fam_name(best%family)), '  loglik', best%loglik
-  ctl%nfam = FV_NCLASSIC                                      ! + tev, tll, bernstein
-  call best%select(u1, u2, ctl)
-  print '(3a,f9.2)', 'BIC, with nonparametric: ', trim(fv_fam_name(best%family)), '  loglik', best%loglik
-  ctl%selcrit = FV_AIC
-  call best%select(u1, u2, ctl)
-  print '(3a,f9.2)', 'AIC, with nonparametric: ', trim(fv_fam_name(best%family)), '  loglik', best%loglik
-end program np_demo
-```
+      tll%family = FV_TLL; call tll%fit(u1, u2)
+      bern%family = FV_BERNSTEIN; call bern%fit(u1, u2)
+      print '(a,f9.2,a,f7.2,a,i0)', 'tll:       loglik', tll%loglik, '  edf ', tll%npars_eff(), '  aux size ', size(tll%aux)
+      print '(a,f9.2,a,f7.2,a,i0)', 'bernstein: loglik', bern%loglik, '  edf ', bern%npars_eff(), '  order m = ', nint(bern%aux(3))
+      call tll%pdf([0.1_dp, 0.5_dp, 0.9_dp], [0.1_dp, 0.5_dp, 0.1_dp], d3)
+      print '(a,3f8.3)', 'tll density at (0.1,0.1), (0.5,0.5), (0.9,0.1):', d3
+
+      call best%select(u1, u2)                                    ! parametric families only (default)
+      print '(3a,f9.2)', 'best parametric: ', trim(fv_fam_name(best%family)), '  loglik', best%loglik
+      ctl%nfam = FV_NCLASSIC                                      ! + tev, tll, bernstein
+      call best%select(u1, u2, ctl)
+      print '(3a,f9.2)', 'BIC, with nonparametric: ', trim(fv_fam_name(best%family)), '  loglik', best%loglik
+      ctl%selcrit = FV_AIC
+      call best%select(u1, u2, ctl)
+      print '(3a,f9.2)', 'AIC, with nonparametric: ', trim(fv_fam_name(best%family)), '  loglik', best%loglik
+    end program np_demo
+    ```
+
+=== "Python"
+
+    ```python title="np_demo.py"
+    import numpy as np
+    import fortvine as fv
+
+    n = 3000
+
+    # an equal mixture of a Clayton and a 90-degree Gumbel: no parametric family fits it
+    rng = np.random.default_rng(5)
+    u1, w, pick = rng.random(n), rng.random(n), rng.random(n)
+    a = fv.Bicop("clayton", 0, [4.0]).hinv1(np.column_stack([u1, w]))
+    b = fv.Bicop("gumbel", 90, [3.0]).hinv1(np.column_stack([u1, w]))
+    u = np.column_stack([u1, np.where(pick > 0.5, b, a)])
+
+    tll = fv.Bicop("tll").fit(u)
+    bern = fv.Bicop("bernstein").fit(u)
+    print(f"tll:       loglik{tll.loglik():9.2f}  edf {tll.npars:7.2f}  aux size {tll.aux.size}")
+    print(f"bernstein: loglik{bern.loglik():9.2f}  edf {bern.npars:7.2f}  order m = {round(bern.aux[2])}")
+    d3 = tll.pdf(np.array([[0.1, 0.1], [0.5, 0.5], [0.9, 0.1]]))
+    print("tll density at (0.1,0.1), (0.5,0.5), (0.9,0.1):" + "".join(f"{x:8.3f}" for x in d3))
+
+    best = fv.Bicop().select(u)                                       # parametric families only (default)
+    print(f"best parametric: {best.family}  loglik{best.loglik():9.2f}")
+    best = fv.Bicop().select(u, family_set="all")                     # + tev, tll, bernstein
+    print(f"BIC, with nonparametric: {best.family}  loglik{best.loglik():9.2f}")
+    best = fv.Bicop().select(u, family_set="all", criterion="aic")
+    print(f"AIC, with nonparametric: {best.family}  loglik{best.loglik():9.2f}")
+    ```
+
+=== "R"
+
+    ```r title="np_demo.R"
+    library(fortvine)
+    n <- 3000
+
+    # an equal mixture of a Clayton and a 90-degree Gumbel: no parametric family fits it
+    set.seed(5)
+    u1 <- runif(n); w <- runif(n); pick <- runif(n)
+    a <- hbicop(cbind(u1, w), 1, bicop_dist("clayton", 0, 4), inverse = TRUE)
+    b <- hbicop(cbind(u1, w), 1, bicop_dist("gumbel", 90, 3), inverse = TRUE)
+    u <- cbind(u1, ifelse(pick > 0.5, b, a))
+
+    tll <- bicop(u, family_set = "tll")
+    bern <- bicop(u, family_set = "bernstein")
+    cat(sprintf("tll:       loglik%9.2f  edf %7.2f  aux size %d\n", tll$loglik, tll$npars, length(tll$aux)))
+    cat(sprintf("bernstein: loglik%9.2f  edf %7.2f  order m = %d\n", bern$loglik, bern$npars,
+                round(bern$aux[3])))
+    d3 <- dbicop(rbind(c(0.1, 0.1), c(0.5, 0.5), c(0.9, 0.1)), tll)
+    cat("tll density at (0.1,0.1), (0.5,0.5), (0.9,0.1):", sprintf("%8.3f", d3), "\n", sep = "")
+
+    best <- bicop(u)                                                  # parametric families only (default)
+    cat(sprintf("best parametric: %s  loglik%9.2f\n", best$family, best$loglik))
+    best <- bicop(u, family_set = 0:25)                               # + tev, tll, bernstein
+    cat(sprintf("BIC, with nonparametric: %s  loglik%9.2f\n", best$family, best$loglik))
+    best <- bicop(u, family_set = 0:25, selcrit = "aic")
+    cat(sprintf("AIC, with nonparametric: %s  loglik%9.2f\n", best$family, best$loglik))
+    ```
 
 Output:
 
-```text
-tll:       loglik  1115.94  edf  184.92  aux size 933
-bernstein: loglik   650.65  edf  169.00  order m = 14
-tll density at (0.1,0.1), (0.5,0.5), (0.9,0.1):   3.248   1.925   1.420
-best parametric: student  loglik   514.54
-BIC, with nonparametric: student  loglik   514.54
-AIC, with nonparametric: tll  loglik  1115.94
-```
+=== "Fortran"
+
+    ```text
+    tll:       loglik  1115.94  edf  184.92  aux size 933
+    bernstein: loglik   650.65  edf  169.00  order m = 14
+    tll density at (0.1,0.1), (0.5,0.5), (0.9,0.1):   3.248   1.925   1.420
+    best parametric: student  loglik   514.54
+    BIC, with nonparametric: student  loglik   514.54
+    AIC, with nonparametric: tll  loglik  1115.94
+    ```
+
+=== "Python"
+
+    ```text
+    tll:       loglik  1097.05  edf  125.67  aux size 933
+    bernstein: loglik   656.74  edf  144.00  order m = 13
+    tll density at (0.1,0.1), (0.5,0.5), (0.9,0.1):   2.641   1.816   1.587
+    best parametric: student  loglik   600.89
+    BIC, with nonparametric: tll  loglik  1097.05
+    AIC, with nonparametric: tll  loglik  1097.05
+    ```
+
+=== "R"
+
+    ```text
+    tll:       loglik  1113.25  edf  154.85  aux size 933
+    bernstein: loglik   641.12  edf  144.00  order m = 13
+    tll density at (0.1,0.1), (0.5,0.5), (0.9,0.1):   3.063   1.859   1.643
+    best parametric: student  loglik   556.83
+    BIC, with nonparametric: student  loglik   556.83
+    AIC, with nonparametric: tll  loglik  1113.25
+    ```
 
 TLL doubles the log-likelihood of the best parametric fit, but with 185 effective parameters;
 BIC ($\tfrac12 \log 3000 \approx 4.0$ per parameter) still prefers the Student copula, AIC
-(1 per parameter) prefers TLL.
+(1 per parameter) prefers TLL. The three languages draw different samples, and the BIC choice
+is close: on the Python sample TLL gains 496 log-likelihood units for 124 extra effective
+parameters, just above their BIC penalty of 495, so BIC takes TLL there.
+
+<figure markdown>
+![A sample from an equal mixture of a Clayton and a rotated Gumbel copula, and the densities estimated by TLL, by the Bernstein copula and by the best parametric family](img/nonparametric_mixture.png){ width="700" }
+<figcaption>The same kind of mixture, drawn with the Python package (the sample of the
+[Python page](../python.md#nonparametric-families), so the numbers differ slightly from the
+Fortran output above), in normal scores. (a) The sample: a Clayton arm along the diagonal and a
+90-degree Gumbel arm along the anti-diagonal. (b) TLL follows both arms. (c) The Bernstein
+copula of order $m = 14$ shows the cross shape but blurs it, and has the lower likelihood.
+(d) The best parametric family by BIC, a Student copula with $\rho \approx 0$, is symmetric in
+all four corners and cannot tell the two arms apart; it keeps half of TLL's log-likelihood with
+2 parameters instead of 142.</figcaption>
+</figure>

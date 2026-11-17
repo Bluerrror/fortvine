@@ -57,11 +57,19 @@ modeling*, in preparation (also in `CITATION.cff`, R's `citation("fortvine")` an
 * Pure Fortran 2008 with OpenMP; no external dependencies. Likelihood sums are independent
   of the thread count.
 * Typed Fortran API (`fortvine_api`: `fv_bicop`, `fv_vinecop`, `fv_controls`) and a
-  `bind(C)` interface exported from a shared library for C, C++, Python and other languages.
+  `bind(C)` interface exported from a shared library for C, C++, Python and other languages:
+  the kernel routines `fv_*` and the extended interface `fortvine_capi` (`fvc_*`), which
+  passes every feature of the typed API (weights, discrete margins, TLL/Bernstein, all
+  controls, non-simplified vines, `pdf_grid`, fit cache, abort flag).
+* Python (`pip install fortvine`) and R (`fortvine` on CRAN) packages over the same
+  library, with every feature of the Fortran API; their speed is in [Benchmarks](benchmarks.md).
+* The Student t distribution function integrates the h-function in normal scores (accurate
+  to about $10^{-12}$ up to the corners), and BB8 fits run Newton from two starts (its
+  likelihood has a ridge in $(\theta, \delta)$).
 * Build with `build.sh` (static and shared library, tests, examples, benchmark driver) or
   fpm.
 * Two property test suites (`test/test_fortvine.f90`, `test/test_genfam.f90`) covering
   every family and rotation, vines, weights, discrete data, criteria and the generic engine
   ([Validation](theory/validation.md)).
-* Five documented example programs, a Python (ctypes) and a C example, and a cross-library
-  benchmark against pyvinecopulib and torchvine.
+* Five documented example programs in Fortran, Python and R, a C example, and a
+  cross-library benchmark against pyvinecopulib, rvinecopulib and torchvine.

@@ -12,7 +12,7 @@ FFLAGS=${FFLAGS:-"-O3 -march=native -funroll-loops -fno-math-errno -ffree-line-l
 mkdir -p build
 cd build
 OBJS=""
-for f in fortvine_ad fortvine fortvine_api; do
+for f in fortvine_ad fortvine fortvine_api fortvine_capi; do
   $FC $FFLAGS -cpp -I ../src -fPIC -J . -c ../src/$f.f90 -o $f.o
   OBJS="$OBJS $f.o"
 done

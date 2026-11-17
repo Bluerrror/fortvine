@@ -69,19 +69,15 @@ t-EV, whose fit is the slowest. The two most common changes need only `nfam`:
 
     ```python
     best = fv.Bicop().select(u, family_set=list(range(24)))     # codes 0..23: add t-EV
+    best = fv.Bicop().select(u, family_set="all")               # codes 0..25: also TLL and Bernstein
     ```
-
-    !!! note
-        TLL and Bernstein (codes 24, 25) are available from Fortran only.
 
 === "R"
 
     ```r
     best <- bicop(u, family_set = 0:23)                         # codes 0..23: add t-EV
+    best <- bicop(u, family_set = 0:25)                         # codes 0..25: also TLL and Bernstein
     ```
-
-    !!! note
-        TLL and Bernstein (codes 24, 25) are available from Fortran only.
 
 Any other set is written explicitly:
 
@@ -157,6 +153,18 @@ recommended.
 The formulas are in [Fitting](fitting.md#selection-criteria). For nonparametric families the
 penalties use the effective degrees of freedom.
 
+<figure markdown>
+![Number of non-independence edges per tree chosen by each selection criterion, and log-likelihood against the number of parameters of the selected vines](img/controls_selcrit.png){ width="700" }
+<figcaption>The five criteria on one sample ($n = 1000$) of a 10-dimensional D-vine whose
+Kendall's $\tau$ fades with the tree (0.5 in tree 1, 0.25, 0.12, 0.06, then 0.03; Clayton,
+Gumbel and Gaussian pairs, 45 parameters). (a) Non-independence edges kept per tree (the grey
+band is the number of edges in the tree; the markers are shifted sideways to stay visible). The
+log-likelihood criterion keeps almost every edge; AIC and mBIC drop part of the weak trees;
+BIC and mBICv keep the strong low trees and little else. (b) The price and gain: log-likelihood
+on the sample against the number of parameters of each selected vine, and of the true vine.
+BIC and mBICv select the same vine here.</figcaption>
+</figure>
+
 ## `method` and `fast_mle`
 
 `FV_MLE` (0) maximises the likelihood. `FV_ITAU` (1) sets parameters from Kendall's tau and is
@@ -186,6 +194,19 @@ mutual information) also detect dependence that is not concordance, at the cost 
 spanning tree that may place weak-$\tau$ pairs early. The same measures are available directly
 through [`fv_dependence`](../api/functions.md#fv_dependence).
 
+<figure markdown>
+![An X-shaped pair with Kendall tau near zero, the log-likelihood of the vine selected with each tree criterion, and the selection times](img/controls_tree_crit.png){ width="700" }
+<figcaption>A five-dimensional sample ($n = 2000$) whose variables 1 and 2 are strongly but
+not monotonically dependent (an equal mixture of Clayton and 90-degree Clayton, so
+$\hat\tau \approx 0$), while a weak monotone link joins variables 4 and 5. (a) The pair (1, 2) in
+normal scores. (b) Log-likelihood of the vine selected with each `tree_crit`, relative to the
+best: on this sample only mutual information puts the edge (1, 2) into tree 1 (green), and its
+vine is about 220 log-likelihood units better; the concordance measures link the two groups
+through the weak monotone pair instead, and so do Hoeffding's $D$, $\xi$ and Ferreira's
+coefficient. (c) Selection time with 8 threads: the criterion itself costs little next to the
+pair fits.</figcaption>
+</figure>
+
 ## `tree_algo`
 
 `FV_PRIM` (0) and `FV_KRUSKAL` (1) both return a maximum spanning tree, so they give the same
@@ -214,6 +235,19 @@ mBICv, see [Truncation](vinecop.md#truncation). The level reached is stored in `
 Nagler et al. 2019). `select_threshold = .true.` searches the threshold by mBICv, see
 [Thresholding](vinecop.md#thresholding). `psi0` in $(0, 1)$ is the prior probability of a
 non-independence edge in mBIC; a smaller value favours sparser models.
+
+<figure markdown>
+![Log-likelihood and minus half the BIC against the truncation level and against the threshold, with the values chosen by mBICv marked](img/controls_trunc_threshold.png){ width="700" }
+<figcaption>The sample of the previous figure, selected with the default BIC and a fixed
+(a) `trunc_lvl` from 1 to 9 or (b) `threshold` from 0 to 0.3: log-likelihood $\ell$ (blue) and
+$-\text{BIC}/2$ (green), with the number of parameters at a few points (grey). The dashed lines
+are the values chosen by `select_trunc_lvl=True` and by `select_threshold=True` with
+`criterion="mbicv"` (Python names of `select_trunc` and `select_threshold`). Beyond tree 4
+the trees add almost nothing. Raising the threshold removes edges in the order of their
+$|\hat\tau|$: the weak edges of the high trees cost nothing, those of tree 3 ($\tau = 0.12$)
+go between 0.08 and 0.16 and those of tree 2 ($\tau = 0.25$) between 0.22 and 0.28, each step
+with a visible loss.</figcaption>
+</figure>
 
 ## `preselect`, `allow_rotations`
 
@@ -274,22 +308,14 @@ logical CPUs reported by OpenMP. See [Performance](performance.md).
     === "Python"
 
         ```python
-        vc = fv.Vinecop.from_data(u, criterion="mbicv")
+        vc = fv.Vinecop.from_data(u, criterion="mbicv", select_trunc_lvl=True, select_threshold=True)
         ```
-
-        !!! note
-            `select_trunc` and `select_threshold` are available from Fortran only; a fixed
-            `trunc_lvl` and `threshold` can be passed.
 
     === "R"
 
         ```r
-        vc <- vinecop(u, selcrit = "mbicv")
+        vc <- vinecop(u, selcrit = "mbicv", trunc_lvl = NA, threshold = NA)
         ```
-
-        !!! note
-            `select_trunc` and `select_threshold` are available from Fortran only; a fixed
-            `trunc_lvl` and `threshold` can be passed.
 
 === "Like vinecopulib's defaults"
 
@@ -328,21 +354,14 @@ logical CPUs reported by OpenMP. See [Performance](performance.md).
     === "Python"
 
         ```python
-        fs = list(range(24)) + [f.code for f in fv.families() if f.code >= 10000]  # 109
-        vc = fv.Vinecop.from_data(u, family_set=fs)
+        vc = fv.Vinecop.from_data(u, family_set=["all", "generic"])   # 111 candidate families
         ```
-
-        !!! note
-            TLL and Bernstein (codes 24, 25) are available from Fortran only. Without them the set has 109 families.
 
     === "R"
 
         ```r
-        vc <- vinecop(u, family_set = list(0:23, "generic"))   # 109 candidate families
+        vc <- vinecop(u, family_set = list(0:25, "generic"))   # 111 candidate families
         ```
-
-        !!! note
-            TLL and Bernstein (codes 24, 25) are available from Fortran only. Without them the set has 109 families.
 
 !!! tip
     A `fv_controls` value can be reset with `ctl = fv_controls()`, which restores every
