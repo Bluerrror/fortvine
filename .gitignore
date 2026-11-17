@@ -11,6 +11,3 @@ site/
 __pycache__/
 .venv/
 bench/results/*.raw
-example/medium/img/
-example/medium/*.npz
-example/medium/*.json
