@@ -1,0 +1,2893 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Vine copulas in Fortran - 111 pair-copula families with exact parameter scores, vine selection, density, Rosenblatt transforms and simulation">
+      
+      
+        <meta name="author" content="Shahab Aldin Shojaeezadeh">
+      
+      
+        <link rel="canonical" href="https://bluerrror.github.io/fortvine/examples/interop/">
+      
+      
+        <link rel="prev" href="../weights-discrete/">
+      
+      
+        <link rel="next" href="../../python/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Calling fortvine from Python and C - fortvine</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Serif+4:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Source Serif 4";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#calling-fortvine-from-python-and-c" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="fortvine" class="md-header__button md-logo" aria-label="fortvine" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            fortvine
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Calling fortvine from Python and C
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Bluerrror/fortvine" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Bluerrror/fortvine
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../manual/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Manual
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../families/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Families
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Examples
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../python/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Python package
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../r/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  R package
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../benchmarks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Benchmarks
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../theory/numerics/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Theory
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../references/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  References
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../changelog/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="fortvine" class="md-nav__button md-logo" aria-label="fortvine" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    fortvine
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Bluerrror/fortvine" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Bluerrror/fortvine
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../manual/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Manual
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Manual
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/bicop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pair copulas (fv_bicop)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/vinecop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vine copulas (fv_vinecop)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/fitting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fitting and selection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Controls (fv_controls)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/rotations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rotations and asymmetry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/discrete/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Discrete and mixed data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/nonparametric/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nonparametric families
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/generic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The generic engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance and threads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/c-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C interface
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../families/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Families
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Families
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/elliptical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Elliptical
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/archimedean/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archimedean
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/extreme-value/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extreme-value
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/archimax/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archimax
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/khoudraji/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Khoudraji asymmetrisation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/other/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other parametric
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/nonparametric/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nonparametric
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Complete catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Examples
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pair-copula/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pair copula basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vine copula workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../generic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generic families
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tails/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tail dependence and asymmetry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../weights-discrete/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weighted and discrete data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Calling fortvine from Python and C
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Calling fortvine from Python and C
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The conventions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python-with-ctypes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python with ctypes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Python with ctypes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-script-does" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the script does
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#same-numbers-in-every-language" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Same numbers in every language
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../r/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    R package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../api/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/bicop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    fv_bicop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vinecop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    fv_vinecop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    fv_controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/constants/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Family codes and constants
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Theory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../theory/numerics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Numerics and stability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../theory/scores/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exact parameter scores
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../theory/validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    References
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The conventions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#python-with-ctypes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python with ctypes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Python with ctypes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-the-script-does" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the script does
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#same-numbers-in-every-language" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Same numbers in every language
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="calling-fortvine-from-python-and-c">Calling fortvine from Python and C<a class="headerlink" href="#calling-fortvine-from-python-and-c" title="Permanent link">&para;</a></h1>
+<p><strong>Programs:</strong> <code>example/python/fortvine_ctypes.py</code>, <code>example/c/bicop.c</code> &nbsp;·&nbsp;
+<strong>Topics:</strong> the shared library, the <code>bind(C)</code> interface of <code>src/fortvine.f90</code>, array layout,
+<code>ctypes</code> + numpy, linking a C program.</p>
+<p>Every computational kernel in <code>src/fortvine.f90</code> has a C-interoperable entry point
+(<code>bind(C, name="fv_...")</code>). <code>bash build.sh</code> links them into the shared library
+<code>build/libfortvine.so</code> (Linux), <code>libfortvine.dylib</code> (macOS) or <code>libfortvine.dll</code>
+(Windows), which any language with a C foreign-function interface can load. No wrapper
+code has to be compiled.</p>
+<h2 id="the-conventions">The conventions<a class="headerlink" href="#the-conventions" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Scalars</strong> (<code>integer(c_int)</code>, <code>real(c_double)</code>) declared with <code>value</code> are passed by value;
+  output scalars (<code>ll</code>, <code>fam</code>, <code>rot</code>, <code>info</code>) are passed by reference.</li>
+<li><strong>Arrays are passed by pointer</strong> and must be contiguous <code>double</code> / <code>int32</code> buffers.</li>
+<li><strong>Observations are the last Fortran dimension.</strong> <code>u(2, n)</code> for a pair, <code>u(d, n)</code> for a
+  vine: one observation's values are adjacent in memory. In C or numpy that is a row-major
+  array of shape <code>(n, 2)</code> or <code>(n, d)</code>, so ordinary C-ordered numpy arrays are passed as they
+  are.</li>
+<li><strong>Vine structure arrays</strong> <code>st</code>, <code>fam</code>, <code>rot</code> are Fortran <code>(edge, tree)</code> arrays of size
+  <code>d x d</code>, which in row-major languages are <code>[tree][edge]</code>; parameters <code>par(3, edge, tree)</code>
+  are <code>[tree][edge][k]</code>, i.e. numpy shape <code>(d, d, 3)</code>. Indices of trees and edges start at 0
+  on the C side; <code>order</code> holds 1-based variable labels.</li>
+<li><strong><code>nthreads</code></strong> is an explicit OpenMP thread count (use 1 or more).</li>
+</ul>
+<p>The C prototypes of the routines used below (see the <a href="../../manual/c-api/">C interface</a> for
+all of them):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kt">int</span><span class="w">    </span><span class="nf">fv_version</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kt">void</span><span class="w">   </span><span class="nf">fv_bicop_eval</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">fam</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">rot</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">par</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">u</span><span class="p">,</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">                     </span><span class="kt">int</span><span class="w"> </span><span class="n">what</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nthreads</span><span class="p">);</span><span class="w">   </span><span class="cm">/* what: 0 logpdf 1 pdf 2 h1 3 h2 4 hinv1 5 hinv2 */</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kt">void</span><span class="w">   </span><span class="nf">fv_bicop_fit</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fam</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">rot</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">ci</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">                    </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">par</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">ll</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nthreads</span><span class="p">);</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="kt">void</span><span class="w">   </span><span class="nf">fv_bicop_select</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nf</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">famset</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">ci</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">                       </span><span class="kt">double</span><span class="w"> </span><span class="n">psi0</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">fam</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">rot</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">par</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">ll</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nthreads</span><span class="p">);</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="kt">double</span><span class="w"> </span><span class="nf">fv_kendall_tau</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">y</span><span class="p">);</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="kt">void</span><span class="w">   </span><span class="nf">fv_tau_matrix</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">tau</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nthreads</span><span class="p">);</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="kt">void</span><span class="w">   </span><span class="nf">fv_pseudo_obs</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nthreads</span><span class="p">);</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="kt">void</span><span class="w">   </span><span class="nf">fv_vine_select</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nf</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">famset</span><span class="p">,</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">                      </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">ci</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">cr</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">order</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">st_in</span><span class="p">,</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">                      </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">st</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">fam</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">rot</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">par</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">edge_ll</span><span class="p">,</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">                      </span><span class="kt">int</span><span class="w"> </span><span class="n">nthreads</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">info</span><span class="p">);</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="kt">void</span><span class="w">   </span><span class="nf">fv_vine_pdf</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">nsamp</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">bins</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">tgt</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">order</span><span class="p">,</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">                   </span><span class="kt">int</span><span class="w"> </span><span class="n">trunc</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">st</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">fam</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">rot</span><span class="p">,</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">                   </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">par</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nthreads</span><span class="p">);</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="kt">void</span><span class="w">   </span><span class="nf">fv_vine_rosenblatt</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">order</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">trunc</span><span class="p">,</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">                          </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">st</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">fam</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">rot</span><span class="p">,</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">                          </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">par</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nthreads</span><span class="p">);</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="kt">void</span><span class="w">   </span><span class="nf">fv_vine_inverse_rosenblatt</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">order</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">trunc</span><span class="p">,</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">                                  </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">st</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">fam</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">rot</span><span class="p">,</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">                                  </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">par</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nthreads</span><span class="p">);</span>
+</code></pre></div>
+<p>The integer control vector <code>ci</code> mirrors <code>fv_controls</code>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Index <span class="arithmatex">\(j\)</span> of <code>ci[j]</code></th>
+<th>Meaning</th>
+<th style="text-align: right;">Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0</td>
+<td>selection criterion: 0 log-likelihood, 1 AIC, 2 BIC, 3 mBIC, 4 mBICv</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td>method: 0 maximum likelihood, 1 inversion of Kendall's <span class="arithmatex">\(\tau\)</span></td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td>preselect families (1 = yes)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td>allow rotations (1 = yes)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td>fast one-parameter fits (<span class="arithmatex">\(\tau\)</span> inversion only)</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td><span class="arithmatex">\(\tau\)</span> estimator: 0 automatic, 1 exact, 2 approximate</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td>(vine only) tree criterion: 0 Kendall's <span class="arithmatex">\(\tau\)</span>, 1 Spearman's <span class="arithmatex">\(\rho\)</span>, 2 Joe, 3 Hoeffding, ...</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td style="text-align: right;">7</td>
+<td>(vine only) spanning-tree algorithm: 0 Prim, 1 Kruskal</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td>(vine only) truncation level, <span class="arithmatex">\(-1\)</span> = none</td>
+<td style="text-align: right;"><span class="arithmatex">\(-1\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;">9</td>
+<td>(vine only) structure given in <code>order</code>/<code>st_in</code> (1) or to be selected (0)</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p>and <code>cr = {threshold, psi0}</code> (default <code>{0, 0.9}</code>).</p>
+<p>The C interface covers unweighted, continuous data with the parametric families. Weights,
+discrete variables, the nonparametric families and the mBICv-based truncation search are
+reached through the Fortran API (<code>fortvine_api</code>).</p>
+<h2 id="python-with-ctypes">Python with ctypes<a class="headerlink" href="#python-with-ctypes" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="sd">"""fortvine_ctypes.py -- call the fortvine shared library from Python (ctypes + numpy).</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="sd">Build the library first (bash build.sh), then run</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="sd">    python example/python/fortvine_ctypes.py</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="sd">The library is looked up in build/ next to this repository (or at $FORTVINE_LIB).</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="sd">Array convention of the C API: observations are the LAST Fortran dimension, i.e. one</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="sd">observation's values are contiguous.  A numpy array of shape (n, k) in C order is exactly</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="sd">the Fortran array (k, n) the kernels expect -- no transposes, no copies.</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="sd">"""</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="kn">import</span><span class="w"> </span><span class="nn">ctypes</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ct</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a><span class="n">FAMILY</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'indep'</span><span class="p">,</span> <span class="s1">'gaussian'</span><span class="p">,</span> <span class="s1">'student'</span><span class="p">,</span> <span class="s1">'clayton'</span><span class="p">,</span> <span class="s1">'gumbel'</span><span class="p">,</span> <span class="s1">'frank'</span><span class="p">,</span> <span class="s1">'joe'</span><span class="p">,</span> <span class="s1">'bb1'</span><span class="p">,</span> <span class="s1">'bb6'</span><span class="p">,</span> <span class="s1">'bb7'</span><span class="p">,</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>          <span class="s1">'bb8'</span><span class="p">,</span> <span class="s1">'tawn'</span><span class="p">,</span> <span class="s1">'plackett'</span><span class="p">,</span> <span class="s1">'fgm'</span><span class="p">,</span> <span class="s1">'amh'</span><span class="p">,</span> <span class="s1">'galambos'</span><span class="p">,</span> <span class="s1">'husler_reiss'</span><span class="p">,</span> <span class="s1">'bb2'</span><span class="p">,</span> <span class="s1">'bb3'</span><span class="p">,</span> <span class="s1">'bb5'</span><span class="p">,</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>          <span class="s1">'bb9'</span><span class="p">,</span> <span class="s1">'bb10'</span><span class="p">,</span> <span class="s1">'bb4'</span><span class="p">,</span> <span class="s1">'tev'</span><span class="p">,</span> <span class="s1">'tll'</span><span class="p">,</span> <span class="s1">'bernstein'</span><span class="p">]</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a><span class="k">def</span><span class="w"> </span><span class="nf">load_library</span><span class="p">():</span>
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>    <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>    <span class="n">name</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'win32'</span><span class="p">:</span> <span class="s1">'libfortvine.dll'</span><span class="p">,</span> <span class="s1">'darwin'</span><span class="p">:</span> <span class="s1">'libfortvine.dylib'</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="p">,</span> <span class="s1">'libfortvine.so'</span><span class="p">)</span>
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'FORTVINE_LIB'</span><span class="p">,</span> <span class="n">root</span> <span class="o">/</span> <span class="s1">'build'</span> <span class="o">/</span> <span class="n">name</span><span class="p">))</span>
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s1">'win32'</span><span class="p">:</span>
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>        <span class="c1"># the DLL needs the MinGW runtime (libgomp-1.dll, libquadmath-0.dll, libwinpthread-1.dll)</span>
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>        <span class="n">gfortran</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">which</span><span class="p">(</span><span class="s1">'gfortran'</span><span class="p">)</span>
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>        <span class="k">if</span> <span class="n">gfortran</span><span class="p">:</span>
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>            <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">gfortran</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="p">))</span>
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>    <span class="k">return</span> <span class="n">ct</span><span class="o">.</span><span class="n">CDLL</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>
+<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>
+<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a><span class="n">lib</span> <span class="o">=</span> <span class="n">load_library</span><span class="p">()</span>
+<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a><span class="n">I</span><span class="p">,</span> <span class="n">D</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">c_int</span><span class="p">,</span> <span class="n">ct</span><span class="o">.</span><span class="n">c_double</span>
+<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a><span class="n">dptr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ctypeslib</span><span class="o">.</span><span class="n">ndpointer</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="s1">'C_CONTIGUOUS'</span><span class="p">)</span>
+<a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a><span class="n">iptr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ctypeslib</span><span class="o">.</span><span class="n">ndpointer</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="s1">'C_CONTIGUOUS'</span><span class="p">)</span>
+<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a><span class="n">Iref</span><span class="p">,</span> <span class="n">Dref</span> <span class="o">=</span> <span class="n">ct</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">I</span><span class="p">),</span> <span class="n">ct</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">D</span><span class="p">)</span>
+<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>
+<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a><span class="c1"># signatures of the bind(C) routines in src/fortvine.f90 (scalars by value unless marked out)</span>
+<a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_version</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">I</span>
+<a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_kendall_tau</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">dptr</span><span class="p">]</span>
+<a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_kendall_tau</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">D</span>
+<a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_bicop_eval</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">I</span><span class="p">]</span>           <span class="c1"># fam, rot, par(3), n, u(n,2), what, out(n), nthreads</span>
+<a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_bicop_fit</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">iptr</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">Dref</span><span class="p">,</span> <span class="n">I</span><span class="p">]</span>          <span class="c1"># n, u, fam, rot, ci(6), par(3), ll, nthreads</span>
+<a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_bicop_select</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">iptr</span><span class="p">,</span> <span class="n">iptr</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">Iref</span><span class="p">,</span> <span class="n">Iref</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">Dref</span><span class="p">,</span> <span class="n">I</span><span class="p">]</span>
+<a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_pseudo_obs</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">I</span><span class="p">]</span>                        <span class="c1"># n, d, x(n,d), out(n,d), nthreads</span>
+<a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_tau_matrix</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">I</span><span class="p">]</span>                        <span class="c1"># n, d, x(n,d), tau(d,d), nthreads</span>
+<a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_vine_select</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">iptr</span><span class="p">,</span> <span class="n">iptr</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">iptr</span><span class="p">,</span> <span class="n">iptr</span><span class="p">,</span> <span class="n">iptr</span><span class="p">,</span> <span class="n">iptr</span><span class="p">,</span> <span class="n">iptr</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">Iref</span><span class="p">]</span>
+<a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_vine_pdf</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">iptr</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">iptr</span><span class="p">,</span> <span class="n">iptr</span><span class="p">,</span> <span class="n">iptr</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">I</span><span class="p">]</span>
+<a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_vine_inverse_rosenblatt</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">iptr</span><span class="p">,</span> <span class="n">I</span><span class="p">,</span> <span class="n">iptr</span><span class="p">,</span> <span class="n">iptr</span><span class="p">,</span> <span class="n">iptr</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">dptr</span><span class="p">,</span> <span class="n">I</span><span class="p">]</span>
+<a id="__codelineno-1-56" name="__codelineno-1-56" href="#__codelineno-1-56"></a><span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="p">(</span><span class="n">lib</span><span class="o">.</span><span class="n">fv_bicop_eval</span><span class="p">,</span> <span class="n">lib</span><span class="o">.</span><span class="n">fv_bicop_fit</span><span class="p">,</span> <span class="n">lib</span><span class="o">.</span><span class="n">fv_bicop_select</span><span class="p">,</span> <span class="n">lib</span><span class="o">.</span><span class="n">fv_pseudo_obs</span><span class="p">,</span> <span class="n">lib</span><span class="o">.</span><span class="n">fv_tau_matrix</span><span class="p">,</span>
+<a id="__codelineno-1-57" name="__codelineno-1-57" href="#__codelineno-1-57"></a>          <span class="n">lib</span><span class="o">.</span><span class="n">fv_vine_select</span><span class="p">,</span> <span class="n">lib</span><span class="o">.</span><span class="n">fv_vine_pdf</span><span class="p">,</span> <span class="n">lib</span><span class="o">.</span><span class="n">fv_vine_inverse_rosenblatt</span><span class="p">):</span>
+<a id="__codelineno-1-58" name="__codelineno-1-58" href="#__codelineno-1-58"></a>    <span class="n">f</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="kc">None</span>
+<a id="__codelineno-1-59" name="__codelineno-1-59" href="#__codelineno-1-59"></a>
+<a id="__codelineno-1-60" name="__codelineno-1-60" href="#__codelineno-1-60"></a><span class="n">NTH</span> <span class="o">=</span> <span class="mi">4</span>
+<a id="__codelineno-1-61" name="__codelineno-1-61" href="#__codelineno-1-61"></a><span class="c1"># ci(1:6): selection criterion (2 = BIC), method (0 = MLE), preselect, allow rotations,</span>
+<a id="__codelineno-1-62" name="__codelineno-1-62" href="#__codelineno-1-62"></a><span class="c1">#          fast one-parameter fits, tau estimator (1 = exact) -- the fv_controls defaults</span>
+<a id="__codelineno-1-63" name="__codelineno-1-63" href="#__codelineno-1-63"></a><span class="n">CI6</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+<a id="__codelineno-1-64" name="__codelineno-1-64" href="#__codelineno-1-64"></a><span class="n">PARAMETRIC</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">23</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>          <span class="c1"># families 0..22 (the default set: no tev, tll, bernstein)</span>
+<a id="__codelineno-1-65" name="__codelineno-1-65" href="#__codelineno-1-65"></a>
+<a id="__codelineno-1-66" name="__codelineno-1-66" href="#__codelineno-1-66"></a>
+<a id="__codelineno-1-67" name="__codelineno-1-67" href="#__codelineno-1-67"></a><span class="k">def</span><span class="w"> </span><span class="nf">bicop_eval</span><span class="p">(</span><span class="n">fam</span><span class="p">,</span> <span class="n">rot</span><span class="p">,</span> <span class="n">par</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">what</span><span class="p">):</span>
+<a id="__codelineno-1-68" name="__codelineno-1-68" href="#__codelineno-1-68"></a><span class="w">    </span><span class="sd">"""what: 0 log-density, 1 density, 2 h1, 3 h2, 4 h1 inverse, 5 h2 inverse; u has shape (n, 2)."""</span>
+<a id="__codelineno-1-69" name="__codelineno-1-69" href="#__codelineno-1-69"></a>    <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+<a id="__codelineno-1-70" name="__codelineno-1-70" href="#__codelineno-1-70"></a>    <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">u</span><span class="p">))</span>
+<a id="__codelineno-1-71" name="__codelineno-1-71" href="#__codelineno-1-71"></a>    <span class="n">lib</span><span class="o">.</span><span class="n">fv_bicop_eval</span><span class="p">(</span><span class="n">fam</span><span class="p">,</span> <span class="n">rot</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">par</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">u</span><span class="p">),</span> <span class="n">u</span><span class="p">,</span> <span class="n">what</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">NTH</span><span class="p">)</span>
+<a id="__codelineno-1-72" name="__codelineno-1-72" href="#__codelineno-1-72"></a>    <span class="k">return</span> <span class="n">out</span>
+<a id="__codelineno-1-73" name="__codelineno-1-73" href="#__codelineno-1-73"></a>
+<a id="__codelineno-1-74" name="__codelineno-1-74" href="#__codelineno-1-74"></a>
+<a id="__codelineno-1-75" name="__codelineno-1-75" href="#__codelineno-1-75"></a><span class="c1"># ------------------------------------------------------------------------------ one pair</span>
+<a id="__codelineno-1-76" name="__codelineno-1-76" href="#__codelineno-1-76"></a><span class="nb">print</span><span class="p">(</span><span class="s1">'fortvine C API version'</span><span class="p">,</span> <span class="n">lib</span><span class="o">.</span><span class="n">fv_version</span><span class="p">())</span>
+<a id="__codelineno-1-77" name="__codelineno-1-77" href="#__codelineno-1-77"></a><span class="n">par</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">2.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>                      <span class="c1"># Clayton, theta = 2</span>
+<a id="__codelineno-1-78" name="__codelineno-1-78" href="#__codelineno-1-78"></a><span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">])</span>
+<a id="__codelineno-1-79" name="__codelineno-1-79" href="#__codelineno-1-79"></a><span class="nb">print</span><span class="p">(</span><span class="s1">'Clayton(2) density on the diagonal:'</span><span class="p">,</span> <span class="n">bicop_eval</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">par</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">g</span><span class="p">,</span> <span class="n">g</span><span class="p">]),</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+<a id="__codelineno-1-80" name="__codelineno-1-80" href="#__codelineno-1-80"></a>
+<a id="__codelineno-1-81" name="__codelineno-1-81" href="#__codelineno-1-81"></a><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-1-82" name="__codelineno-1-82" href="#__codelineno-1-82"></a><span class="n">n</span> <span class="o">=</span> <span class="mi">2000</span>
+<a id="__codelineno-1-83" name="__codelineno-1-83" href="#__codelineno-1-83"></a><span class="n">u1</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+<a id="__codelineno-1-84" name="__codelineno-1-84" href="#__codelineno-1-84"></a><span class="n">u2</span> <span class="o">=</span> <span class="n">bicop_eval</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">par</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">u1</span><span class="p">,</span> <span class="n">w</span><span class="p">]),</span> <span class="mi">4</span><span class="p">)</span>      <span class="c1"># u2 = h1^-1(w | u1)</span>
+<a id="__codelineno-1-85" name="__codelineno-1-85" href="#__codelineno-1-85"></a><span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">u1</span><span class="p">,</span> <span class="n">u2</span><span class="p">])</span>
+<a id="__codelineno-1-86" name="__codelineno-1-86" href="#__codelineno-1-86"></a><span class="nb">print</span><span class="p">(</span><span class="s1">'empirical Kendall tau: </span><span class="si">%.3f</span><span class="s1">'</span> <span class="o">%</span> <span class="n">lib</span><span class="o">.</span><span class="n">fv_kendall_tau</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">u1</span><span class="p">,</span> <span class="n">u2</span><span class="p">))</span>
+<a id="__codelineno-1-87" name="__codelineno-1-87" href="#__codelineno-1-87"></a>
+<a id="__codelineno-1-88" name="__codelineno-1-88" href="#__codelineno-1-88"></a><span class="n">est</span><span class="p">,</span> <span class="n">ll</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">D</span><span class="p">()</span>
+<a id="__codelineno-1-89" name="__codelineno-1-89" href="#__codelineno-1-89"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_bicop_fit</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">CI6</span><span class="p">,</span> <span class="n">est</span><span class="p">,</span> <span class="n">ct</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">ll</span><span class="p">),</span> <span class="n">NTH</span><span class="p">)</span>
+<a id="__codelineno-1-90" name="__codelineno-1-90" href="#__codelineno-1-90"></a><span class="nb">print</span><span class="p">(</span><span class="s1">'fitted theta: </span><span class="si">%.4f</span><span class="s1">   log-likelihood: </span><span class="si">%.2f</span><span class="s1">'</span> <span class="o">%</span> <span class="p">(</span><span class="n">est</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ll</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+<a id="__codelineno-1-91" name="__codelineno-1-91" href="#__codelineno-1-91"></a>
+<a id="__codelineno-1-92" name="__codelineno-1-92" href="#__codelineno-1-92"></a><span class="n">fam</span><span class="p">,</span> <span class="n">rot</span> <span class="o">=</span> <span class="n">I</span><span class="p">(),</span> <span class="n">I</span><span class="p">()</span>
+<a id="__codelineno-1-93" name="__codelineno-1-93" href="#__codelineno-1-93"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_bicop_select</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">PARAMETRIC</span><span class="p">),</span> <span class="n">PARAMETRIC</span><span class="p">,</span> <span class="n">CI6</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">ct</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">fam</span><span class="p">),</span> <span class="n">ct</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">rot</span><span class="p">),</span> <span class="n">est</span><span class="p">,</span> <span class="n">ct</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">ll</span><span class="p">),</span> <span class="n">NTH</span><span class="p">)</span>
+<a id="__codelineno-1-94" name="__codelineno-1-94" href="#__codelineno-1-94"></a><span class="nb">print</span><span class="p">(</span><span class="s1">'selected:'</span><span class="p">,</span> <span class="n">FAMILY</span><span class="p">[</span><span class="n">fam</span><span class="o">.</span><span class="n">value</span><span class="p">],</span> <span class="s1">'rotation'</span><span class="p">,</span> <span class="n">rot</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="s1">'par'</span><span class="p">,</span> <span class="n">est</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<a id="__codelineno-1-95" name="__codelineno-1-95" href="#__codelineno-1-95"></a>
+<a id="__codelineno-1-96" name="__codelineno-1-96" href="#__codelineno-1-96"></a><span class="c1"># ------------------------------------------------------------------------------ a vine</span>
+<a id="__codelineno-1-97" name="__codelineno-1-97" href="#__codelineno-1-97"></a><span class="c1"># 4-dimensional data with a Gaussian dependence, turned into pseudo-observations</span>
+<a id="__codelineno-1-98" name="__codelineno-1-98" href="#__codelineno-1-98"></a><span class="n">d</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3000</span>
+<a id="__codelineno-1-99" name="__codelineno-1-99" href="#__codelineno-1-99"></a><span class="n">corr</span> <span class="o">=</span> <span class="mf">0.6</span> <span class="o">**</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">subtract</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">d</span><span class="p">)))</span>   <span class="c1"># AR(1) correlation</span>
+<a id="__codelineno-1-100" name="__codelineno-1-100" href="#__codelineno-1-100"></a><span class="n">x</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">multivariate_normal</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">corr</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+<a id="__codelineno-1-101" name="__codelineno-1-101" href="#__codelineno-1-101"></a><span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
+<a id="__codelineno-1-102" name="__codelineno-1-102" href="#__codelineno-1-102"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_pseudo_obs</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">NTH</span><span class="p">)</span>
+<a id="__codelineno-1-103" name="__codelineno-1-103" href="#__codelineno-1-103"></a>
+<a id="__codelineno-1-104" name="__codelineno-1-104" href="#__codelineno-1-104"></a><span class="c1"># ci(1:10) = CI6, tree criterion (0 tau), tree algorithm (0 Prim), truncation (-1 = none),</span>
+<a id="__codelineno-1-105" name="__codelineno-1-105" href="#__codelineno-1-105"></a><span class="c1"># structure given (0 = select it); cr = threshold, psi0</span>
+<a id="__codelineno-1-106" name="__codelineno-1-106" href="#__codelineno-1-106"></a><span class="n">ci10</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">CI6</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+<a id="__codelineno-1-107" name="__codelineno-1-107" href="#__codelineno-1-107"></a><span class="n">cr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">])</span>
+<a id="__codelineno-1-108" name="__codelineno-1-108" href="#__codelineno-1-108"></a><span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+<a id="__codelineno-1-109" name="__codelineno-1-109" href="#__codelineno-1-109"></a><span class="n">st_in</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+<a id="__codelineno-1-110" name="__codelineno-1-110" href="#__codelineno-1-110"></a><span class="n">st</span><span class="p">,</span> <span class="n">fam</span><span class="p">,</span> <span class="n">rot</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>    <span class="c1"># [tree, edge]</span>
+<a id="__codelineno-1-111" name="__codelineno-1-111" href="#__codelineno-1-111"></a><span class="n">vpar</span><span class="p">,</span> <span class="n">edge_ll</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>                   <span class="c1"># [tree, edge, k], [tree, edge]</span>
+<a id="__codelineno-1-112" name="__codelineno-1-112" href="#__codelineno-1-112"></a><span class="n">info</span> <span class="o">=</span> <span class="n">I</span><span class="p">()</span>
+<a id="__codelineno-1-113" name="__codelineno-1-113" href="#__codelineno-1-113"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_vine_select</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">PARAMETRIC</span><span class="p">),</span> <span class="n">PARAMETRIC</span><span class="p">,</span> <span class="n">ci10</span><span class="p">,</span> <span class="n">cr</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">st_in</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">fam</span><span class="p">,</span> <span class="n">rot</span><span class="p">,</span> <span class="n">vpar</span><span class="p">,</span> <span class="n">edge_ll</span><span class="p">,</span>
+<a id="__codelineno-1-114" name="__codelineno-1-114" href="#__codelineno-1-114"></a>                   <span class="n">NTH</span><span class="p">,</span> <span class="n">ct</span><span class="o">.</span><span class="n">byref</span><span class="p">(</span><span class="n">info</span><span class="p">))</span>
+<a id="__codelineno-1-115" name="__codelineno-1-115" href="#__codelineno-1-115"></a><span class="k">assert</span> <span class="n">info</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span>
+<a id="__codelineno-1-116" name="__codelineno-1-116" href="#__codelineno-1-116"></a><span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">vine order:'</span><span class="p">,</span> <span class="n">order</span><span class="p">)</span>
+<a id="__codelineno-1-117" name="__codelineno-1-117" href="#__codelineno-1-117"></a><span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+<a id="__codelineno-1-118" name="__codelineno-1-118" href="#__codelineno-1-118"></a>    <span class="nb">print</span><span class="p">(</span><span class="s1">'  tree </span><span class="si">%d</span><span class="s1">:'</span> <span class="o">%</span> <span class="p">(</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">'</span><span class="si">%s</span><span class="s1">(</span><span class="si">%.3f</span><span class="s1">)'</span> <span class="o">%</span> <span class="p">(</span><span class="n">FAMILY</span><span class="p">[</span><span class="n">fam</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="n">e</span><span class="p">]],</span> <span class="n">vpar</span><span class="p">[</span><span class="n">t</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">t</span><span class="p">)))</span>
+<a id="__codelineno-1-119" name="__codelineno-1-119" href="#__codelineno-1-119"></a>
+<a id="__codelineno-1-120" name="__codelineno-1-120" href="#__codelineno-1-120"></a><span class="n">trunc</span> <span class="o">=</span> <span class="n">d</span> <span class="o">-</span> <span class="mi">1</span>
+<a id="__codelineno-1-121" name="__codelineno-1-121" href="#__codelineno-1-121"></a><span class="n">dens</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>                                   <span class="c1"># density: one bin per sample, tgt = -1</span>
+<a id="__codelineno-1-122" name="__codelineno-1-122" href="#__codelineno-1-122"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_vine_pdf</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">trunc</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">fam</span><span class="p">,</span> <span class="n">rot</span><span class="p">,</span> <span class="n">vpar</span><span class="p">,</span> <span class="n">dens</span><span class="p">,</span> <span class="n">NTH</span><span class="p">)</span>
+<a id="__codelineno-1-123" name="__codelineno-1-123" href="#__codelineno-1-123"></a><span class="nb">print</span><span class="p">(</span><span class="s1">'log-likelihood: </span><span class="si">%.2f</span><span class="s1">  (sum of edge log-likelihoods </span><span class="si">%.2f</span><span class="s1">)'</span> <span class="o">%</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">dens</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">edge_ll</span><span class="o">.</span><span class="n">sum</span><span class="p">()))</span>
+<a id="__codelineno-1-124" name="__codelineno-1-124" href="#__codelineno-1-124"></a>
+<a id="__codelineno-1-125" name="__codelineno-1-125" href="#__codelineno-1-125"></a><span class="c1"># simulation = inverse Rosenblatt transform of independent uniforms</span>
+<a id="__codelineno-1-126" name="__codelineno-1-126" href="#__codelineno-1-126"></a><span class="n">sim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
+<a id="__codelineno-1-127" name="__codelineno-1-127" href="#__codelineno-1-127"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_vine_inverse_rosenblatt</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">)),</span> <span class="n">order</span><span class="p">,</span> <span class="n">trunc</span><span class="p">,</span> <span class="n">st</span><span class="p">,</span> <span class="n">fam</span><span class="p">,</span> <span class="n">rot</span><span class="p">,</span> <span class="n">vpar</span><span class="p">,</span> <span class="n">sim</span><span class="p">,</span> <span class="n">NTH</span><span class="p">)</span>
+<a id="__codelineno-1-128" name="__codelineno-1-128" href="#__codelineno-1-128"></a><span class="n">t_data</span><span class="p">,</span> <span class="n">t_sim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">)),</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
+<a id="__codelineno-1-129" name="__codelineno-1-129" href="#__codelineno-1-129"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_tau_matrix</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">t_data</span><span class="p">,</span> <span class="n">NTH</span><span class="p">)</span>
+<a id="__codelineno-1-130" name="__codelineno-1-130" href="#__codelineno-1-130"></a><span class="n">lib</span><span class="o">.</span><span class="n">fv_tau_matrix</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">sim</span><span class="p">,</span> <span class="n">t_sim</span><span class="p">,</span> <span class="n">NTH</span><span class="p">)</span>
+<a id="__codelineno-1-131" name="__codelineno-1-131" href="#__codelineno-1-131"></a><span class="nb">print</span><span class="p">(</span><span class="s1">'Kendall tau, data      :'</span><span class="p">,</span> <span class="n">t_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<a id="__codelineno-1-132" name="__codelineno-1-132" href="#__codelineno-1-132"></a><span class="nb">print</span><span class="p">(</span><span class="s1">'Kendall tau, simulated :'</span><span class="p">,</span> <span class="n">t_sim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</code></pre></div>
+<p>Run it from the repository root after <code>bash build.sh</code> (it needs numpy):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>example/python/fortvine_ctypes.py
+</code></pre></div>
+<p>Output:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>fortvine C API version 1
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Clayton(2) density on the diagonal: [5.3702 1.481  2.1578]
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>empirical Kendall tau: 0.485
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>fitted theta: 1.9290   log-likelihood: 805.75
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>selected: clayton rotation 0 par [1.929 0.    0.   ]
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>vine order: [1 2 3 4]
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>  tree 1: gaussian(0.582), gaussian(0.595), gaussian(0.574)
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>  tree 2: indep(0.000), indep(0.000)
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>  tree 3: indep(0.000)
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>log-likelihood: 1865.83  (sum of edge log-likelihoods 1865.83)
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>Kendall tau, data      : [1.    0.395 0.221 0.125]
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>Kendall tau, simulated : [1.    0.404 0.232 0.152]
+</code></pre></div>
+<h3 id="what-the-script-does">What the script does<a class="headerlink" href="#what-the-script-does" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Loading.</strong> <code>ctypes.CDLL</code> opens the library. On Windows the DLL imports the MinGW
+  runtime DLLs (<code>libgomp-1.dll</code>, <code>libquadmath-0.dll</code>, <code>libwinpthread-1.dll</code>), so the script
+  adds the directory of <code>gfortran</code> on <code>PATH</code> with <code>os.add_dll_directory</code> first.</li>
+<li><strong>Signatures.</strong> Declaring <code>argtypes</code> with <code>numpy.ctypeslib.ndpointer(..., flags='C_CONTIGUOUS')</code>
+  makes ctypes check every array's type and layout, so a wrongly shaped or Fortran-ordered
+  array raises an error instead of producing garbage.</li>
+<li><strong>One pair.</strong> <code>fv_bicop_eval</code> with <code>what = 1</code> gives the same Clayton densities as the
+  Fortran <a href="../pair-copula/">pair copula example</a>; <code>what = 4</code> (inverse <span class="arithmatex">\(h_1\)</span>) simulates;
+  <code>fv_bicop_fit</code> and <code>fv_bicop_select</code> fit and select with the default controls.</li>
+<li><strong>A vine.</strong> Four-dimensional data with the correlation matrix <span class="arithmatex">\(0.6^{|i-j|}\)</span> (a Gaussian
+  AR(1) process) are converted to pseudo-observations by <code>fv_pseudo_obs</code>, and
+  <code>fv_vine_select</code> chooses the structure. The answer is the one theory predicts: the
+  Gaussian AR(1) process is Markov, so the D-vine 1-2-3-4 with Gaussian pairs of
+  correlation 0.6 in tree 1 and independence in all higher trees is exact. The estimates
+  0.57-0.60 match, and BIC sets the three higher edges to independence.</li>
+<li><strong>Density and simulation.</strong> <code>fv_vine_pdf</code> with one bin per sample and <code>tgt = -1</code> returns
+  the ordinary vine density (the <code>bins</code>/<code>tgt</code> arguments serve the fast prediction-grid
+  evaluation of <a href="../../manual/vinecop/"><code>pdf_grid</code></a>); its log-sum equals the sum of the edge
+  log-likelihoods returned by the selection. <code>fv_vine_inverse_rosenblatt</code> maps uniform noise
+  to a new sample whose Kendall taus reproduce those of the data.</li>
+<li><strong>Truncation.</strong> <code>fv_vine_select</code> does not return a truncation level; with no truncation
+  requested (<code>ci[8] = -1</code>) it is <code>d - 1</code>, the value passed to the other routines.</li>
+</ul>
+<h2 id="c">C<a class="headerlink" href="#c" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cm">/* bicop.c -- one pair copula through the fortvine C API: evaluate, simulate, fit, select.</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="cm"> *</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="cm"> * Build the shared library (bash build.sh), then from the repository root:</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="cm"> *   Linux:   gcc -O2 example/c/bicop.c -Lbuild -lfortvine -Wl,-rpath,"$PWD/build" -o build/bicop_c</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="cm"> *   macOS:   gcc -O2 example/c/bicop.c -Lbuild -lfortvine -Wl,-rpath,"$PWD/build" -o build/bicop_c</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="cm"> *   Windows (MinGW-w64): gcc -O2 example/c/bicop.c build/libfortvine.dll -o build/bicop_c.exe</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="cm"> *</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="cm"> * Arrays follow the kernels' convention: observations in the last Fortran dimension, so the</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="cm"> * pair (u1, u2) of observation i sits at u[2*i], u[2*i+1] (a row-major n x 2 array).</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="cm"> */</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="cm">/* bind(C) routines of src/fortvine.f90 (integer = int, real(c_double) = double) */</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="kt">int</span><span class="w"> </span><span class="nf">fv_version</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="kt">void</span><span class="w"> </span><span class="nf">fv_bicop_eval</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">fam</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">rot</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">par</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">what</span><span class="p">,</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">                   </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nthreads</span><span class="p">);</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="kt">void</span><span class="w"> </span><span class="nf">fv_bicop_fit</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">fam</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">rot</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">ci</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">par</span><span class="p">,</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">                  </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">ll</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nthreads</span><span class="p">);</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="kt">void</span><span class="w"> </span><span class="nf">fv_bicop_select</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nf</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">famset</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">ci</span><span class="p">,</span>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="w">                     </span><span class="kt">double</span><span class="w"> </span><span class="n">psi0</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">fam</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">rot</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">par</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">ll</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">nthreads</span><span class="p">);</span>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="kt">double</span><span class="w"> </span><span class="nf">fv_kendall_tau</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">y</span><span class="p">);</span>
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="k">enum</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">CLAYTON</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2000</span><span class="p">,</span><span class="w"> </span><span class="n">NTH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="p">};</span>
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="k">enum</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">LOGPDF</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">PDF</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">HFUNC1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">HFUNC2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">HINV1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="n">HINV2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="p">};</span>
+<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>
+<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="cm">/* uniform in (0, 1) from a 64-bit xorshift generator (deterministic) */</span>
+<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a><span class="k">static</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="nf">unif</span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="w">  </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">13</span><span class="p">;</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">7</span><span class="p">;</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">^=</span><span class="w"> </span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">17</span><span class="p">;</span>
+<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">((</span><span class="o">*</span><span class="n">s</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mi">11</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">0.5</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">9007199254740992.0</span><span class="p">;</span>
+<a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a><span class="p">}</span>
+<a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a>
+<a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a><span class="w">  </span><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="s">"indep"</span><span class="p">,</span><span class="w"> </span><span class="s">"gaussian"</span><span class="p">,</span><span class="w"> </span><span class="s">"student"</span><span class="p">,</span><span class="w"> </span><span class="s">"clayton"</span><span class="p">,</span><span class="w"> </span><span class="s">"gumbel"</span><span class="p">,</span><span class="w"> </span><span class="s">"frank"</span><span class="p">,</span>
+<a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a><span class="w">    </span><span class="s">"joe"</span><span class="p">,</span><span class="w"> </span><span class="s">"bb1"</span><span class="p">,</span><span class="w"> </span><span class="s">"bb6"</span><span class="p">,</span><span class="w"> </span><span class="s">"bb7"</span><span class="p">,</span><span class="w"> </span><span class="s">"bb8"</span><span class="p">,</span><span class="w"> </span><span class="s">"tawn"</span><span class="p">,</span><span class="w"> </span><span class="s">"plackett"</span><span class="p">,</span><span class="w"> </span><span class="s">"fgm"</span><span class="p">,</span><span class="w"> </span><span class="s">"amh"</span><span class="p">,</span><span class="w"> </span><span class="s">"galambos"</span><span class="p">,</span>
+<a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a><span class="w">    </span><span class="s">"husler_reiss"</span><span class="p">,</span><span class="w"> </span><span class="s">"bb2"</span><span class="p">,</span><span class="w"> </span><span class="s">"bb3"</span><span class="p">,</span><span class="w"> </span><span class="s">"bb5"</span><span class="p">,</span><span class="w"> </span><span class="s">"bb9"</span><span class="p">,</span><span class="w"> </span><span class="s">"bb10"</span><span class="p">,</span><span class="w"> </span><span class="s">"bb4"</span><span class="p">};</span>
+<a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a><span class="w">  </span><span class="cm">/* ci: criterion (2 BIC), method (0 MLE), preselect, rotations, fast fits, exact tau */</span>
+<a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a><span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">ci</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">};</span>
+<a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">par</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mf">2.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">0.0</span><span class="p">},</span><span class="w"> </span><span class="n">est</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="w"> </span><span class="n">ll</span><span class="p">,</span><span class="w"> </span><span class="n">diag</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.5</span><span class="p">,</span><span class="w"> </span><span class="mf">0.9</span><span class="p">,</span><span class="w"> </span><span class="mf">0.9</span><span class="p">},</span><span class="w"> </span><span class="n">dens</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+<a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">uw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="o">*</span><span class="n">uw</span><span class="p">),</span><span class="w"> </span><span class="o">*</span><span class="n">u</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">N</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="o">*</span><span class="n">u</span><span class="p">),</span><span class="w"> </span><span class="o">*</span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="n">N</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="o">*</span><span class="n">v</span><span class="p">);</span>
+<a id="__codelineno-4-41" name="__codelineno-4-41" href="#__codelineno-4-41"></a><span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="o">*</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="n">N</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="o">*</span><span class="n">x</span><span class="p">),</span><span class="w"> </span><span class="o">*</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">malloc</span><span class="p">(</span><span class="n">N</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="w"> </span><span class="o">*</span><span class="n">y</span><span class="p">);</span>
+<a id="__codelineno-4-42" name="__codelineno-4-42" href="#__codelineno-4-42"></a><span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">famset</span><span class="p">[</span><span class="mi">23</span><span class="p">],</span><span class="w"> </span><span class="n">fam</span><span class="p">,</span><span class="w"> </span><span class="n">rot</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<a id="__codelineno-4-43" name="__codelineno-4-43" href="#__codelineno-4-43"></a><span class="w">  </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">seed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">88172645463325252ULL</span><span class="p">;</span>
+<a id="__codelineno-4-44" name="__codelineno-4-44" href="#__codelineno-4-44"></a>
+<a id="__codelineno-4-45" name="__codelineno-4-45" href="#__codelineno-4-45"></a><span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">"fortvine C API version %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">fv_version</span><span class="p">());</span>
+<a id="__codelineno-4-46" name="__codelineno-4-46" href="#__codelineno-4-46"></a><span class="w">  </span><span class="n">fv_bicop_eval</span><span class="p">(</span><span class="n">CLAYTON</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">par</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">diag</span><span class="p">,</span><span class="w"> </span><span class="n">PDF</span><span class="p">,</span><span class="w"> </span><span class="n">dens</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<a id="__codelineno-4-47" name="__codelineno-4-47" href="#__codelineno-4-47"></a><span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">"Clayton(2) density on the diagonal: %.4f %.4f %.4f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">dens</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">dens</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">dens</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>
+<a id="__codelineno-4-48" name="__codelineno-4-48" href="#__codelineno-4-48"></a>
+<a id="__codelineno-4-49" name="__codelineno-4-49" href="#__codelineno-4-49"></a><span class="w">  </span><span class="cm">/* simulate: u2 = h1^-1(w | u1) for independent uniforms (u1, w) */</span>
+<a id="__codelineno-4-50" name="__codelineno-4-50" href="#__codelineno-4-50"></a><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">N</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">uw</span><span class="p">[</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">unif</span><span class="p">(</span><span class="o">&amp;</span><span class="n">seed</span><span class="p">);</span><span class="w"> </span><span class="n">uw</span><span class="p">[</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">unif</span><span class="p">(</span><span class="o">&amp;</span><span class="n">seed</span><span class="p">);</span><span class="w"> </span><span class="p">}</span>
+<a id="__codelineno-4-51" name="__codelineno-4-51" href="#__codelineno-4-51"></a><span class="w">  </span><span class="n">fv_bicop_eval</span><span class="p">(</span><span class="n">CLAYTON</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">par</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="n">uw</span><span class="p">,</span><span class="w"> </span><span class="n">HINV1</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">NTH</span><span class="p">);</span>
+<a id="__codelineno-4-52" name="__codelineno-4-52" href="#__codelineno-4-52"></a><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">N</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-53" name="__codelineno-4-53" href="#__codelineno-4-53"></a><span class="w">    </span><span class="n">u</span><span class="p">[</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">uw</span><span class="p">[</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i</span><span class="p">];</span>
+<a id="__codelineno-4-54" name="__codelineno-4-54" href="#__codelineno-4-54"></a><span class="w">    </span><span class="n">u</span><span class="p">[</span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<a id="__codelineno-4-55" name="__codelineno-4-55" href="#__codelineno-4-55"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-4-56" name="__codelineno-4-56" href="#__codelineno-4-56"></a><span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">"empirical Kendall tau: %.3f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">fv_kendall_tau</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">));</span>
+<a id="__codelineno-4-57" name="__codelineno-4-57" href="#__codelineno-4-57"></a>
+<a id="__codelineno-4-58" name="__codelineno-4-58" href="#__codelineno-4-58"></a><span class="w">  </span><span class="n">fv_bicop_fit</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">CLAYTON</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">ci</span><span class="p">,</span><span class="w"> </span><span class="n">est</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ll</span><span class="p">,</span><span class="w"> </span><span class="n">NTH</span><span class="p">);</span>
+<a id="__codelineno-4-59" name="__codelineno-4-59" href="#__codelineno-4-59"></a><span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">"fitted theta: %.4f   log-likelihood: %.2f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">est</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">ll</span><span class="p">);</span>
+<a id="__codelineno-4-60" name="__codelineno-4-60" href="#__codelineno-4-60"></a>
+<a id="__codelineno-4-61" name="__codelineno-4-61" href="#__codelineno-4-61"></a><span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">23</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="n">famset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="p">;</span><span class="w">          </span><span class="cm">/* families 0..22 */</span>
+<a id="__codelineno-4-62" name="__codelineno-4-62" href="#__codelineno-4-62"></a><span class="w">  </span><span class="n">fv_bicop_select</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="mi">23</span><span class="p">,</span><span class="w"> </span><span class="n">famset</span><span class="p">,</span><span class="w"> </span><span class="n">ci</span><span class="p">,</span><span class="w"> </span><span class="mf">0.9</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">fam</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rot</span><span class="p">,</span><span class="w"> </span><span class="n">est</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ll</span><span class="p">,</span><span class="w"> </span><span class="n">NTH</span><span class="p">);</span>
+<a id="__codelineno-4-63" name="__codelineno-4-63" href="#__codelineno-4-63"></a><span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">"selected: %s rotation %d par %.3f %.3f %.3f</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">[</span><span class="n">fam</span><span class="p">],</span><span class="w"> </span><span class="n">rot</span><span class="p">,</span><span class="w"> </span><span class="n">est</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">est</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">est</span><span class="p">[</span><span class="mi">2</span><span class="p">]);</span>
+<a id="__codelineno-4-64" name="__codelineno-4-64" href="#__codelineno-4-64"></a>
+<a id="__codelineno-4-65" name="__codelineno-4-65" href="#__codelineno-4-65"></a><span class="w">  </span><span class="n">free</span><span class="p">(</span><span class="n">uw</span><span class="p">);</span><span class="w"> </span><span class="n">free</span><span class="p">(</span><span class="n">u</span><span class="p">);</span><span class="w"> </span><span class="n">free</span><span class="p">(</span><span class="n">v</span><span class="p">);</span><span class="w"> </span><span class="n">free</span><span class="p">(</span><span class="n">x</span><span class="p">);</span><span class="w"> </span><span class="n">free</span><span class="p">(</span><span class="n">y</span><span class="p">);</span>
+<a id="__codelineno-4-66" name="__codelineno-4-66" href="#__codelineno-4-66"></a><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<a id="__codelineno-4-67" name="__codelineno-4-67" href="#__codelineno-4-67"></a><span class="p">}</span>
+</code></pre></div>
+<p>Compile against the shared library and run (from the repository root):</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Linux / macOS</label><label for="__tabbed_1_2">Windows (MinGW-w64)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>gcc<span class="w"> </span>-O2<span class="w"> </span>example/c/bicop.c<span class="w"> </span>-Lbuild<span class="w"> </span>-lfortvine<span class="w"> </span>-Wl,-rpath,<span class="s2">"</span><span class="nv">$PWD</span><span class="s2">/build"</span><span class="w"> </span>-o<span class="w"> </span>build/bicop_c
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>./build/bicop_c
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>gcc<span class="w"> </span>-O2<span class="w"> </span>example/c/bicop.c<span class="w"> </span>build/libfortvine.dll<span class="w"> </span>-o<span class="w"> </span>build/bicop_c.exe
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nv">PATH</span><span class="o">=</span><span class="s2">"</span><span class="nv">$PWD</span><span class="s2">/build:</span><span class="nv">$PATH</span><span class="s2">"</span><span class="w"> </span>./build/bicop_c.exe
+</code></pre></div>
+<p>MinGW's linker can link directly against a DLL. At run time the DLL must be found on
+<code>PATH</code> (or next to the executable), together with the MinGW runtime DLLs it imports.</p>
+</div>
+</div>
+</div>
+<p>Output:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>fortvine C API version 1
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>Clayton(2) density on the diagonal: 5.3702 1.4810 2.1578
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>empirical Kendall tau: 0.504
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>fitted theta: 2.0611   log-likelihood: 879.27
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>selected: clayton rotation 0 par 2.061 0.000 0.000
+</code></pre></div>
+<p>The program declares the prototypes itself, so no header file is needed. The pairs are
+stored as a row-major <code>n x 2</code> array (<code>u[2*i]</code>, <code>u[2*i+1]</code>), which is the Fortran <code>u(2, n)</code>
+the kernel expects. A small xorshift generator makes the run reproducible.</p>
+<h2 id="same-numbers-in-every-language">Same numbers in every language<a class="headerlink" href="#same-numbers-in-every-language" title="Permanent link">&para;</a></h2>
+<figure>
+<p><img alt="Densities from Python ctypes and from C plotted against the Fortran densities on the identity line, and the Kendall taus of data and simulation from the Python demo" src="../img/interop_agree.png" /></p>
+<figcaption>(a) Twelve pair copulas (Gaussian, Student t, Clayton, Gumbel, Frank, Joe, BB1,
+Clayton rotated 90°, Tawn, Hüsler-Reiss, Archimax 10203, Khoudraji-Joe 20300) evaluated at
+the same 500 points from Fortran (`fv_bicop%pdf`), from Python through ctypes and from C
+through `fv_bicop_eval`. All 18 000 values of $c$, $h_1$ and $h_1^{-1}$ agree bit for bit:
+the bindings pass the same doubles to the same kernel (`tools/example_interop.f90` and
+`tools/example_interop.c`). (b) The Python demo above: the Kendall $\hat\tau_{ij}$ of the
+four-dimensional data against those of a sample drawn from the vine that `fv_vine_select`
+fitted; the differences are sampling noise of one simulated sample (averaged over 20
+simulations, every pair agrees with the data within 0.006).</figcaption>
+</figure>
+<div class="admonition warning">
+<p class="admonition-title">Linking statically from C</p>
+<p><code>build/libfortvine.a</code> can also be linked into a C program, but then the Fortran and
+OpenMP runtimes must be linked too. The simplest way is to let <code>gfortran</code> drive the
+link: <code>gcc -c prog.c &amp;&amp; gfortran -fopenmp prog.o build/libfortvine.a -o prog</code> (add
+<code>-static</code> on Windows for a self-contained executable). With <code>gcc</code> as the driver, use
+<code>gcc -fopenmp prog.o build/libfortvine.a -lgfortran -lquadmath -lm -o prog</code>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../weights-discrete/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Weighted and discrete data">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Weighted and discrete data
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../python/" class="md-footer__link md-footer__link--next" aria-label="Next: Python package">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Python package
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Shahab Aldin Shojaeezadeh &mdash; GNU GPL v3 or later
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+        <script src="../../javascripts/katex.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+      
+    
+  </body>
+</html>

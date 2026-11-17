@@ -1,0 +1,3184 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Vine copulas in Fortran - 111 pair-copula families with exact parameter scores, vine selection, density, Rosenblatt transforms and simulation">
+      
+      
+        <meta name="author" content="Shahab Aldin Shojaeezadeh">
+      
+      
+        <link rel="canonical" href="https://bluerrror.github.io/fortvine/manual/fitting/">
+      
+      
+        <link rel="prev" href="../vinecop/">
+      
+      
+        <link rel="next" href="../controls/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Fitting and selection - fortvine</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Serif+4:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Source Serif 4";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#fitting-and-selection" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="fortvine" class="md-header__button md-logo" aria-label="fortvine" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            fortvine
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Fitting and selection
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Bluerrror/fortvine" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Bluerrror/fortvine
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Manual
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../families/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Families
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../examples/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Examples
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../python/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Python package
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../r/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  R package
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../benchmarks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Benchmarks
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../theory/numerics/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Theory
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../references/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  References
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../changelog/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="fortvine" class="md-nav__button md-logo" aria-label="fortvine" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    fortvine
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Bluerrror/fortvine" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Bluerrror/fortvine
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Manual
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Manual
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bicop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pair copulas (fv_bicop)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vinecop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vine copulas (fv_vinecop)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fitting and selection
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fitting and selection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-life-of-one-candidate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The life of one candidate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-values-and-search-boxes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start values and search boxes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#one-parameter-families-in-closed-form" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        One-parameter families in closed form
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multi-parameter-families-fisher-scoring-with-exact-scores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-parameter families: Fisher scoring with exact scores
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#two-stage-fitting-for-large-samples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Two-stage fitting for large samples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multi-start-grids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-start grids
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preselection-by-tail-asymmetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preselection by tail asymmetry
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#racing-screen-then-polish" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Racing: screen, then polish
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generic-family-pre-screen-in-vine-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic-family pre-screen in vine selection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fit-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fit cache
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#selection-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Selection criteria
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kendalls-tau-inversion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kendall's tau inversion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-what-the-options-cost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: what the options cost
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aborting-a-running-fit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aborting a running fit
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Controls (fv_controls)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rotations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rotations and asymmetry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../discrete/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Discrete and mixed data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nonparametric/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nonparametric families
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../generic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The generic engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance and threads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../c-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C interface
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../families/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Families
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Families
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/elliptical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Elliptical
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/archimedean/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archimedean
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/extreme-value/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extreme-value
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/archimax/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archimax
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/khoudraji/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Khoudraji asymmetrisation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/other/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other parametric
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/nonparametric/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nonparametric
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Complete catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../examples/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Examples
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/pair-copula/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pair copula basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/vine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vine copula workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/generic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generic families
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/tails/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tail dependence and asymmetry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/weights-discrete/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weighted and discrete data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/interop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Calling fortvine from Python and C
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../r/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    R package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../api/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/bicop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    fv_bicop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vinecop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    fv_vinecop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    fv_controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/constants/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Family codes and constants
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Theory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../theory/numerics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Numerics and stability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../theory/scores/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exact parameter scores
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../theory/validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    References
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-life-of-one-candidate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The life of one candidate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-values-and-search-boxes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start values and search boxes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#one-parameter-families-in-closed-form" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        One-parameter families in closed form
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multi-parameter-families-fisher-scoring-with-exact-scores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-parameter families: Fisher scoring with exact scores
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#two-stage-fitting-for-large-samples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Two-stage fitting for large samples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multi-start-grids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-start grids
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preselection-by-tail-asymmetry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preselection by tail asymmetry
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#racing-screen-then-polish" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Racing: screen, then polish
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#generic-family-pre-screen-in-vine-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generic-family pre-screen in vine selection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fit-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fit cache
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#selection-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Selection criteria
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kendalls-tau-inversion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kendall's tau inversion
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-what-the-options-cost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: what the options cost
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aborting-a-running-fit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aborting a running fit
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="fitting-and-selection">Fitting and selection<a class="headerlink" href="#fitting-and-selection" title="Permanent link">&para;</a></h1>
+<p>This page describes what happens when fortvine fits a pair copula, how it chooses among
+candidate families, and which shortcuts keep vine selection fast without changing its
+result. The knobs are fields of <a href="../controls/"><code>fv_controls</code></a>; the code lives in
+<code>src/fortvine.f90</code> (<code>fit_one_raw</code>, <code>newton_fit</code>, <code>edge_cands</code>, <code>vine_select_x</code>).</p>
+<h2 id="the-life-of-one-candidate">The life of one candidate<a class="headerlink" href="#the-life-of-one-candidate" title="Permanent link">&para;</a></h2>
+<p>Every candidate (family, rotation) for a pair goes through the same steps:</p>
+<ol>
+<li><strong>Rotate</strong> the data so that the unrotated family can be used, and compute Kendall's
+   <span class="arithmatex">\(\tau\)</span> of the rotated pair.</li>
+<li><strong>Specify</strong> the fit: method (MLE, evaluation at the <span class="arithmatex">\(\tau\)</span>-inversion, nonparametric
+   estimate), start value and parameter box.</li>
+<li><strong>Optimise</strong> the log-likelihood in the box.</li>
+<li><strong>Score</strong> the result with the selection criterion.</li>
+</ol>
+<p>Steps 3 and 4 dominate the cost; most of this page is about doing them with as few passes
+over the data as possible.</p>
+<h2 id="start-values-and-search-boxes">Start values and search boxes<a class="headerlink" href="#start-values-and-search-boxes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>family</th>
+<th>start</th>
+<th>box</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gaussian, Clayton, Gumbel, Frank, Joe</td>
+<td><span class="arithmatex">\(\tau\)</span>-inversion of the winsorised <span class="arithmatex">\(\tau\)</span> (<span class="arithmatex">\(0.01 \le \lvert\tau\rvert \le 0.9\)</span>)</td>
+<td>parameters of <span class="arithmatex">\(\tau \pm 0.1\)</span>, intersected with the full box</td>
+</tr>
+<tr>
+<td>Student</td>
+<td><span class="arithmatex">\(\rho = \sin(\pi\tau/2)\)</span></td>
+<td><span class="arithmatex">\(\rho\)</span> from <span class="arithmatex">\(\tau \pm 0.1\)</span>; <span class="arithmatex">\(\nu \in [2.01, 30]\)</span></td>
+</tr>
+<tr>
+<td>BB1, BB6, BB7, BB8</td>
+<td>lower bounds + 0.1, then a <span class="arithmatex">\(3^k\)</span> grid</td>
+<td>full box</td>
+</tr>
+<tr>
+<td>Tawn</td>
+<td><span class="arithmatex">\((0.5, 0.5, 1 + 6\lvert\tau\rvert)\)</span></td>
+<td><span class="arithmatex">\([0.3, 1] \times [0.3, 1] \times [1.5, 7]\)</span></td>
+</tr>
+<tr>
+<td>Plackett ... t-EV (12-23)</td>
+<td>centre of the box, then a family-specific grid</td>
+<td>full box</td>
+</tr>
+<tr>
+<td>generic (<span class="arithmatex">\(\ge 10000\)</span>)</td>
+<td>grid ranked by Blomqvist's <span class="arithmatex">\(\beta\)</span></td>
+<td>full box</td>
+</tr>
+</tbody>
+</table>
+<p>The narrowed boxes of the one-parameter families, the Student and Tawn reproduce
+vinecopulib's <code>adjust_parameters_bounds</code>; they make the optimisation cheap and are almost
+never binding because the MLE of these families is close to the <span class="arithmatex">\(\tau\)</span>-inversion. The full
+boxes are listed in <a href="../bicop/#parameter-bounds">Pair copulas</a>.</p>
+<figure>
+<p><img alt="Log-likelihood profile of a Gumbel copula with the narrowed search box, the MLE and the tau-inversion, and log-likelihood contours of a BB1 copula with its MLE" src="../img/fitting_loglik.png" width="700" /></p>
+<figcaption>The likelihood the optimiser climbs. (a) $\ell(\theta) - \ell(\hat\theta)$ of a
+Gumbel copula on 500 draws with $\theta = 1.6$ (each point a `loglik` call), the narrowed box of
+the parameters with Kendall's $\tau$ in $\hat\tau \pm 0.1$ (shaded), the MLE of `fit` and the
+$\tau$-inversion of `fit(method="itau")`, which is a fraction of a log-likelihood unit lower.
+(b) $\ell(\theta, \delta) - \ell_{\max}$ of BB1 on 1000 draws with $(\theta, \delta) = (0.6,
+1.4)$: a tilted ridge, along which the BHHH curvature and the BFGS polish find the maximum
+returned by `fit` (gold).</figcaption>
+</figure>
+<h2 id="one-parameter-families-in-closed-form">One-parameter families in closed form<a class="headerlink" href="#one-parameter-families-in-closed-form" title="Permanent link">&para;</a></h2>
+<p>For the Gaussian, Clayton, Gumbel, Frank and Joe families on continuous margins fortvine
+writes the log-density, its first two derivatives in the parameter, both h-functions and the
+CDF in closed form. One pass over the data then gives log-likelihood, score and curvature.</p>
+<ul>
+<li><strong>Gaussian.</strong> The score equation is a cubic in <span class="arithmatex">\(\rho\)</span>,
+  <span class="arithmatex">\(W\rho^3 - B\rho^2 + (A - W)\rho - B = 0\)</span> with <span class="arithmatex">\(W = \sum w_i\)</span>,
+  <span class="arithmatex">\(A = \sum w_i (x_i^2 + y_i^2)\)</span>, <span class="arithmatex">\(B = \sum w_i x_i y_i\)</span> of the normal scores; its real
+  roots in the box (and the box ends) are compared, so the MLE is exact.</li>
+<li><strong>Clayton, Gumbel, Frank, Joe.</strong> Newton's method from the <span class="arithmatex">\(\tau\)</span>-inversion. Because that
+  start is already <span class="arithmatex">\(\sqrt{n}\)</span>-consistent, the first step is Le Cam's one-step estimator and
+  the iteration usually stops after two passes, when the quadratic model predicts a remaining
+  gain below <span class="arithmatex">\(10^{-6}\)</span> log-likelihood units. Steps that lower the likelihood are halved.</li>
+</ul>
+<p>The same closed forms are used for pairs with discrete margins (see
+<a href="../discrete/">Discrete data</a>).</p>
+<h2 id="multi-parameter-families-fisher-scoring-with-exact-scores">Multi-parameter families: Fisher scoring with exact scores<a class="headerlink" href="#multi-parameter-families-fisher-scoring-with-exact-scores" title="Permanent link">&para;</a></h2>
+<p>All other parametric families are fitted by a projected Newton-type method on the
+log-likelihood <span class="arithmatex">\(\ell(\theta) = \sum_i w_i \log c(u_{i1}, u_{i2}; \theta)\)</span>:</p>
+<ul>
+<li><strong>Exact scores.</strong> <span class="arithmatex">\(\partial \log c / \partial\theta\)</span> is obtained by evaluating the
+  log-density in forward-mode dual numbers (<code>src/fortvine_ad.f90</code>): the family formulas are
+  compiled once for real numbers and once for duals with 1, 2 or 3 derivative slots, so the
+  scores are exact to rounding, with no finite differences. See
+  <a href="../../theory/scores/">Exact parameter scores</a>.</li>
+<li><strong>Curvature.</strong> The BHHH approximation <span class="arithmatex">\(-\sum_i w_i\, s_i s_i^\top\)</span> (outer product of the
+  per-observation scores <span class="arithmatex">\(s_i\)</span>) replaces the Hessian. It is positive definite near the
+  optimum and costs nothing beyond the scores.</li>
+<li><strong>Steps.</strong> A Levenberg-Marquardt damping factor is raised when a trial step lowers the
+  likelihood (by interpolating the step length at which the quadratic model peaks) and lowered
+  after each accepted step. Parameters at an active bound with the score pointing outwards are
+  frozen for that step.</li>
+<li><strong>Ridges.</strong> Where BHHH alone would zig-zag (t-EV's <span class="arithmatex">\((\rho, \log\nu)\)</span> ridge, and the final
+  polish of every family), the curvature model is updated by BFGS from the exact score
+  changes. A step sequence that shrinks geometrically in one direction is extrapolated to its
+  limit (Aitken), kept only if it improves the likelihood.</li>
+<li><strong>Scale.</strong> For BB8, Husler-Reiss, BB2, BB9 and BB10, a positive parameter whose box spans at
+  least two decades is optimised as <span class="arithmatex">\(\log\theta\)</span>.</li>
+<li><strong>Stopping.</strong> The iteration ends when the predicted gain <span class="arithmatex">\(\tfrac12 g^\top s\)</span> and the actual
+  change are both below a relative tolerance (<span class="arithmatex">\(10^{-8}\)</span> for the final fit), or when the step no
+  longer moves the parameters.</li>
+</ul>
+<p>The Student copula is handled separately: for fixed <span class="arithmatex">\(\nu\)</span> the score in <span class="arithmatex">\(\rho\)</span> is analytic and
+solved by Newton's method, and <span class="arithmatex">\(\nu\)</span> is found by Brent's one-dimensional minimisation of the
+profile likelihood. t-EV starts with a Brent profile in <span class="arithmatex">\(\log\nu\)</span> and finishes with a joint
+Newton fit in <span class="arithmatex">\((\rho, \log\nu)\)</span> using the exact <span class="arithmatex">\(\nu\)</span>-score of the <span class="arithmatex">\(t\)</span> distribution function.</p>
+<p>If Newton's method cannot start at all (a non-finite likelihood at every start), a
+Nelder-Mead search in logit-transformed box coordinates is used as a fallback.</p>
+<h2 id="two-stage-fitting-for-large-samples">Two-stage fitting for large samples<a class="headerlink" href="#two-stage-fitting-for-large-samples" title="Permanent link">&para;</a></h2>
+<p>For <span class="arithmatex">\(n &gt; 1800\)</span> every multi-parameter fit runs in two stages:</p>
+<ol>
+<li><strong>Search on a subsample.</strong> A deterministic stride subsample of about 600 observations
+   (every <span class="arithmatex">\(\lfloor n/600 \rfloor\)</span>-th row) is used for the start grid and for Newton iterations
+   with a loose tolerance (<span class="arithmatex">\(10^{-4}\)</span>).</li>
+<li><strong>Polish on all data.</strong> Starting from the subsample optimum, the full-data Newton
+   iteration with the normal stopping rule takes typically one to three passes.</li>
+</ol>
+<p>The stopping rule of stage 2 is the full-data one, so the result is still the full-data MLE;
+the subsample only provides a good start.</p>
+<figure>
+<p><img alt="Root mean square error of the MLE and the tau-inversion against the sample size for Clayton and Gumbel, and the time of one fit against the sample size for five families" src="../img/fitting_accuracy_cost.png" width="700" /></p>
+<figcaption>(a) Accuracy: root mean square error of $\hat\theta$ over 200 samples per $n$
+(true $\theta = 2$) for the MLE and the $\tau$-inversion (`method="itau"`). Both decrease like
+$n^{-1/2}$; the MLE is the more efficient estimator, by a factor of about 1.5 in RMSE for
+Clayton. (b) Cost: wall-clock time of one `fit` (one thread, best of five) on the first $n$ rows of
+a BB1 sample. The closed-form one-parameter fits and the inversion are linear in $n$; the
+multi-parameter fits of BB1 and Tawn become *cheaper* when $n$ crosses 1800, where the
+two-stage scheme starts (shaded): the start grid and most Newton steps then run on the 600-row
+subsample.</figcaption>
+</figure>
+<h2 id="multi-start-grids">Multi-start grids<a class="headerlink" href="#multi-start-grids" title="Permanent link">&para;</a></h2>
+<p>Some likelihoods are multimodal or have long ridges (BB5 can drift towards its Gumbel limit,
+BB9 has a ridge in <span class="arithmatex">\(\delta\)</span>). For BB5, BB9 and all generic families, Newton's method is
+started from the three best points of the start grid; distinct optima (relative distance
+above 5 %) are kept, and every optimum within 2 log-likelihood units of the best one on the
+subsample is polished on all data. Other families use a single start, which reproduces
+vinecopulib's optima.</p>
+<p>The grids are value-only likelihood evaluations:</p>
+<ul>
+<li>BB1, BB6, BB7, BB8: <span class="arithmatex">\(3^k\)</span> points at logistic positions <span class="arithmatex">\(-2, 0, 2\)</span> of the box;</li>
+<li>Plackett ... t-EV: a short hand-chosen list per parameter (log-spaced for scale
+  parameters);</li>
+<li>generic families: four values per parameter (<span class="arithmatex">\(4^k\)</span> points), log-spaced in wide positive
+  boxes and linear in unit boxes. The points are ranked by the distance of their Blomqvist
+  <span class="arithmatex">\(\beta = 4C(\tfrac12,\tfrac12) - 1\)</span> to the empirical <span class="arithmatex">\(\beta\)</span> (one closed-form <span class="arithmatex">\(C\)</span> value
+  per point, no likelihood pass), and only the three closest are scored by the likelihood.</li>
+</ul>
+<h2 id="preselection-by-tail-asymmetry">Preselection by tail asymmetry<a class="headerlink" href="#preselection-by-tail-asymmetry" title="Permanent link">&para;</a></h2>
+<p>With <code>ctl%preselect = .true.</code> (default), candidates are filtered before any fit, following
+vinecopulib's <code>preselect_family</code>. On the normal scores <span class="arithmatex">\(z_1, z_2\)</span> of the pair two correlations
+are computed: <span class="arithmatex">\(c_1\)</span> among the points in the upper-right quadrant and <span class="arithmatex">\(c_2\)</span> among those in the
+lower-left quadrant (for <span class="arithmatex">\(\tau &lt; 0\)</span>: upper-left and lower-right). Then:</p>
+<ul>
+<li>Frank is dropped if <span class="arithmatex">\(\lvert c_1 - c_2\rvert &gt; 0.3\)</span> (strong tail asymmetry);</li>
+<li>if <span class="arithmatex">\(c_1 - c_2 &gt; 0.05\)</span> (more dependence in the upper corner), a rotatable family is kept
+  only in the rotations that put its tail dependence there;</li>
+<li>if <span class="arithmatex">\(c_1 - c_2 &lt; -0.05\)</span>, symmetrically for the lower corner;</li>
+<li>otherwise every rotation matching the sign of <span class="arithmatex">\(\tau\)</span> is kept.</li>
+</ul>
+<p>The BB families and the generic families are always kept in the rotations matching the sign
+of <span class="arithmatex">\(\tau\)</span>. Which families count as "lower tail" or "upper tail" is fixed per hand-coded
+family; for the generic engine it is derived from the code (<code>gen_lt</code>, <code>gen_ut</code>).</p>
+<h2 id="racing-screen-then-polish">Racing: screen, then polish<a class="headerlink" href="#racing-screen-then-polish" title="Permanent link">&para;</a></h2>
+<p>Selecting among many candidates spends most of its time polishing candidates that will lose.
+fortvine therefore races them:</p>
+<ol>
+<li><strong>Cheap first.</strong> In vine selection, the closed-form and one-parameter fits of every edge
+   are scheduled first, so each edge has a best score within milliseconds; the remaining
+   jobs are scheduled longest-first.</li>
+<li><strong>Screen.</strong> A two-stage fit stops at its subsample optimum and computes the exact
+   full-data log-likelihood <span class="arithmatex">\(\ell_s\)</span> there, together with an upper bound for what the polish
+   could still gain: <span class="arithmatex">\(\ell_s + \max(10 d,\; d + 0.08\lvert\ell_s\rvert + 5)\)</span>, where <span class="arithmatex">\(d\)</span> is the
+   Fisher-scoring predicted gain of one full step (for the Student
+   <span class="arithmatex">\(\ell_s + 0.15\lvert\ell_s\rvert + 5\)</span>).</li>
+<li><strong>Polish or discard.</strong> The candidate is polished only if the criterion value of its bound
+   can still beat the best score achieved so far on that edge. During the polish, the bound is
+   re-evaluated each step, and the fit gives up as soon as it can no longer reach the target.</li>
+</ol>
+<p>The bounds are empirical. The screen bound was calibrated on 23 true families <span class="arithmatex">\(\times\)</span> 25
+candidates <span class="arithmatex">\(\times\)</span> both rotations at <span class="arithmatex">\(n = 5000\)</span>, where no polish gained within 11
+log-likelihood units of it; the give-up bound of the polish on about 2300 traced polishes with
+<span class="arithmatex">\(n\)</span> between 1500 and 30000. Since the best score only increases and never exceeds the final
+best, the selected candidate is always polished to the end; as long as the bound holds, the
+selection result is the same as without racing.</p>
+<h2 id="generic-family-pre-screen-in-vine-selection">Generic-family pre-screen in vine selection<a class="headerlink" href="#generic-family-pre-screen-in-vine-selection" title="Permanent link">&para;</a></h2>
+<p>The 85 generic families make the family set several times larger. When the sample has more
+than 1800 rows and the family set contains generic codes, each generic candidate of an edge is
+first fitted on the ~600-row subsample only (Blomqvist start, one Newton fit, tolerance
+<span class="arithmatex">\(10^{-3}\)</span>); its log-likelihood is scaled by <span class="arithmatex">\(n/600\)</span> and scored with the selection criterion.
+Only the <strong>four</strong> best generic candidates per edge go on to the full-data racing. The
+hand-coded candidates are never pre-screened, and discrete edges skip this step.</p>
+<h2 id="fit-cache">Fit cache<a class="headerlink" href="#fit-cache" title="Permanent link">&para;</a></h2>
+<p>Repeated selections on the same data (tuning loops, bootstrap over options, thresholding
+passes) refit many identical pairs. The fit cache stores the result of each pair fit under a
+64-bit key built from every bit of the pair data, the weights, the <span class="arithmatex">\(F(x^-)\)</span> values of discrete
+margins, the family, rotation, method, start and box:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Fortran</label><label for="__tabbed_1_2">Python</label><label for="__tabbed_1_3">R</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">call </span><span class="n">fv_fitcache_enable</span><span class="p">(</span><span class="mi">20000</span><span class="p">)</span><span class="w">          </span><span class="c">! room for 20000 fits</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">call </span><span class="n">vc</span><span class="p">%</span><span class="k">select</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">ctl</span><span class="p">)</span><span class="w">                  </span><span class="c">! fills the cache</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">call </span><span class="n">vc</span><span class="p">%</span><span class="k">select</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">ctl</span><span class="p">,</span><span class="w"> </span><span class="n">fixed</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.)</span><span class="w">   </span><span class="c">! identical pairs: cache hits</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">call </span><span class="n">fv_fitcache_stats</span><span class="p">(</span><span class="n">hits</span><span class="p">,</span><span class="w"> </span><span class="n">misses</span><span class="p">,</span><span class="w"> </span><span class="n">used</span><span class="p">)</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="k">call </span><span class="n">fv_fitcache_disable</span><span class="p">()</span><span class="w">              </span><span class="c">! frees the table</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">fv</span><span class="o">.</span><span class="n">fitcache_enable</span><span class="p">(</span><span class="mi">20000</span><span class="p">)</span>               <span class="c1"># room for 20000 fits</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">vc</span> <span class="o">=</span> <span class="n">fv</span><span class="o">.</span><span class="n">Vinecop</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>            <span class="c1"># fills the cache</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">vc</span> <span class="o">=</span> <span class="n">fv</span><span class="o">.</span><span class="n">Vinecop</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>            <span class="c1"># identical pairs: cache hits</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">hits</span><span class="p">,</span> <span class="n">misses</span><span class="p">,</span> <span class="n">used</span> <span class="o">=</span> <span class="n">fv</span><span class="o">.</span><span class="n">fitcache_stats</span><span class="p">()</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">fv</span><span class="o">.</span><span class="n">fitcache_disable</span><span class="p">()</span>                   <span class="c1"># frees the table</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nf">fitcache_enable</span><span class="p">(</span><span class="m">20000</span><span class="p">)</span><span class="w">                  </span><span class="c1"># room for 20000 fits</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">vc</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">vinecop</span><span class="p">(</span><span class="n">u</span><span class="p">)</span><span class="w">                        </span><span class="c1"># fills the cache</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">vc</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">vinecop</span><span class="p">(</span><span class="n">u</span><span class="p">)</span><span class="w">                        </span><span class="c1"># identical pairs: cache hits</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="nf">fitcache_stats</span><span class="p">()</span><span class="w">                        </span><span class="c1"># hits, misses, used</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="nf">fitcache_disable</span><span class="p">()</span><span class="w">                      </span><span class="c1"># frees the table</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<ul>
+<li>A hit returns exactly the fit computed earlier for identical input, so results do not
+  change.</li>
+<li>The table is open-addressed (16 probes); when full, the colliding slot is overwritten.</li>
+<li>Racing screens are cached under their own key, so a repeated selection reproduces them
+  too.</li>
+<li>The cache is shared by all threads (guarded by an OpenMP critical section) and by every
+  <code>fit</code> and <code>select</code> call while it is enabled. <code>fv_fitcache_clear()</code> empties it,
+  <code>fv_fitcache_capacity()</code> returns its size (0 when disabled).</li>
+<li>One-parameter fits inside vine selection bypass the cache (they are cheaper than a lookup);
+  <code>fv_bicop%fit</code> caches them.</li>
+</ul>
+<p><code>vc%select</code> with <code>ctl%select_threshold</code> enables a temporary cache for its passes if none is
+active.</p>
+<h2 id="selection-criteria">Selection criteria<a class="headerlink" href="#selection-criteria" title="Permanent link">&para;</a></h2>
+<p>For a fitted candidate with log-likelihood <span class="arithmatex">\(\ell\)</span>, <span class="arithmatex">\(k\)</span> parameters (effective degrees of
+freedom for TLL and Bernstein) and <span class="arithmatex">\(n\)</span> observations, fortvine maximises</p>
+<table>
+<thead>
+<tr>
+<th><code>ctl%selcrit</code></th>
+<th>score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FV_LOGLIK</code></td>
+<td><span class="arithmatex">\(\ell\)</span></td>
+</tr>
+<tr>
+<td><code>FV_AIC</code></td>
+<td><span class="arithmatex">\(\ell - k\)</span> (that is, <span class="arithmatex">\(-\text{AIC}/2\)</span>)</td>
+</tr>
+<tr>
+<td><code>FV_BIC</code> (default)</td>
+<td><span class="arithmatex">\(\ell - \tfrac12 k \log n\)</span> (<span class="arithmatex">\(-\text{BIC}/2\)</span>)</td>
+</tr>
+<tr>
+<td><code>FV_MBIC</code></td>
+<td><span class="arithmatex">\(\ell - \tfrac12 k\log n + \log\psi_0\)</span> for a dependent candidate, <span class="arithmatex">\(\ell + \log(1-\psi_0)\)</span> for independence</td>
+</tr>
+<tr>
+<td><code>FV_MBICV</code></td>
+<td>as <code>FV_MBIC</code> with <span class="arithmatex">\(\psi = \psi_0^{\,t}\)</span> in tree <span class="arithmatex">\(t\)</span> of a vine</td>
+</tr>
+</tbody>
+</table>
+<p><span class="arithmatex">\(\psi_0\)</span> is <code>ctl%psi0</code> (default 0.9). The modified BIC puts a prior probability <span class="arithmatex">\(\psi\)</span> on an
+edge being dependent; in its vine version (mBICv, Nagler et al. 2019) that probability
+decreases geometrically with the tree level, which favours sparse vines in high dimensions. For
+a whole vine with <span class="arithmatex">\(q_t\)</span> non-independence edges in tree <span class="arithmatex">\(t\)</span>,</p>
+<div class="arithmatex">\[
+\text{mBICv} = -2\ell + k\log n - 2\sum_{t=1}^{d-1}\Big[q_t \log\psi_0^{\,t} + (d - t - q_t)\log\big(1-\psi_0^{\,t}\big)\Big],
+\]</div>
+<p>which is the quantity minimised by <code>select_trunc</code> and <code>select_threshold</code>.</p>
+<h2 id="kendalls-tau-inversion">Kendall's tau inversion<a class="headerlink" href="#kendalls-tau-inversion" title="Permanent link">&para;</a></h2>
+<p>For the families with a known relation between Kendall's <span class="arithmatex">\(\tau\)</span> and the parameter, the
+parameter can be set from the sample <span class="arithmatex">\(\tau\)</span> instead of maximising the likelihood:</p>
+<table>
+<thead>
+<tr>
+<th>family</th>
+<th>inversion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gaussian, Student</td>
+<td><span class="arithmatex">\(\rho = \sin(\pi\tau/2)\)</span> (Student: <span class="arithmatex">\(\nu\)</span> by MLE with <span class="arithmatex">\(\rho\)</span> fixed)</td>
+</tr>
+<tr>
+<td>Clayton</td>
+<td><span class="arithmatex">\(\theta = 2\lvert\tau\rvert / (1 - \lvert\tau\rvert)\)</span></td>
+</tr>
+<tr>
+<td>Gumbel</td>
+<td><span class="arithmatex">\(\theta = 1 / (1 - \lvert\tau\rvert)\)</span></td>
+</tr>
+<tr>
+<td>Frank</td>
+<td>numerical inversion of <span class="arithmatex">\(\tau(\theta) = 1 - \tfrac{4}{\theta}\big(1 - D_1(\theta)\big)\)</span>, <span class="arithmatex">\(D_1\)</span> the Debye function</td>
+</tr>
+<tr>
+<td>Joe</td>
+<td>numerical inversion of <span class="arithmatex">\(\tau(\theta) = 1 + 2\,\dfrac{\psi(2) - \psi(2/\theta + 1)}{2 - \theta}\)</span>, <span class="arithmatex">\(\psi\)</span> the digamma function</td>
+</tr>
+</tbody>
+</table>
+<p>The numerical inversions use Newton's method with the analytic <span class="arithmatex">\(d\tau/d\theta\)</span> inside a
+bracket. Two controls use them:</p>
+<ul>
+<li><code>ctl%method = FV_ITAU</code> (<code>method="itau"</code> in Python, <code>par_method = "itau"</code> in R): every candidate is fitted by inversion; families without an
+  inversion (codes above 6) are not considered in selection. The log-likelihood is evaluated
+  at the inverted parameter so that criteria remain comparable.</li>
+<li><code>ctl%fast_mle = .true.</code> (with <code>FV_MLE</code>; <code>fast_mle=True</code> in Python, <code>fast_mle = TRUE</code> in R): only the five one-parameter families above use the
+  inversion; everything else, including the Student, is fitted by MLE. Since the closed-form
+  MLE of those families is already cheap, the saving is small in fortvine.</li>
+</ul>
+<p><code>ctl%tau_mode</code> decides how <span class="arithmatex">\(\tau\)</span> itself is computed: <code>FV_TAU_EXACT</code> (default) is the
+tie-corrected <span class="arithmatex">\(\tau_b\)</span> in <span class="arithmatex">\(O(n\log n)\)</span> (Knight 1966); <code>FV_TAU_APPROX</code> uses
+<span class="arithmatex">\(\tfrac2\pi\arcsin\)</span> of the Pearson correlation of the normal scores; <code>FV_TAU_AUTO</code> uses the
+exact value below 800 observations and the approximation above. With weights the weighted
+<span class="arithmatex">\(\tau_b\)</span> is always used. In tree 1 of an unweighted vine selection with a free structure and
+the <span class="arithmatex">\(\tau\)</span> tree criterion, the exact <span class="arithmatex">\(\tau\)</span> matrix computed for the tree weights is reused.</p>
+<h2 id="example-what-the-options-cost">Example: what the options cost<a class="headerlink" href="#example-what-the-options-cost" title="Permanent link">&para;</a></h2>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Fortran</label><label for="__tabbed_2_2">Python</label><label for="__tabbed_2_3">R</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><span class="filename">fitting_demo.f90</span><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">program </span><span class="n">fitting_demo</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="k">use </span><span class="n">fortvine_api</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="k">use </span><span class="n">iso_fortran_env</span><span class="p">,</span><span class="w"> </span><span class="k">only</span><span class="p">:</span><span class="w"> </span><span class="n">int64</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="k">implicit none</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">kind</span><span class="p">(</span><span class="mf">1.0d0</span><span class="p">),</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5000</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">fv_vinecop</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">truth</span><span class="p">,</span><span class="w"> </span><span class="n">vc</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">fv_controls</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ctl</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">  </span><span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">u</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">)</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="kt">integer</span><span class="p">(</span><span class="n">int64</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">hits</span><span class="p">,</span><span class="w"> </span><span class="n">misses</span><span class="p">,</span><span class="w"> </span><span class="n">t0</span><span class="p">,</span><span class="w"> </span><span class="n">t1</span><span class="p">,</span><span class="w"> </span><span class="n">rate</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="n">used</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="w">  </span><span class="k">call </span><span class="n">truth</span><span class="p">%</span><span class="n">set_dvine</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">])</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="w">  </span><span class="k">do </span><span class="n">e</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">    </span><span class="n">truth</span><span class="p">%</span><span class="n">fam</span><span class="p">(</span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FV_BB1</span><span class="p">;</span><span class="w"> </span><span class="n">truth</span><span class="p">%</span><span class="n">par</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="n">e</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="mf">0.6_dp</span><span class="p">,</span><span class="w"> </span><span class="mf">1.4_dp</span><span class="p">]</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">  </span><span class="k">end do</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="k">  </span><span class="n">truth</span><span class="p">%</span><span class="n">fam</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">d</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FV_STUDENT</span><span class="p">;</span><span class="w"> </span><span class="n">truth</span><span class="p">%</span><span class="n">par</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">d</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.3_dp</span><span class="p">;</span><span class="w"> </span><span class="n">truth</span><span class="p">%</span><span class="n">par</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="n">d</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">5.0_dp</span>
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="w">  </span><span class="k">call </span><span class="n">truth</span><span class="p">%</span><span class="n">simulate</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">seed</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="w">  </span><span class="n">ctl</span><span class="p">%</span><span class="n">nthreads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span>
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="w">  </span><span class="k">call </span><span class="n">run</span><span class="p">(</span><span class="s1">'MLE, BIC (default)'</span><span class="p">)</span>
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a><span class="w">  </span><span class="n">ctl</span><span class="p">%</span><span class="n">fast_mle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.;</span><span class="w">  </span><span class="k">call </span><span class="n">run</span><span class="p">(</span><span class="s1">'fast_mle'</span><span class="p">)</span>
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="w">  </span><span class="n">ctl</span><span class="p">%</span><span class="n">fast_mle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.;</span><span class="w"> </span><span class="n">ctl</span><span class="p">%</span><span class="n">method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FV_ITAU</span><span class="p">;</span><span class="w"> </span><span class="k">call </span><span class="n">run</span><span class="p">(</span><span class="s1">'itau'</span><span class="p">)</span>
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a><span class="w">  </span><span class="n">ctl</span><span class="p">%</span><span class="n">method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FV_MLE</span><span class="p">;</span><span class="w">    </span><span class="n">ctl</span><span class="p">%</span><span class="n">selcrit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FV_MBICV</span><span class="p">;</span><span class="w"> </span><span class="k">call </span><span class="n">run</span><span class="p">(</span><span class="s1">'MLE, mBICv'</span><span class="p">)</span>
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a><span class="w">  </span><span class="c">! the fit cache: a repeated selection on identical data reuses every cached pair fit</span>
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a><span class="w">  </span><span class="n">ctl</span><span class="p">%</span><span class="n">selcrit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FV_BIC</span>
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a><span class="w">  </span><span class="k">call </span><span class="n">fv_fitcache_enable</span><span class="p">(</span><span class="mi">20000</span><span class="p">)</span>
+<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a><span class="w">  </span><span class="k">call </span><span class="n">run</span><span class="p">(</span><span class="s1">'cache, first pass'</span><span class="p">)</span>
+<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a><span class="w">  </span><span class="k">call </span><span class="n">run</span><span class="p">(</span><span class="s1">'cache, second pass'</span><span class="p">)</span>
+<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a><span class="w">  </span><span class="k">call </span><span class="n">fv_fitcache_stats</span><span class="p">(</span><span class="n">hits</span><span class="p">,</span><span class="w"> </span><span class="n">misses</span><span class="p">,</span><span class="w"> </span><span class="n">used</span><span class="p">)</span>
+<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a><span class="w">  </span><span class="k">print</span><span class="w"> </span><span class="s1">'(a,i0,a,i0,a,i0)'</span><span class="p">,</span><span class="w"> </span><span class="s1">'cache hits '</span><span class="p">,</span><span class="w"> </span><span class="n">hits</span><span class="p">,</span><span class="w"> </span><span class="s1">'  misses '</span><span class="p">,</span><span class="w"> </span><span class="n">misses</span><span class="p">,</span><span class="w"> </span><span class="s1">'  slots used '</span><span class="p">,</span><span class="w"> </span><span class="n">used</span>
+<a id="__codelineno-3-32" name="__codelineno-3-32" href="#__codelineno-3-32"></a><span class="w">  </span><span class="k">call </span><span class="n">fv_fitcache_disable</span><span class="p">()</span>
+<a id="__codelineno-3-33" name="__codelineno-3-33" href="#__codelineno-3-33"></a><span class="k">contains</span>
+<a id="__codelineno-3-34" name="__codelineno-3-34" href="#__codelineno-3-34"></a><span class="k">  subroutine </span><span class="n">run</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+<a id="__codelineno-3-35" name="__codelineno-3-35" href="#__codelineno-3-35"></a><span class="w">    </span><span class="kt">character</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">intent</span><span class="p">(</span><span class="n">in</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">label</span>
+<a id="__codelineno-3-36" name="__codelineno-3-36" href="#__codelineno-3-36"></a><span class="w">    </span><span class="k">call </span><span class="nb">system_clock</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span><span class="w"> </span><span class="n">rate</span><span class="p">)</span>
+<a id="__codelineno-3-37" name="__codelineno-3-37" href="#__codelineno-3-37"></a><span class="w">    </span><span class="k">call </span><span class="n">vc</span><span class="p">%</span><span class="k">select</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">ctl</span><span class="p">,</span><span class="w"> </span><span class="n">fixed</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.)</span>
+<a id="__codelineno-3-38" name="__codelineno-3-38" href="#__codelineno-3-38"></a><span class="w">    </span><span class="k">call </span><span class="nb">system_clock</span><span class="p">(</span><span class="n">t1</span><span class="p">)</span>
+<a id="__codelineno-3-39" name="__codelineno-3-39" href="#__codelineno-3-39"></a><span class="w">    </span><span class="k">print</span><span class="w"> </span><span class="s1">'(a20,a,f10.2,a,i3,a,f7.3,a)'</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="s1">'  loglik'</span><span class="p">,</span><span class="w"> </span><span class="n">vc</span><span class="p">%</span><span class="n">loglik</span><span class="p">(</span><span class="n">u</span><span class="p">),</span><span class="w"> </span><span class="s1">'  npars'</span><span class="p">,</span><span class="w"> </span><span class="n">vc</span><span class="p">%</span><span class="n">npars</span><span class="p">(),</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="__codelineno-3-40" name="__codelineno-3-40" href="#__codelineno-3-40"></a><span class="w">      </span><span class="s1">'  time'</span><span class="p">,</span><span class="w"> </span><span class="kt">real</span><span class="p">(</span><span class="n">t1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="p">,</span><span class="w"> </span><span class="n">dp</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">rate</span><span class="p">,</span><span class="w"> </span><span class="s1">' s'</span>
+<a id="__codelineno-3-41" name="__codelineno-3-41" href="#__codelineno-3-41"></a><span class="w">  </span><span class="k">end subroutine </span><span class="n">run</span>
+<a id="__codelineno-3-42" name="__codelineno-3-42" href="#__codelineno-3-42"></a><span class="k">end program </span><span class="n">fitting_demo</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><span class="filename">fitting_demo.py</span><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">import</span><span class="w"> </span><span class="nn">fortvine</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fv</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">5</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">truth</span> <span class="o">=</span> <span class="n">fv</span><span class="o">.</span><span class="n">Vinecop</span><span class="p">()</span><span class="o">.</span><span class="n">set_dvine</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="n">truth</span><span class="o">.</span><span class="n">set_pair_copula</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">fv</span><span class="o">.</span><span class="n">Bicop</span><span class="p">(</span><span class="s2">"bb1"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">1.4</span><span class="p">]))</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span> <span class="o">-</span> <span class="mi">2</span><span class="p">):</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    <span class="n">truth</span><span class="o">.</span><span class="n">set_pair_copula</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">fv</span><span class="o">.</span><span class="n">Bicop</span><span class="p">(</span><span class="s2">"student"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]))</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="n">u</span> <span class="o">=</span> <span class="n">truth</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>    <span class="n">vc</span> <span class="o">=</span> <span class="n">fv</span><span class="o">.</span><span class="n">Vinecop</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">num_threads</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>    <span class="n">t1</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">:</span><span class="s2">&gt;20s</span><span class="si">}</span><span class="s2">  loglik</span><span class="si">{</span><span class="n">vc</span><span class="o">.</span><span class="n">loglik</span><span class="p">(</span><span class="n">u</span><span class="p">)</span><span class="si">:</span><span class="s2">10.2f</span><span class="si">}</span><span class="s2">  npars</span><span class="si">{</span><span class="n">vc</span><span class="o">.</span><span class="n">npars</span><span class="si">:</span><span class="s2">3d</span><span class="si">}</span><span class="s2">  time</span><span class="si">{</span><span class="n">t1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="si">:</span><span class="s2">7.3f</span><span class="si">}</span><span class="s2"> s"</span><span class="p">)</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="n">run</span><span class="p">(</span><span class="s2">"MLE, BIC (default)"</span><span class="p">)</span>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="n">run</span><span class="p">(</span><span class="s2">"fast_mle"</span><span class="p">,</span> <span class="n">fast_mle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="n">run</span><span class="p">(</span><span class="s2">"itau"</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"itau"</span><span class="p">)</span>
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="n">run</span><span class="p">(</span><span class="s2">"MLE, mBICv"</span><span class="p">,</span> <span class="n">criterion</span><span class="o">=</span><span class="s2">"mbicv"</span><span class="p">)</span>
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a>
+<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="c1"># the fit cache: a repeated selection on identical data reuses every cached pair fit</span>
+<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="n">fv</span><span class="o">.</span><span class="n">fitcache_enable</span><span class="p">(</span><span class="mi">20000</span><span class="p">)</span>
+<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a><span class="n">run</span><span class="p">(</span><span class="s2">"cache, first pass"</span><span class="p">)</span>
+<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="n">run</span><span class="p">(</span><span class="s2">"cache, second pass"</span><span class="p">)</span>
+<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a><span class="n">s</span> <span class="o">=</span> <span class="n">fv</span><span class="o">.</span><span class="n">fitcache_stats</span><span class="p">()</span>
+<a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cache hits </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">hits</span><span class="si">}</span><span class="s2">  misses </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">misses</span><span class="si">}</span><span class="s2">  slots used </span><span class="si">{</span><span class="n">s</span><span class="o">.</span><span class="n">used</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a><span class="n">fv</span><span class="o">.</span><span class="n">fitcache_disable</span><span class="p">()</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><span class="filename">fitting_demo.R</span><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nf">library</span><span class="p">(</span><span class="n">fortvine</span><span class="p">)</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">n</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="m">5000</span><span class="p">;</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="m">5</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">pcs</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="nf">rep</span><span class="p">(</span><span class="nf">list</span><span class="p">(</span><span class="nf">bicop_dist</span><span class="p">(</span><span class="s">"bb1"</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">0.6</span><span class="p">,</span><span class="w"> </span><span class="m">1.4</span><span class="p">))),</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="p">),</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">            </span><span class="nf">rep</span><span class="p">(</span><span class="nf">list</span><span class="p">(</span><span class="nf">bicop_dist</span><span class="p">(</span><span class="s">"student"</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="m">0.3</span><span class="p">,</span><span class="w"> </span><span class="m">5</span><span class="p">))),</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">2</span><span class="p">))</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">truth</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">vinecop_dist</span><span class="p">(</span><span class="n">pcs</span><span class="p">,</span><span class="w"> </span><span class="nf">dvine_structure</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="n">d</span><span class="p">))</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="nf">set.seed</span><span class="p">(</span><span class="m">5</span><span class="p">)</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="n">u</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">rvinecop</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">truth</span><span class="p">)</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="n">run</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="kr">function</span><span class="p">(</span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="kc">...</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span><span class="n">t</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">system.time</span><span class="p">(</span><span class="n">vc</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">vinecop</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">cores</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">4</span><span class="p">,</span><span class="w"> </span><span class="kc">...</span><span class="p">))[[</span><span class="s">"elapsed"</span><span class="p">]]</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">  </span><span class="nf">cat</span><span class="p">(</span><span class="nf">sprintf</span><span class="p">(</span><span class="s">"%20s  loglik%10.2f  npars%3d  time%7.3f s\n"</span><span class="p">,</span><span class="w"> </span><span class="n">label</span><span class="p">,</span><span class="w"> </span><span class="nf">logLik</span><span class="p">(</span><span class="n">vc</span><span class="p">),</span><span class="w"> </span><span class="n">vc</span><span class="o">$</span><span class="n">npars</span><span class="p">,</span><span class="w"> </span><span class="n">t</span><span class="p">))</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">}</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="nf">run</span><span class="p">(</span><span class="s">"MLE, BIC (default)"</span><span class="p">)</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="nf">run</span><span class="p">(</span><span class="s">"fast_mle"</span><span class="p">,</span><span class="w"> </span><span class="n">fast_mle</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">TRUE</span><span class="p">)</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="nf">run</span><span class="p">(</span><span class="s">"itau"</span><span class="p">,</span><span class="w"> </span><span class="n">par_method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"itau"</span><span class="p">)</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="nf">run</span><span class="p">(</span><span class="s">"MLE, mBICv"</span><span class="p">,</span><span class="w"> </span><span class="n">selcrit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"mbicv"</span><span class="p">)</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="c1"># the fit cache: a repeated selection on identical data reuses every cached pair fit</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="nf">fitcache_enable</span><span class="p">(</span><span class="m">20000</span><span class="p">)</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="nf">run</span><span class="p">(</span><span class="s">"cache, first pass"</span><span class="p">)</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="nf">run</span><span class="p">(</span><span class="s">"cache, second pass"</span><span class="p">)</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="n">s</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">fitcache_stats</span><span class="p">()</span>
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="nf">cat</span><span class="p">(</span><span class="nf">sprintf</span><span class="p">(</span><span class="s">"cache hits %.0f  misses %.0f  slots used %.0f\n"</span><span class="p">,</span><span class="w"> </span><span class="n">s</span><span class="p">[[</span><span class="s">"hits"</span><span class="p">]],</span><span class="w"> </span><span class="n">s</span><span class="p">[[</span><span class="s">"misses"</span><span class="p">]],</span><span class="w"> </span><span class="n">s</span><span class="p">[[</span><span class="s">"used"</span><span class="p">]]))</span>
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a><span class="nf">fitcache_disable</span><span class="p">()</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>Output (4 threads; timings depend on the machine):</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Fortran</label><label for="__tabbed_3_2">Python</label><label for="__tabbed_3_3">R</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>  MLE, BIC (default)  loglik   6733.94  npars 14  time  0.381 s
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>            fast_mle  loglik   6733.94  npars 14  time  0.376 s
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>                itau  loglik   6641.74  npars 14  time  0.104 s
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>          MLE, mBICv  loglik   6733.94  npars 14  time  0.372 s
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>   cache, first pass  loglik   6733.94  npars 14  time  0.372 s
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>  cache, second pass  loglik   6733.94  npars 14  time  0.021 s
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>cache hits 260  misses 402  slots used 350
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>  MLE, BIC (default)  loglik   6820.85  npars 14  time  0.428 s
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>            fast_mle  loglik   6820.85  npars 14  time  0.419 s
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>                itau  loglik   6743.91  npars 14  time  0.107 s
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>          MLE, mBICv  loglik   6820.85  npars 14  time  0.422 s
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>   cache, first pass  loglik   6820.85  npars 14  time  0.424 s
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>  cache, second pass  loglik   6820.85  npars 14  time  0.021 s
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>cache hits 252  misses 388  slots used 372
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>  MLE, BIC (default)  loglik   7099.77  npars 14  time  1.070 s
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>            fast_mle  loglik   7099.77  npars 14  time  1.050 s
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>                itau  loglik   7019.80  npars 14  time  0.230 s
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>          MLE, mBICv  loglik   7099.77  npars 14  time  1.070 s
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>   cache, first pass  loglik   7099.77  npars 14  time  1.060 s
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  cache, second pass  loglik   7099.77  npars 14  time  0.060 s
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>cache hits 268  misses 391  slots used 355
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>The Python and R samples come from other random streams, so their log-likelihoods differ
+from the Fortran ones; the pattern is the same. The R package is compiled by R's own
+toolchain (on Windows Rtools43, gfortran 12.3), which makes the same code two to three times
+slower here; see <a href="../../benchmarks/">Benchmarks</a>.</p>
+<p><code>FV_ITAU</code> is fastest because it drops every family above code 6 (here the true BB1 is no
+longer available, which costs about 92 log-likelihood units). The second cached selection
+takes 6 % of the time of the first and returns the same vine. It needs fewer lookups (260
+hits) than the first pass had misses (402), because a candidate that was screened and then
+polished in the first pass costs two fits there but is found at once under its final key.</p>
+<figure>
+<p><img alt="Selection time and log-likelihood of the selected vine for the options of the example, including two passes with the fit cache" src="../img/fitting_options.png" width="700" /></p>
+<figcaption>The Python example re-run with the fit cache, which the Python package now exposes
+(`fitcache_enable`, `fitcache_stats`). (a) Selection time with 4 threads (best of three runs,
+one run for the cache passes). (b) Log-likelihood of the selected vine relative to the best:
+every option except `itau` selects the same vine (6820.9); `itau` loses 77 units because the
+true BB1 family is no longer a candidate. The second cached pass returns the same vine in
+under 10 % of the time of the first. Timings depend on the machine.</figcaption>
+</figure>
+<h2 id="aborting-a-running-fit">Aborting a running fit<a class="headerlink" href="#aborting-a-running-fit" title="Permanent link">&para;</a></h2>
+<p>The kernel module exposes a <code>volatile</code> logical <code>fv_abort</code> (in module <code>fortvine</code>, not
+re-exported by <code>fortvine_api</code>). Setting it to <code>.true.</code> from another thread makes fits in
+flight stop at their next Newton step and new ones return immediately; the results are then
+meaningless and are not cached. Reset it to <code>.false.</code> before the next call.</p>
+<p>In Python, <code>fv.set_abort(True)</code> / <code>fv.set_abort(False)</code> set and clear the flag (through
+<code>fvc_set_abort</code>), and Ctrl-C interrupts a running vine selection or <code>relax</code> (see the
+<a href="../../python/#fit-cache-abort-flag-bounds">Python page</a>). R has no abort function: R cannot
+run code while a computation is in progress.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../vinecop/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Vine copulas (fv_vinecop)">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Vine copulas (fv_vinecop)
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../controls/" class="md-footer__link md-footer__link--next" aria-label="Next: Controls (fv_controls)">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Controls (fv_controls)
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Shahab Aldin Shojaeezadeh &mdash; GNU GPL v3 or later
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+        <script src="../../javascripts/katex.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+      
+    
+  </body>
+</html>

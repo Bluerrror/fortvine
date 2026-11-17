@@ -1,0 +1,2820 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Vine copulas in Fortran - 111 pair-copula families with exact parameter scores, vine selection, density, Rosenblatt transforms and simulation">
+      
+      
+        <meta name="author" content="Shahab Aldin Shojaeezadeh">
+      
+      
+        <link rel="canonical" href="https://bluerrror.github.io/fortvine/manual/discrete/">
+      
+      
+        <link rel="prev" href="../rotations/">
+      
+      
+        <link rel="next" href="../nonparametric/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Discrete and mixed data - fortvine</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Serif+4:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Source Serif 4";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#discrete-and-mixed-data" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="fortvine" class="md-header__button md-logo" aria-label="fortvine" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            fortvine
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Discrete and mixed data
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Bluerrror/fortvine" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Bluerrror/fortvine
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Manual
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../families/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Families
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../examples/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Examples
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../python/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Python package
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../r/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  R package
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../benchmarks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Benchmarks
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../theory/numerics/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Theory
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../references/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  References
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../changelog/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="fortvine" class="md-nav__button md-logo" aria-label="fortvine" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    fortvine
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Bluerrror/fortvine" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Bluerrror/fortvine
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Manual
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Manual
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../bicop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pair copulas (fv_bicop)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vinecop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vine copulas (fv_vinecop)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fitting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fitting and selection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Controls (fv_controls)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rotations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rotations and asymmetry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Discrete and mixed data
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Discrete and mixed data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#input-u-and-u_minus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input: u and u_minus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-likelihood-of-a-pair" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The likelihood of a pair
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conditional-margins-in-higher-trees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conditional margins in higher trees
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fitting-with-discrete-margins" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fitting with discrete margins
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rosenblatt-transform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rosenblatt transform
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nonparametric/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nonparametric families
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../generic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The generic engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance and threads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../c-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C interface
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../families/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Families
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Families
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/elliptical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Elliptical
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/archimedean/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archimedean
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/extreme-value/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extreme-value
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/archimax/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archimax
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/khoudraji/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Khoudraji asymmetrisation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/other/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other parametric
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/nonparametric/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nonparametric
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../families/catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Complete catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../examples/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Examples
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/pair-copula/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pair copula basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/vine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vine copula workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/generic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generic families
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/tails/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tail dependence and asymmetry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/weights-discrete/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weighted and discrete data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/interop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Calling fortvine from Python and C
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../r/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    R package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../api/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/bicop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    fv_bicop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vinecop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    fv_vinecop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    fv_controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/constants/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Family codes and constants
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Theory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../theory/numerics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Numerics and stability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../theory/scores/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exact parameter scores
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../theory/validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    References
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#input-u-and-u_minus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input: u and u_minus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-likelihood-of-a-pair" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The likelihood of a pair
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conditional-margins-in-higher-trees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conditional margins in higher trees
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fitting-with-discrete-margins" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fitting with discrete margins
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rosenblatt-transform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rosenblatt transform
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="discrete-and-mixed-data">Discrete and mixed data<a class="headerlink" href="#discrete-and-mixed-data" title="Permanent link">&para;</a></h1>
+<p>Counts, ordinal scores, rounded measurements and zero-inflated variables have marginal
+distributions with jumps. A copula still links such margins (Sklar's theorem holds), but the
+probability integral transform <span class="arithmatex">\(F(X)\)</span> is no longer uniform, and the likelihood of an
+observation is a probability mass rather than a density. fortvine handles this with the
+convention of vinecopulib's <code>var_types = "d"</code> (Panagiotelis, Czado &amp; Joe 2012; Panagiotelis,
+Czado, Joe &amp; Stöber 2017): each discrete variable is described by two numbers per
+observation.</p>
+<h2 id="input-u-and-u_minus">Input: <code>u</code> and <code>u_minus</code><a class="headerlink" href="#input-u-and-u_minus" title="Permanent link">&para;</a></h2>
+<p>For a discrete variable <span class="arithmatex">\(X_j\)</span> with distribution function <span class="arithmatex">\(F_j\)</span>:</p>
+<div class="arithmatex">\[
+u_{ij} = F_j(x_{ij}), \qquad u^-_{ij} = F_j(x_{ij}^-) = P(X_j &lt; x_{ij}),
+\]</div>
+<p>so that <span class="arithmatex">\(u_{ij} - u^-_{ij} = P(X_j = x_{ij})\)</span>. For integer data <span class="arithmatex">\(F_j(x^-) = F_j(x - 1)\)</span>.
+Pass</p>
+<ul>
+<li><code>u(n, d)</code>: <span class="arithmatex">\(F(x)\)</span> for every column (continuous columns as usual),</li>
+<li><code>u_minus(n, d)</code>: <span class="arithmatex">\(F(x^-)\)</span> for the discrete columns; entries of continuous columns are not
+  read (copying <code>u</code> there is fine),</li>
+<li><code>discrete(d)</code>: <code>.true.</code> for the discrete columns.</li>
+</ul>
+<p>The <a href="../../python/#discrete-and-mixed-margins">Python</a> and <a href="../../r/#discrete-margins">R</a>
+packages follow vinecopulib instead: <code>var_types</code> gives <code>"c"</code> or <code>"d"</code> per variable, and with
+<span class="arithmatex">\(k\)</span> discrete variables the data have <span class="arithmatex">\(d + k\)</span> columns, <span class="arithmatex">\(F(x)\)</span> of every variable followed by
+<span class="arithmatex">\(F(x^-)\)</span> of the discrete ones, in their order.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">Fortran</label><label for="__tabbed_1_2">Python</label><label for="__tabbed_1_3">R</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">call </span><span class="n">vc</span><span class="p">%</span><span class="k">select</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">ctl</span><span class="p">,</span><span class="w"> </span><span class="n">discrete</span><span class="o">=</span><span class="p">[.</span><span class="n">false</span><span class="p">.,</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.,</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.],</span><span class="w"> </span><span class="n">u_minus</span><span class="o">=</span><span class="n">um</span><span class="p">)</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">ll</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vc</span><span class="p">%</span><span class="n">loglik</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">u_minus</span><span class="o">=</span><span class="n">um</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">vc</span> <span class="o">=</span> <span class="n">fv</span><span class="o">.</span><span class="n">Vinecop</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">var_types</span><span class="o">=</span><span class="p">[</span><span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"d"</span><span class="p">])</span>   <span class="c1"># F(x) of every variable, then F(x-) of variable 3</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">ll</span> <span class="o">=</span> <span class="n">vc</span><span class="o">.</span><span class="n">loglik</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">vc</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">vinecop</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">var_types</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s">"c"</span><span class="p">,</span><span class="w"> </span><span class="s">"c"</span><span class="p">,</span><span class="w"> </span><span class="s">"d"</span><span class="p">))</span><span class="w">             </span><span class="c1"># F(x) of every variable, then F(x-) of variable 3</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">ll</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">sum</span><span class="p">(</span><span class="nf">log</span><span class="p">(</span><span class="nf">dvinecop</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">vc</span><span class="p">)))</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<p><span class="arithmatex">\(F_j\)</span> can be a fitted parametric margin or the empirical distribution function; with the
+latter, using the denominator <span class="arithmatex">\(n + 1\)</span> (as <code>fv_pseudo_obs_nd</code> does for continuous columns)
+keeps <span class="arithmatex">\(u &lt; 1\)</span>.</p>
+<p>The discreteness flags are stored in <code>vc%disc</code>. Every evaluation of a vine with any discrete
+variable then requires <code>u_minus</code> (<code>pdf</code>, <code>loglik</code>, <code>rosenblatt</code>) or <code>ugm</code> (<code>pdf_grid</code>).
+<code>fv_bicop</code> methods have no <code>u_minus</code> argument; to fit or select a single pair with discrete
+margins, use a two-dimensional <code>fv_vinecop</code>.</p>
+<h2 id="the-likelihood-of-a-pair">The likelihood of a pair<a class="headerlink" href="#the-likelihood-of-a-pair" title="Permanent link">&para;</a></h2>
+<p>Let <span class="arithmatex">\(a, b\)</span> be the two (conditional) margins of an edge, with <span class="arithmatex">\(a^-, b^-\)</span> their left limits.
+The pair-copula likelihood used by fortvine is the joint probability divided by the product
+of the marginal masses, so that it is a density with respect to the product of the margins
+and directly comparable between candidates:</p>
+<table>
+<thead>
+<tr>
+<th>margins of the observation</th>
+<th>contribution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>both continuous</td>
+<td><span class="arithmatex">\(c(a, b)\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(a\)</span> discrete, <span class="arithmatex">\(b\)</span> continuous</td>
+<td><span class="arithmatex">\(\dfrac{h_2(a, b) - h_2(a^-, b)}{a - a^-}\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(a\)</span> continuous, <span class="arithmatex">\(b\)</span> discrete</td>
+<td><span class="arithmatex">\(\dfrac{h_1(a, b) - h_1(a, b^-)}{b - b^-}\)</span></td>
+</tr>
+<tr>
+<td>both discrete</td>
+<td><span class="arithmatex">\(\dfrac{C(a,b) - C(a^-,b) - C(a,b^-) + C(a^-,b^-)}{(a - a^-)(b - b^-)}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>A variable declared discrete whose observation has <span class="arithmatex">\(a - a^- \le 10^{-12}\)</span> is treated as
+continuous for that observation, so mixed (partly continuous, partly atomic) margins such as
+zero-inflated data are handled row by row.</p>
+<h2 id="conditional-margins-in-higher-trees">Conditional margins in higher trees<a class="headerlink" href="#conditional-margins-in-higher-trees" title="Permanent link">&para;</a></h2>
+<p>The next tree needs <span class="arithmatex">\(F(b \mid a)\)</span> and its left limit. If the conditioning variable <span class="arithmatex">\(a\)</span> is
+discrete, the conditional distribution averages over its jump:</p>
+<div class="arithmatex">\[
+F(b \mid a) = \frac{C(a, b) - C(a^-, b)}{a - a^-} = \frac{1}{a - a^-}\int_{a^-}^{a} h_1(s, b)\, ds .
+\]</div>
+<p>fortvine computes this from the closed-form CDF when the jump is at least <span class="arithmatex">\(10^{-3}\)</span> and the
+family has one, and by Gauss-Legendre quadrature of the h-function otherwise (the Student
+copula always uses quadrature). Both <span class="arithmatex">\(F(b \mid a)\)</span> and <span class="arithmatex">\(F(b^- \mid a)\)</span> are propagated, and a
+conditional margin is discrete exactly when the variable it describes is.</p>
+<h2 id="fitting-with-discrete-margins">Fitting with discrete margins<a class="headerlink" href="#fitting-with-discrete-margins" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Gaussian, Clayton, Gumbel, Frank, Joe:</strong> the exact discrete likelihood with its score and
+  curvature in closed form, maximised by Newton's method (as on continuous data).</li>
+<li><strong>Other one-parameter families:</strong> Brent's method on the exact discrete likelihood.</li>
+<li><strong>Multi-parameter families:</strong> the start grid followed by Nelder-Mead in logit coordinates
+  on the exact discrete likelihood (value only: no dual-number scores on this path). The
+  two-stage subsample scheme applies for <span class="arithmatex">\(n &gt; 1800\)</span>.</li>
+<li><strong>TLL, Bernstein:</strong> the estimate is computed from the mid-points
+  <span class="arithmatex">\(\big(F(x) + F(x^-)\big)/2\)</span> of the discrete margins, and its log-likelihood is then
+  evaluated with the discrete formulas above.</li>
+</ul>
+<p>Discrete fits are slower than continuous ones, mainly because the multi-parameter families
+lose the exact scores and because every observation needs two to four copula evaluations. The
+generic-family pre-screen is skipped on discrete edges, and <a href="../vinecop/#non-simplified-edges-relax"><code>relax</code></a>
+is not available for vines with discrete variables.</p>
+<h2 id="rosenblatt-transform">Rosenblatt transform<a class="headerlink" href="#rosenblatt-transform" title="Permanent link">&para;</a></h2>
+<p>For a discrete variable the conditional distribution function <span class="arithmatex">\(F(x_k \mid \cdot)\)</span> evaluated
+at the data is not uniform. <code>rosenblatt</code> therefore returns, by default, Brockwell's (2007)
+randomised transform for the discrete columns,</p>
+<div class="arithmatex">\[
+w_{ik} = W_{ik}\, F(x_{ik} \mid \dots) + (1 - W_{ik})\, F(x_{ik}^- \mid \dots),
+\]</div>
+<p>with independent uniforms <span class="arithmatex">\(W_{ik}\)</span>; under the model the <span class="arithmatex">\(w_{ik}\)</span> are iid uniform, so the usual
+goodness-of-fit diagnostics apply. Continuous columns are transformed as usual.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="2:3"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><input id="__tabbed_2_3" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">Fortran</label><label for="__tabbed_2_2">Python</label><label for="__tabbed_2_3">R</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">call </span><span class="n">vc</span><span class="p">%</span><span class="n">rosenblatt</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">u_minus</span><span class="o">=</span><span class="n">um</span><span class="p">)</span><span class="w">                          </span><span class="c">! randomised, seed 1</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">call </span><span class="n">vc</span><span class="p">%</span><span class="n">rosenblatt</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">u_minus</span><span class="o">=</span><span class="n">um</span><span class="p">,</span><span class="w"> </span><span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span><span class="w">                  </span><span class="c">! another randomisation</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">call </span><span class="n">vc</span><span class="p">%</span><span class="n">rosenblatt</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">u_minus</span><span class="o">=</span><span class="n">um</span><span class="p">,</span><span class="w"> </span><span class="n">randomize</span><span class="o">=</span><span class="p">.</span><span class="n">false</span><span class="p">.,</span><span class="w"> </span><span class="n">out_minus</span><span class="o">=</span><span class="n">wm</span><span class="p">)</span><span class="w">   </span><span class="c">! F(x|.), F(x-|.)</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">w</span> <span class="o">=</span> <span class="n">vc</span><span class="o">.</span><span class="n">rosenblatt</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>                                        <span class="c1"># randomised, seed 1</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">w</span> <span class="o">=</span> <span class="n">vc</span><span class="o">.</span><span class="n">rosenblatt</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>                                <span class="c1"># another randomisation</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">w</span> <span class="o">=</span> <span class="n">vc</span><span class="o">.</span><span class="n">rosenblatt</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">randomize_discrete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>              <span class="c1"># F(x|.)</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">w</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">rosenblatt</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">vc</span><span class="p">)</span><span class="w">                                      </span><span class="c1"># randomised; the seed follows set.seed()</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">w</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">rosenblatt</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">vc</span><span class="p">,</span><span class="w"> </span><span class="n">randomize_discrete</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">FALSE</span><span class="p">)</span><span class="w">          </span><span class="c1"># F(x|.)</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>The uniforms come from a counter-based hash of <code>(seed, row, column)</code>, so the result is
+reproducible and independent of the number of threads and of the Fortran random generator.
+<code>randomize = .false.</code> returns <span class="arithmatex">\(F(x_k \mid \dots)\)</span> itself, and <code>out_minus(n, d)</code> (optional)
+receives <span class="arithmatex">\(F(x_k^- \mid \dots)\)</span>.</p>
+<figure>
+<p><img alt="Histogram of the randomised and the plain probability integral transform of a count, empirical distributions of the three transformed columns, and a scatter of two transformed columns" src="../img/discrete_rosenblatt.png" width="700" /></p>
+<figcaption>The Rosenblatt transform of the [example](#example) below (a latent Gaussian D-vine
+whose third variable is a count with four levels), computed with the Python package
+(`rosenblatt(u, seed=3)`). (a) The discrete column: randomised (blue) it is uniform; without
+randomisation (`randomize_discrete=False`, gold) it keeps the four atoms of the count. Variable 3
+is `order(d)` here, so its non-randomised value is $F(x_3)$ itself. (b) Empirical distribution
+functions of the three randomised columns, on the diagonal of the uniform distribution, with
+their means and variances ($1/2$ and $1/12 \approx 0.0833$ expected). (c) Columns 1 and 3 in
+normal scores: no dependence is left.</figcaption>
+</figure>
+<div class="admonition note">
+<p class="admonition-title">Simulation</p>
+<p><code>inverse_rosenblatt</code> and <code>simulate</code> do not use the discreteness flags: they return a sample
+<span class="arithmatex">\(U\)</span> of the copula on the continuous scale. Discrete observations are obtained by applying
+the marginal quantile functions, <span class="arithmatex">\(x_j = F_j^{-1}(u_j)\)</span>, which is the standard latent-variable
+construction.</p>
+</div>
+<h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
+<p>A latent Gaussian D-vine whose third variable is observed only as a count with four levels:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="3:3"><input checked="checked" id="__tabbed_3_1" name="__tabbed_3" type="radio" /><input id="__tabbed_3_2" name="__tabbed_3" type="radio" /><input id="__tabbed_3_3" name="__tabbed_3" type="radio" /><div class="tabbed-labels"><label for="__tabbed_3_1">Fortran</label><label for="__tabbed_3_2">Python</label><label for="__tabbed_3_3">R</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><span class="filename">discrete_demo.f90</span><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">program </span><span class="n">discrete_demo</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="k">use </span><span class="n">fortvine_api</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="k">implicit none</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">  </span><span class="kt">integer</span><span class="p">,</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">dp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">kind</span><span class="p">(</span><span class="mf">1.0d0</span><span class="p">),</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2000</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">3</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">fv_vinecop</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">gen</span><span class="p">,</span><span class="w"> </span><span class="n">vc</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="k">type</span><span class="p">(</span><span class="n">fv_controls</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">ctl</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">  </span><span class="kt">real</span><span class="p">(</span><span class="n">dp</span><span class="p">)</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">v</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">),</span><span class="w"> </span><span class="n">u</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">),</span><span class="w"> </span><span class="n">um</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">),</span><span class="w"> </span><span class="n">r</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">)</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">  </span><span class="kt">integer</span><span class="w"> </span><span class="kd">::</span><span class="w"> </span><span class="n">k</span><span class="p">(</span><span class="n">n</span><span class="p">),</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">i</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">  </span><span class="c">! latent Gaussian-copula sample; variable 3 is then made a count with 4 levels</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">  </span><span class="k">call </span><span class="n">gen</span><span class="p">%</span><span class="n">set_dvine</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">])</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">  </span><span class="n">gen</span><span class="p">%</span><span class="n">fam</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FV_GAUSSIAN</span><span class="p">;</span><span class="w"> </span><span class="n">gen</span><span class="p">%</span><span class="n">par</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.7_dp</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">  </span><span class="k">call </span><span class="n">gen</span><span class="p">%</span><span class="n">simulate</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">seed</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">  </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mf">4.0_dp</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">v</span><span class="p">(:,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="o">**</span><span class="mf">1.5_dp</span><span class="p">),</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w">            </span><span class="c">! counts 0..3</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">  </span><span class="c">! continuous columns: u_minus = u (not used); discrete column: empirical F(x) and F(x-)</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">  </span><span class="n">u</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v</span><span class="p">;</span><span class="w"> </span><span class="n">um</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">v</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="w">  </span><span class="k">do </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">n</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="w">    </span><span class="n">u</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1.0_dp</span><span class="p">)</span>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="w">    </span><span class="n">um</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">count</span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">k</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">1.0_dp</span><span class="p">)</span>
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a><span class="w">  </span><span class="k">end do</span>
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a><span class="k">  </span><span class="n">ctl</span><span class="p">%</span><span class="n">nthreads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span>
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a><span class="w">  </span><span class="k">call </span><span class="n">vc</span><span class="p">%</span><span class="k">select</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">ctl</span><span class="p">,</span><span class="w"> </span><span class="n">discrete</span><span class="o">=</span><span class="p">[.</span><span class="n">false</span><span class="p">.,</span><span class="w"> </span><span class="p">.</span><span class="n">false</span><span class="p">.,</span><span class="w"> </span><span class="p">.</span><span class="n">true</span><span class="p">.],</span><span class="w"> </span><span class="n">u_minus</span><span class="o">=</span><span class="n">um</span><span class="p">)</span>
+<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a><span class="w">  </span><span class="k">call </span><span class="n">vc</span><span class="p">%</span><span class="k">print</span><span class="p">()</span>
+<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a><span class="w">  </span><span class="k">print</span><span class="w"> </span><span class="s1">'(a,f10.2)'</span><span class="p">,</span><span class="w"> </span><span class="s1">'discrete log-likelihood:'</span><span class="p">,</span><span class="w"> </span><span class="n">vc</span><span class="p">%</span><span class="n">loglik</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">u_minus</span><span class="o">=</span><span class="n">um</span><span class="p">)</span>
+<a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a>
+<a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a><span class="w">  </span><span class="c">! randomised (Brockwell) Rosenblatt transform: iid uniform under the model</span>
+<a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a><span class="w">  </span><span class="k">call </span><span class="n">vc</span><span class="p">%</span><span class="n">rosenblatt</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">u_minus</span><span class="o">=</span><span class="n">um</span><span class="p">,</span><span class="w"> </span><span class="n">seed</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a><span class="w">  </span><span class="k">do </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">d</span>
+<a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a><span class="w">    </span><span class="k">print</span><span class="w"> </span><span class="s1">'(a,i0,a,f7.4,a,f7.4)'</span><span class="p">,</span><span class="w"> </span><span class="s1">'column '</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="s1">': mean'</span><span class="p">,</span><span class="w"> </span><span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="p">(:,</span><span class="w"> </span><span class="n">j</span><span class="p">))</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="p">&amp;</span>
+<a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a><span class="w">      </span><span class="s1">'  variance'</span><span class="p">,</span><span class="w"> </span><span class="nb">sum</span><span class="p">((</span><span class="n">r</span><span class="p">(:,</span><span class="w"> </span><span class="n">j</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">0.5_dp</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">n</span>
+<a id="__codelineno-6-33" name="__codelineno-6-33" href="#__codelineno-6-33"></a><span class="w">  </span><span class="k">end do</span>
+<a id="__codelineno-6-34" name="__codelineno-6-34" href="#__codelineno-6-34"></a><span class="k">  print</span><span class="w"> </span><span class="s1">'(a,f8.4)'</span><span class="p">,</span><span class="w"> </span><span class="s1">'tau(r1, r3):'</span><span class="p">,</span><span class="w"> </span><span class="n">fv_kendall_tau</span><span class="p">(</span><span class="n">r</span><span class="p">(:,</span><span class="w"> </span><span class="mi">1</span><span class="p">),</span><span class="w"> </span><span class="n">r</span><span class="p">(:,</span><span class="w"> </span><span class="mi">3</span><span class="p">))</span>
+<a id="__codelineno-6-35" name="__codelineno-6-35" href="#__codelineno-6-35"></a><span class="k">end program </span><span class="n">discrete_demo</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><span class="filename">discrete_demo.py</span><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">fortvine</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">fv</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="mi">2000</span><span class="p">,</span> <span class="mi">3</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="c1"># latent Gaussian-copula sample; variable 3 is then made a count with 4 levels</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="n">gen</span> <span class="o">=</span> <span class="n">fv</span><span class="o">.</span><span class="n">Vinecop</span><span class="p">()</span><span class="o">.</span><span class="n">set_dvine</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>    <span class="n">gen</span><span class="o">.</span><span class="n">set_pair_copula</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">fv</span><span class="o">.</span><span class="n">Bicop</span><span class="p">(</span><span class="s2">"gaussian"</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.7</span><span class="p">]))</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="n">v</span> <span class="o">=</span> <span class="n">gen</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="n">k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">((</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">v</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">**</span> <span class="mf">1.5</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>       <span class="c1"># counts 0..3</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="c1"># F(x) of every variable (empirical for the count), then F(x-) of the discrete one: d + 1 columns</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="n">ks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="n">fx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">ks</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s2">"right"</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="n">fxm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">ks</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">v</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">v</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">fx</span><span class="p">,</span> <span class="n">fxm</span><span class="p">])</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="n">vc</span> <span class="o">=</span> <span class="n">fv</span><span class="o">.</span><span class="n">Vinecop</span><span class="o">.</span><span class="n">from_data</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">var_types</span><span class="o">=</span><span class="p">[</span><span class="s2">"c"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">,</span> <span class="s2">"d"</span><span class="p">],</span> <span class="n">num_threads</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="nb">print</span><span class="p">(</span><span class="n">vc</span><span class="p">)</span>
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"discrete log-likelihood:</span><span class="si">{</span><span class="n">vc</span><span class="o">.</span><span class="n">loglik</span><span class="p">(</span><span class="n">u</span><span class="p">)</span><span class="si">:</span><span class="s2">10.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a>
+<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a><span class="c1"># randomised (Brockwell) Rosenblatt transform: iid uniform under the model</span>
+<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a><span class="n">r</span> <span class="o">=</span> <span class="n">vc</span><span class="o">.</span><span class="n">rosenblatt</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a><span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+<a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"column </span><span class="si">{</span><span class="n">j</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">: mean</span><span class="si">{</span><span class="n">r</span><span class="p">[:,</span><span class="w"> </span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">7.4f</span><span class="si">}</span><span class="s2">  variance</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="n">r</span><span class="p">[:,</span><span class="w"> </span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mf">0.5</span><span class="p">)</span><span class="w"> </span><span class="o">**</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">:</span><span class="s2">7.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"tau(r1, r3):</span><span class="si">{</span><span class="n">fv</span><span class="o">.</span><span class="n">kendall_tau</span><span class="p">(</span><span class="n">r</span><span class="p">[:,</span><span class="w"> </span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="n">r</span><span class="p">[:,</span><span class="w"> </span><span class="mi">2</span><span class="p">])</span><span class="si">:</span><span class="s2">8.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><span class="filename">discrete_demo.R</span><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nf">library</span><span class="p">(</span><span class="n">fortvine</span><span class="p">)</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">n</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="m">2000</span><span class="p">;</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="m">3</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># latent Gaussian-copula sample; variable 3 is then made a count with 4 levels</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">gen</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">vinecop_dist</span><span class="p">(</span><span class="nf">list</span><span class="p">(</span><span class="nf">rep</span><span class="p">(</span><span class="nf">list</span><span class="p">(</span><span class="nf">bicop_dist</span><span class="p">(</span><span class="s">"gaussian"</span><span class="p">,</span><span class="w"> </span><span class="m">0</span><span class="p">,</span><span class="w"> </span><span class="m">0.7</span><span class="p">)),</span><span class="w"> </span><span class="m">2</span><span class="p">),</span><span class="w"> </span><span class="nf">list</span><span class="p">(</span><span class="nf">bicop_dist</span><span class="p">(</span><span class="s">"indep"</span><span class="p">))),</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">                    </span><span class="nf">dvine_structure</span><span class="p">(</span><span class="m">1</span><span class="o">:</span><span class="m">3</span><span class="p">))</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="nf">set.seed</span><span class="p">(</span><span class="m">2</span><span class="p">)</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="n">v</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">rvinecop</span><span class="p">(</span><span class="n">n</span><span class="p">,</span><span class="w"> </span><span class="n">gen</span><span class="p">)</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="n">k</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">pmin</span><span class="p">(</span><span class="nf">floor</span><span class="p">(</span><span class="m">4</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">v</span><span class="p">[,</span><span class="w"> </span><span class="m">3</span><span class="p">]</span><span class="o">^</span><span class="m">1.5</span><span class="p">),</span><span class="w"> </span><span class="m">3</span><span class="p">)</span><span class="w">                    </span><span class="c1"># counts 0..3</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="c1"># F(x) of every variable (empirical for the count), then F(x-) of the discrete one: d + 1 columns</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="n">Fk</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">ecdf</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="n">u</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">cbind</span><span class="p">(</span><span class="n">v</span><span class="p">[,</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="m">2</span><span class="p">],</span><span class="w"> </span><span class="nf">Fk</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m">1</span><span class="p">),</span><span class="w"> </span><span class="nf">Fk</span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">n</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="m">1</span><span class="p">))</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="n">vc</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">vinecop</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">var_types</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s">"c"</span><span class="p">,</span><span class="w"> </span><span class="s">"c"</span><span class="p">,</span><span class="w"> </span><span class="s">"d"</span><span class="p">),</span><span class="w"> </span><span class="n">cores</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">4</span><span class="p">)</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="nf">print</span><span class="p">(</span><span class="n">vc</span><span class="p">)</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="nf">cat</span><span class="p">(</span><span class="nf">sprintf</span><span class="p">(</span><span class="s">"discrete log-likelihood:%10.2f\n"</span><span class="p">,</span><span class="w"> </span><span class="nf">sum</span><span class="p">(</span><span class="nf">log</span><span class="p">(</span><span class="nf">dvinecop</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">vc</span><span class="p">)))))</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="c1"># randomised (Brockwell) Rosenblatt transform: iid uniform under the model</span>
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="nf">set.seed</span><span class="p">(</span><span class="m">3</span><span class="p">)</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="n">r</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">rosenblatt</span><span class="p">(</span><span class="n">u</span><span class="p">,</span><span class="w"> </span><span class="n">vc</span><span class="p">)</span>
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="kr">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="kr">in</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="n">d</span><span class="p">)</span>
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="w">  </span><span class="nf">cat</span><span class="p">(</span><span class="nf">sprintf</span><span class="p">(</span><span class="s">"column %d: mean%7.4f  variance%7.4f\n"</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="nf">mean</span><span class="p">(</span><span class="n">r</span><span class="p">[,</span><span class="w"> </span><span class="n">j</span><span class="p">]),</span><span class="w"> </span><span class="nf">mean</span><span class="p">((</span><span class="n">r</span><span class="p">[,</span><span class="w"> </span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="m">0.5</span><span class="p">)</span><span class="o">^</span><span class="m">2</span><span class="p">)))</span>
+<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="nf">cat</span><span class="p">(</span><span class="nf">sprintf</span><span class="p">(</span><span class="s">"tau(r1, r3):%8.4f\n"</span><span class="p">,</span><span class="w"> </span><span class="nf">cor</span><span class="p">(</span><span class="n">r</span><span class="p">[,</span><span class="w"> </span><span class="m">1</span><span class="p">],</span><span class="w"> </span><span class="n">r</span><span class="p">[,</span><span class="w"> </span><span class="m">3</span><span class="p">],</span><span class="w"> </span><span class="n">method</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"kendall"</span><span class="p">)))</span>
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>Output:</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="4:3"><input checked="checked" id="__tabbed_4_1" name="__tabbed_4" type="radio" /><input id="__tabbed_4_2" name="__tabbed_4" type="radio" /><input id="__tabbed_4_3" name="__tabbed_4" type="radio" /><div class="tabbed-labels"><label for="__tabbed_4_1">Fortran</label><label for="__tabbed_4_2">Python</label><label for="__tabbed_4_3">R</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>fortvine vine copula: d = 3, trunc = 2
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>order: 1 2 3
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>  tree 1 edge 1:     gaussian rot   0 par  6.9863E-01  0.0000E+00  0.0000E+00
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>  tree 1 edge 2:     gaussian rot   0 par  6.9748E-01  0.0000E+00  0.0000E+00
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>  tree 2 edge 1:        indep rot   0 par  0.0000E+00  0.0000E+00  0.0000E+00
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>discrete log-likelihood:   1112.53
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>column 1: mean 0.4918  variance 0.0830
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>column 2: mean 0.4974  variance 0.0798
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>column 3: mean 0.4993  variance 0.0831
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>tau(r1, r3): -0.0190
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>fortvine vine copula: d = 3, trunc = 2
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>order: 1 2 3
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>discrete: 3
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>  tree 1 edge 1: gaussian     rot   0 par 0.6915
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>  tree 1 edge 2: gaussian     rot   0 par 0.6878
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>  tree 2 edge 1: indep        rot   0 par 
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>discrete log-likelihood:   1135.49
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>column 1: mean 0.5032  variance 0.0848
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>column 2: mean 0.5013  variance 0.0838
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>column 3: mean 0.5003  variance 0.0814
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>tau(r1, r3):  0.0103
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>Vine copula ('vinecop_dist'): d = 3, trunc_lvl = 2, order = 1 2 3
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  npars = 2, loglik = 1146.31 (n = 2000)
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>  discrete variables: 3
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a> tree edge conditioned conditioning   family rotation parameters
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    1    1        1, 2              gaussian        0     0.6835
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    1    2        2, 3              gaussian        0     0.6959
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    2    1        1, 3            2    indep        0       none
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>discrete log-likelihood:   1146.31
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>column 1: mean 0.5005  variance 0.0851
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>column 2: mean 0.5064  variance 0.0832
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>column 3: mean 0.4984  variance 0.0840
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>tau(r1, r3):  0.0079
+</code></pre></div>
+</div>
+</div>
+</div>
+<p>Both latent correlations (true value 0.7) are recovered although one of the variables has
+only four distinct values, and the transformed columns have the mean <span class="arithmatex">\(1/2\)</span> and variance
+<span class="arithmatex">\(1/12 \approx 0.0833\)</span> of independent uniforms. Treating the count as continuous instead (its
+mid-ranks <span class="arithmatex">\((u + u^-)/2\)</span> passed as ordinary pseudo-observations) gives 0.679 for the second
+parameter on the same (Fortran) data: the ties attenuate the dependence estimate, and the effect grows
+as the number of distinct values shrinks.</p>
+<figure>
+<p><img alt="Intervals between F of x minus and F of x for a four-level count against a continuous variable, and the Gaussian correlation estimated with the discrete likelihood and from mid-ranks against the number of distinct values" src="../img/discrete_ties.png" width="700" /></p>
+<figcaption>(a) What a discrete column contributes: each observation of a count with four
+equiprobable levels is the interval $[u^-, u] = [F(x^-), F(x)]$ (blue), not a point; the
+mid-rank (gold) is the naive point summary. (b) A Gaussian copula with $\rho = 0.7$ whose second
+variable is cut into $K$ equiprobable levels, $n = 1000$, 30 samples per $K$ (mean and 10-90 %
+band): the discrete likelihood (a two-dimensional vine with `var_types=["c", "d"]`) is unbiased
+for every $K$, the mid-ranks fitted as continuous data underestimate $\rho$ (0.62 at two
+levels, 0.68 at four) until the count has about ten distinct values.</figcaption>
+</figure>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../rotations/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Rotations and asymmetry">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Rotations and asymmetry
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../nonparametric/" class="md-footer__link md-footer__link--next" aria-label="Next: Nonparametric families">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Nonparametric families
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Shahab Aldin Shojaeezadeh &mdash; GNU GPL v3 or later
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+        <script src="../../javascripts/katex.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+      
+    
+  </body>
+</html>
