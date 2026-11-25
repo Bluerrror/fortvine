@@ -1,0 +1,3393 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Vine copulas in Fortran - 111 pair-copula families with exact parameter scores, vine selection, density, Rosenblatt transforms and simulation">
+      
+      
+        <meta name="author" content="Shahab Aldin Shojaeezadeh">
+      
+      
+        <link rel="canonical" href="https://bluerrror.github.io/fortvine/families/extreme-value/">
+      
+      
+        <link rel="prev" href="../archimedean/">
+      
+      
+        <link rel="next" href="../archimax/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
+    
+    
+      
+        <title>Extreme-value - fortvine</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Serif+4:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Source Serif 4";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#extreme-value-families" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="fortvine" class="md-header__button md-logo" aria-label="fortvine" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            fortvine
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Extreme-value
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Bluerrror/fortvine" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Bluerrror/fortvine
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Getting started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../manual/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Manual
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Families
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../examples/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Examples
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../python/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Python package
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../r/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  R package
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../benchmarks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Benchmarks
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../theory/numerics/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Theory
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../references/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  References
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../changelog/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="fortvine" class="md-nav__button md-logo" aria-label="fortvine" data-md-component="logo">
+      
+  <img src="../../assets/logo.svg" alt="logo">
+
+    </a>
+    fortvine
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Bluerrror/fortvine" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Bluerrror/fortvine
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../manual/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Manual
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Manual
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/bicop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pair copulas (fv_bicop)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/vinecop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vine copulas (fv_vinecop)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/fitting/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fitting and selection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Controls (fv_controls)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/rotations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rotations and asymmetry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/discrete/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Discrete and mixed data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/nonparametric/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nonparametric families
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/generic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The generic engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/performance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance and threads
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../manual/c-api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C interface
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Families
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Families
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../elliptical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Elliptical
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../archimedean/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archimedean
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extreme-value
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extreme-value
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general-formulas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General formulas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pickands-functions-in-fortvine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pickands functions in fortvine
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logistic-gumbel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logistic (Gumbel)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#negative-logistic-galambos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Negative logistic (Galambos)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#husler-reiss" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hüsler–Reiss
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symmetric-mixed-tawn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symmetric mixed (Tawn)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#asymmetric-logistic-tawn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Asymmetric logistic (Tawn)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#asymmetric-negative-logistic-joe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Asymmetric negative logistic (Joe)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#asymmetric-mixed-tawn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Asymmetric mixed (Tawn)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#khoudrajihuslerreiss-and-khoudrajimixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Khoudraji–Hüsler–Reiss and Khoudraji–mixed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#t-ev-student-extreme-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        t-EV (Student extreme value)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bb5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BB5
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#more-extreme-value-copulas-positive-stable-archimax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        More extreme-value copulas: positive stable Archimax
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../archimax/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archimax
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../khoudraji/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Khoudraji asymmetrisation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../other/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other parametric
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nonparametric/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nonparametric
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../catalogue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Complete catalogue
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../examples/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Examples
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/pair-copula/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pair copula basics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/vine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vine copula workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/generic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Generic families
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/tails/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tail dependence and asymmetry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/weights-discrete/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weighted and discrete data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../examples/interop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Calling fortvine from Python and C
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../r/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    R package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../api/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_9" id="__nav_9_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/bicop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    fv_bicop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vinecop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    fv_vinecop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/controls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    fv_controls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/constants/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Family codes and constants
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Theory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../theory/numerics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Numerics and stability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../theory/scores/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exact parameter scores
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../theory/validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    References
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general-formulas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General formulas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pickands-functions-in-fortvine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pickands functions in fortvine
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logistic-gumbel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logistic (Gumbel)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#negative-logistic-galambos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Negative logistic (Galambos)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#husler-reiss" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hüsler–Reiss
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#symmetric-mixed-tawn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Symmetric mixed (Tawn)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#asymmetric-logistic-tawn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Asymmetric logistic (Tawn)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#asymmetric-negative-logistic-joe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Asymmetric negative logistic (Joe)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#asymmetric-mixed-tawn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Asymmetric mixed (Tawn)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#khoudrajihuslerreiss-and-khoudrajimixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Khoudraji–Hüsler–Reiss and Khoudraji–mixed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#t-ev-student-extreme-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        t-EV (Student extreme value)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bb5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BB5
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#more-extreme-value-copulas-positive-stable-archimax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        More extreme-value copulas: positive stable Archimax
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="extreme-value-families">Extreme-value families<a class="headerlink" href="#extreme-value-families" title="Permanent link">&para;</a></h1>
+<p>Extreme-value (EV) copulas are the possible dependence structures of componentwise maxima in the
+limit of many observations. They are exactly the copulas that are <em>max-stable</em>,
+<span class="arithmatex">\(C(u^t, v^t) = C(u, v)^t\)</span> for all <span class="arithmatex">\(t &gt; 0\)</span>, and in two dimensions every one of them can be written
+with a single function of one variable, the <strong>Pickands dependence function</strong> <span class="arithmatex">\(A\)</span> (Pickands 1981):</p>
+<div class="arithmatex">\[
+C(u, v) = \exp\!\big(-\ell(x, y)\big), \qquad
+\ell(x, y) = (x + y)\, A\!\left(\frac{y}{x + y}\right), \qquad x = -\log u,\; y = -\log v .
+\]</div>
+<p><span class="arithmatex">\(A : [0, 1] \to [1/2, 1]\)</span> is convex with <span class="arithmatex">\(\max(w, 1 - w) \le A(w) \le 1\)</span>. The lower bound
+<span class="arithmatex">\(A(w) = \max(w, 1 - w)\)</span> is the comonotone copula and the upper bound <span class="arithmatex">\(A \equiv 1\)</span> is
+independence. <span class="arithmatex">\(\ell\)</span> is called the stable tail dependence function.</p>
+<div class="admonition note">
+<p class="admonition-title">Orientation of the Pickands argument</p>
+<p>In fortvine, <span class="arithmatex">\(w = y/(x + y) = \log v / \log(uv)\)</span> is the share of the <strong>second</strong> argument.
+Some software (for example the R package <code>evd</code>) uses the share of the first argument, which
+replaces <span class="arithmatex">\(A(w)\)</span> by <span class="arithmatex">\(A(1 - w)\)</span>. For exchangeable families the two conventions agree; for the
+asymmetric ones the parameters attached to the first and second margins swap.</p>
+</div>
+<p><img alt="Extreme-value copula densities" src="../img/extreme-value.png" /></p>
+<p><em>Top row: the four exchangeable EV families at Kendall's <span class="arithmatex">\(\tau = 0.5\)</span>; they are very close to
+one another. Bottom row: asymmetric EV families at <span class="arithmatex">\(\tau \approx 0.4\)</span>. Tawn (11) and Tawn type 2
+(10007) with the same <span class="arithmatex">\(\theta\)</span> and the weight 0.5 on opposite margins are mirror images.</em></p>
+<h2 id="general-formulas">General formulas<a class="headerlink" href="#general-formulas" title="Permanent link">&para;</a></h2>
+<p>Write <span class="arithmatex">\(A'\)</span>, <span class="arithmatex">\(A''\)</span> for the derivatives of <span class="arithmatex">\(A\)</span> at <span class="arithmatex">\(w\)</span> and</p>
+<div class="arithmatex">\[
+\ell_x = A - w A', \qquad \ell_y = A + (1 - w) A', \qquad
+\ell_{xy} = -\frac{w (1 - w)}{x + y}\, A'' \;(\le 0).
+\]</div>
+<p>Then</p>
+<div class="arithmatex">\[
+c(u, v) = \frac{C(u, v)}{uv}\,\big[\ell_x \ell_y - \ell_{xy}\big], \qquad
+h_1(v \mid u) = \frac{C(u, v)}{u}\, \ell_x, \qquad
+h_2(u \mid v) = \frac{C(u, v)}{v}\, \ell_y .
+\]</div>
+<p>The bracket is a sum of two non-negative terms, which is how fortvine keeps the log-density free
+of cancellation. No EV family has a closed-form h-inverse. fortvine reduces Gumbel's to a
+monotone scalar equation and inverts all the others with a bracketed Newton iteration that uses
+the density as the exact derivative; for asymmetric families <span class="arithmatex">\(h_1\)</span> and <span class="arithmatex">\(h_2\)</span> are inverted
+separately.</p>
+<p><strong>Kendall's tau and Spearman's rho</strong> are one-dimensional integrals of <span class="arithmatex">\(A\)</span> (Hürlimann 2003;
+Gudendorf &amp; Segers 2010):</p>
+<div class="arithmatex">\[
+\tau = \int_0^1 \frac{w (1 - w)}{A(w)}\, A''(w)\, dw, \qquad
+\rho_S = 12 \int_0^1 \frac{dw}{\big(1 + A(w)\big)^2} - 3 .
+\]</div>
+<p><strong>Tails.</strong> The upper tail coefficient is read off at the midpoint,</p>
+<div class="arithmatex">\[
+\lambda_U = 2\big(1 - A(1/2)\big),
+\]</div>
+<p>and every EV copula other than the comonotone one has <span class="arithmatex">\(\lambda_L = 0\)</span>: near the origin the
+copula behaves like <span class="arithmatex">\(u^{2A(1/2)}\)</span> along the diagonal, which goes to zero faster than <span class="arithmatex">\(u\)</span>.</p>
+<p><strong>Positive dependence only.</strong> An EV copula always satisfies <span class="arithmatex">\(C(u, v) \ge uv\)</span> (positive quadrant
+dependence), so <span class="arithmatex">\(\tau \ge 0\)</span> and <span class="arithmatex">\(\rho_S \ge 0\)</span>. Negative dependence and lower-tail dependence
+are obtained by rotation: 90° and 270° for negative association, 180° to move the tail
+dependence to the lower-left corner (see <a href="../../manual/rotations/">rotations</a>).</p>
+<p><strong>Symmetry.</strong> An EV copula is exchangeable exactly when <span class="arithmatex">\(A(w) = A(1 - w)\)</span>. For the asymmetric
+families, swapping the two arguments (which a vine does when it flips an edge) replaces <span class="arithmatex">\(A(w)\)</span> by
+<span class="arithmatex">\(A(1 - w)\)</span>; fortvine maps this to an exact change of parameters (or of code), listed per family.</p>
+<p><strong>Codes.</strong> The hand-coded EV families are Gumbel (4), Tawn (11), Galambos (15), Hüsler–Reiss
+(16), BB5 (19) and t-EV (23). The generic engine adds nine EV codes <code>100ie</code> (outer generator
+<code>og = 0</code>, <span class="arithmatex">\(\psi(s) = e^{-s}\)</span>), with <code>ie</code> the Pickands function below. The generic codes of the
+logistic, negative logistic, Hüsler–Reiss and asymmetric logistic models (<code>10001</code>, <code>10002</code>,
+<code>10003</code>, <code>10005</code>) are kept for cross-checks but left out of <code>fv_generic_families()</code>.</p>
+<h2 id="pickands-functions-in-fortvine">Pickands functions in fortvine<a class="headerlink" href="#pickands-functions-in-fortvine" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;"><code>ie</code></th>
+<th>model</th>
+<th><span class="arithmatex">\(A(w)\)</span></th>
+<th>parameters (fortvine order)</th>
+<th style="text-align: center;">exch.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">1</td>
+<td>logistic (Gumbel)</td>
+<td><span class="arithmatex">\(\left(w^\theta + (1-w)^\theta\right)^{1/\theta}\)</span></td>
+<td><span class="arithmatex">\(\theta \ge 1\)</span></td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td>negative logistic (Galambos)</td>
+<td><span class="arithmatex">\(1 - \left(w^{-\theta} + (1-w)^{-\theta}\right)^{-1/\theta}\)</span></td>
+<td><span class="arithmatex">\(\theta &gt; 0\)</span></td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td>Hüsler–Reiss</td>
+<td><span class="arithmatex">\(w\,\Phi(z_1) + (1-w)\,\Phi(z_2)\)</span></td>
+<td><span class="arithmatex">\(\lambda &gt; 0\)</span></td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td style="text-align: right;">4</td>
+<td>symmetric mixed</td>
+<td><span class="arithmatex">\(1 - \theta w (1 - w)\)</span></td>
+<td><span class="arithmatex">\(\theta \in [0, 1]\)</span></td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td style="text-align: right;">5</td>
+<td>asymmetric logistic</td>
+<td><span class="arithmatex">\((1-\psi_1)(1-w) + (1-\psi_2) w + \left[(\psi_1 (1-w))^\theta + (\psi_2 w)^\theta\right]^{1/\theta}\)</span></td>
+<td><span class="arithmatex">\(\psi_1, \psi_2, \theta\)</span></td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td style="text-align: right;">6</td>
+<td>asymmetric logistic, type 1</td>
+<td>as 5 with <span class="arithmatex">\(\psi_2 = 1\)</span></td>
+<td><span class="arithmatex">\(\theta, \psi_1\)</span></td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td style="text-align: right;">7</td>
+<td>asymmetric logistic, type 2</td>
+<td>as 5 with <span class="arithmatex">\(\psi_1 = 1\)</span></td>
+<td><span class="arithmatex">\(\theta, \psi_2\)</span></td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td style="text-align: right;">8</td>
+<td>asymmetric negative logistic</td>
+<td><span class="arithmatex">\(1 - \left[(\psi_1 (1-w))^{-\theta} + (\psi_2 w)^{-\theta}\right]^{-1/\theta}\)</span></td>
+<td><span class="arithmatex">\(\psi_1, \psi_2, \theta\)</span></td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td style="text-align: right;">9</td>
+<td>asym. negative logistic, type 1</td>
+<td>as 8 with <span class="arithmatex">\(\psi_2 = 1\)</span></td>
+<td><span class="arithmatex">\(\theta, \psi_1\)</span></td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td style="text-align: right;">10</td>
+<td>asym. negative logistic, type 2</td>
+<td>as 8 with <span class="arithmatex">\(\psi_1 = 1\)</span></td>
+<td><span class="arithmatex">\(\theta, \psi_2\)</span></td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td style="text-align: right;">11</td>
+<td>asymmetric mixed</td>
+<td><span class="arithmatex">\(1 - (\theta + \phi) w + \theta w^2 + \phi w^3\)</span></td>
+<td><span class="arithmatex">\(\theta, \kappa\)</span> (see below)</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td style="text-align: right;">12</td>
+<td>Khoudraji–Hüsler–Reiss</td>
+<td><span class="arithmatex">\((1-a)(1-w) + (1-b)w + v\,A_{HR}(bw/v)\)</span>, <span class="arithmatex">\(v = a(1-w) + bw\)</span></td>
+<td><span class="arithmatex">\(\lambda, a, b\)</span></td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td style="text-align: right;">13</td>
+<td>Khoudraji–mixed</td>
+<td>as 12 with the symmetric mixed <span class="arithmatex">\(A_0\)</span></td>
+<td><span class="arithmatex">\(\theta, a, b\)</span></td>
+<td style="text-align: center;">no</td>
+</tr>
+</tbody>
+</table>
+<p>The same thirteen Pickands functions are the inner part of the
+<a href="../archimax/">Archimax families</a>.</p>
+<h2 id="logistic-gumbel">Logistic (Gumbel)<a class="headerlink" href="#logistic-gumbel" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Codes</td>
+<td><code>4</code> (hand-coded, see <a href="../archimedean/#gumbel">Archimedean</a>); generic <code>10001</code></td>
+</tr>
+<tr>
+<td>Parameter, box</td>
+<td><span class="arithmatex">\(\theta \in [1, 50]\)</span> (code 4), <span class="arithmatex">\([1, 20]\)</span> (generic)</td>
+</tr>
+<tr>
+<td>Kendall's <span class="arithmatex">\(\tau\)</span></td>
+<td><span class="arithmatex">\(1 - 1/\theta\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\lambda_U\)</span></td>
+<td><span class="arithmatex">\(2 - 2^{1/\theta}\)</span></td>
+</tr>
+<tr>
+<td>Exchangeable</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<div class="arithmatex">\[
+A(w) = \left(w^\theta + (1 - w)^\theta\right)^{1/\theta}, \qquad
+\ell(x, y) = \left(x^\theta + y^\theta\right)^{1/\theta}.
+\]</div>
+<p>The logistic model (Gumbel 1960) is the benchmark EV family; <span class="arithmatex">\(\theta = 1\)</span> is independence and
+<span class="arithmatex">\(\theta \to \infty\)</span> the comonotone copula.</p>
+<h2 id="negative-logistic-galambos">Negative logistic (Galambos)<a class="headerlink" href="#negative-logistic-galambos" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Codes</td>
+<td><code>15</code> (<code>FV_GALAMBOS</code>); generic <code>10002</code></td>
+</tr>
+<tr>
+<td>Parameter, box</td>
+<td><span class="arithmatex">\(\theta \in [0.01, 30]\)</span> (code 15), <span class="arithmatex">\([0.01, 20]\)</span> (generic)</td>
+</tr>
+<tr>
+<td>Kendall's <span class="arithmatex">\(\tau\)</span></td>
+<td>no closed form; <span class="arithmatex">\(\tau \in [0, 0.967]\)</span> in the box</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\lambda_U\)</span></td>
+<td><span class="arithmatex">\(2^{-1/\theta}\)</span></td>
+</tr>
+<tr>
+<td>Exchangeable</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Rotations</td>
+<td>90, 180, 270</td>
+</tr>
+</tbody>
+</table>
+<div class="arithmatex">\[
+A(w) = 1 - \left(w^{-\theta} + (1 - w)^{-\theta}\right)^{-1/\theta}, \qquad
+C(u, v) = uv\, \exp\!\left\{ \left(x^{-\theta} + y^{-\theta}\right)^{-1/\theta} \right\}.
+\]</div>
+<p>Galambos (1975). The second form makes the structure visible: the copula is the independence
+copula times a correction that only matters when both <span class="arithmatex">\(x\)</span> and <span class="arithmatex">\(y\)</span> are small, i.e. in the upper
+corner. fortvine evaluates <span class="arithmatex">\(A\)</span>, <span class="arithmatex">\(A'\)</span>, <span class="arithmatex">\(A''\)</span> in log space through the two shares
+<span class="arithmatex">\(r_p = w^{-\theta}/m\)</span> and <span class="arithmatex">\(r_q = (1-w)^{-\theta}/m\)</span>, <span class="arithmatex">\(m = w^{-\theta} + (1-w)^{-\theta}\)</span>, which sum
+to one, so nothing cancels even for large <span class="arithmatex">\(\theta\)</span>.</p>
+<h2 id="husler-reiss">Hüsler–Reiss<a class="headerlink" href="#husler-reiss" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Codes</td>
+<td><code>16</code> (<code>FV_HUSLER_REISS</code>); generic <code>10003</code></td>
+</tr>
+<tr>
+<td>Parameter, box</td>
+<td><span class="arithmatex">\(\lambda \in [0.01, 30]\)</span> (code 16), <span class="arithmatex">\([0.01, 20]\)</span> (generic)</td>
+</tr>
+<tr>
+<td>Kendall's <span class="arithmatex">\(\tau\)</span></td>
+<td>no closed form; <span class="arithmatex">\(\tau \in [0, 0.963]\)</span> in the box</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\lambda_U\)</span></td>
+<td><span class="arithmatex">\(2\big(1 - \Phi(1/\lambda)\big)\)</span></td>
+</tr>
+<tr>
+<td>Exchangeable</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Rotations</td>
+<td>90, 180, 270</td>
+</tr>
+</tbody>
+</table>
+<div class="arithmatex">\[
+A(w) = w\, \Phi(z_1) + (1 - w)\, \Phi(z_2), \qquad
+z_{1,2} = \frac{1}{\lambda} \pm \frac{\lambda}{2}\log\frac{w}{1 - w},
+\]</div>
+<p>with derivatives <span class="arithmatex">\(A'(w) = \Phi(z_1) - \Phi(z_2)\)</span> (the density terms cancel because
+<span class="arithmatex">\(w\,\phi(z_1) = (1 - w)\,\phi(z_2)\)</span>) and <span class="arithmatex">\(A''(w) = \lambda\,\phi(z_1) / \big(2 w (1-w)^2\big)\)</span>.</p>
+<p>Hüsler &amp; Reiss (1989) obtained this copula as the limit of maxima of bivariate normal samples
+whose correlation tends to one at a suitable rate. Larger <span class="arithmatex">\(\lambda\)</span> means <em>stronger</em> dependence:
+<span class="arithmatex">\(\lambda \to 0\)</span> is independence and <span class="arithmatex">\(\lambda \to \infty\)</span> comonotonicity. For the log-density
+fortvine uses <span class="arithmatex">\(\ell_x = \Phi(z_2)\)</span> and <span class="arithmatex">\(\ell_y = \Phi(z_1)\)</span>, evaluated as <span class="arithmatex">\(\log\Phi\)</span> with an
+asymptotic series far in the lower tail.</p>
+<h2 id="symmetric-mixed-tawn">Symmetric mixed (Tawn)<a class="headerlink" href="#symmetric-mixed-tawn" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Code</td>
+<td><code>10004</code> (generic only)</td>
+</tr>
+<tr>
+<td>Parameter, box</td>
+<td><span class="arithmatex">\(\theta \in [0, 1]\)</span></td>
+</tr>
+<tr>
+<td>Kendall's <span class="arithmatex">\(\tau\)</span></td>
+<td><span class="arithmatex">\(\dfrac{8 \arctan\sqrt{\theta/(4 - \theta)}}{\sqrt{\theta(4 - \theta)}} - 2\)</span>, so <span class="arithmatex">\(\tau \in [0, 0.418]\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\lambda_U\)</span></td>
+<td><span class="arithmatex">\(\theta / 2\)</span></td>
+</tr>
+<tr>
+<td>Exchangeable</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<div class="arithmatex">\[
+A(w) = 1 - \theta\, w (1 - w), \qquad
+\ell(x, y) = x + y - \theta\,\frac{xy}{x + y}.
+\]</div>
+<p>The mixed model (Tawn 1988) has the simplest possible Pickands function, a quadratic. It is a
+weak-dependence family: even at <span class="arithmatex">\(\theta = 1\)</span> Kendall's tau stays below <span class="arithmatex">\(0.42\)</span>. The R package
+<code>copula</code> calls this model <code>tawnCopula</code>; it is not the same as fortvine's <code>tawn</code> (code 11), which is
+the asymmetric logistic model.</p>
+<h2 id="asymmetric-logistic-tawn">Asymmetric logistic (Tawn)<a class="headerlink" href="#asymmetric-logistic-tawn" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Codes</td>
+<td><code>11</code> (<code>FV_TAWN</code>); generic <code>10005</code></td>
+</tr>
+<tr>
+<td>Parameters, box</td>
+<td><span class="arithmatex">\((\psi_1, \psi_2, \theta) \in [0, 1] \times [0, 1] \times [1, 60]\)</span> (code 11); <span class="arithmatex">\([0.01, 1]^2 \times [1, 20]\)</span> (generic)</td>
+</tr>
+<tr>
+<td>Kendall's <span class="arithmatex">\(\tau\)</span></td>
+<td>no closed form; <span class="arithmatex">\(\tau \in [0, 0.983]\)</span> in the box of code 11</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\lambda_U\)</span></td>
+<td><span class="arithmatex">\(\psi_1 + \psi_2 - \left(\psi_1^\theta + \psi_2^\theta\right)^{1/\theta}\)</span></td>
+</tr>
+<tr>
+<td>Exchangeable</td>
+<td>only if <span class="arithmatex">\(\psi_1 = \psi_2\)</span></td>
+</tr>
+<tr>
+<td>Rotations</td>
+<td>90, 180, 270</td>
+</tr>
+<tr>
+<td>Edge flip</td>
+<td>swap <span class="arithmatex">\(\psi_1 \leftrightarrow \psi_2\)</span></td>
+</tr>
+</tbody>
+</table>
+<div class="arithmatex">\[
+A(w) = (1 - \psi_1)(1 - w) + (1 - \psi_2)\, w + \left[ \big(\psi_1 (1 - w)\big)^\theta + (\psi_2 w)^\theta \right]^{1/\theta},
+\]</div>
+<div class="arithmatex">\[
+\ell(x, y) = (1 - \psi_1)\, x + (1 - \psi_2)\, y + \left[ (\psi_1 x)^\theta + (\psi_2 y)^\theta \right]^{1/\theta}.
+\]</div>
+<p>Tawn (1988). The stable tail function reads as a mixture of three sources of extremes: a share
+<span class="arithmatex">\(1 - \psi_1\)</span> of the first variable's extremes that is independent of everything, a share
+<span class="arithmatex">\(1 - \psi_2\)</span> of the second's, and the remaining shares <span class="arithmatex">\(\psi_1\)</span>, <span class="arithmatex">\(\psi_2\)</span> that are tied together
+by a logistic (Gumbel) dependence. Unequal weights make the copula non-exchangeable. <span class="arithmatex">\(\psi_1 =
+\psi_2 = 1\)</span> is Gumbel(<span class="arithmatex">\(\theta\)</span>); either weight at <span class="arithmatex">\(0\)</span> gives independence. This is also the
+<a href="../khoudraji/">Khoudraji asymmetrisation</a> of the Gumbel copula with <span class="arithmatex">\(a = \psi_1\)</span>, <span class="arithmatex">\(b = \psi_2\)</span>.</p>
+<p><strong>Parameter order.</strong> fortvine stores Tawn as <span class="arithmatex">\((\psi_1, \psi_2, \theta)\)</span>, the weights first, in
+both the hand-coded and the generic version; <span class="arithmatex">\(\psi_1\)</span> is attached to the first argument <span class="arithmatex">\(u\)</span>.</p>
+<p><strong>Two-parameter sub-models.</strong> With one weight fixed at one, the asymmetric logistic model keeps
+its asymmetry with one parameter less, which BIC rewards when the data support only one-sided
+asymmetry:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Code</th>
+<th>Name</th>
+<th>Parameters, box</th>
+<th>Fixed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><code>10006</code></td>
+<td>Tawn type 1</td>
+<td><span class="arithmatex">\((\theta, \psi_1) \in [1, 20] \times [0.01, 1]\)</span></td>
+<td><span class="arithmatex">\(\psi_2 = 1\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>10007</code></td>
+<td>Tawn type 2</td>
+<td><span class="arithmatex">\((\theta, \psi_2) \in [1, 20] \times [0.01, 1]\)</span></td>
+<td><span class="arithmatex">\(\psi_1 = 1\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Note the parameter order of the types: <span class="arithmatex">\(\theta\)</span> comes first. An edge flip maps type 1 to type 2
+with the same parameter values (fortvine changes the code). For the type numbering used by other
+packages, compare the formulas rather than the names.</p>
+<h2 id="asymmetric-negative-logistic-joe">Asymmetric negative logistic (Joe)<a class="headerlink" href="#asymmetric-negative-logistic-joe" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Code</td>
+<td><code>10008</code> (generic only)</td>
+</tr>
+<tr>
+<td>Parameters, box</td>
+<td><span class="arithmatex">\((\psi_1, \psi_2, \theta) \in [0.01, 1]^2 \times [0.01, 20]\)</span></td>
+</tr>
+<tr>
+<td>Kendall's <span class="arithmatex">\(\tau\)</span></td>
+<td>no closed form; <span class="arithmatex">\(\tau \in [0, 0.952]\)</span> in the box</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\lambda_U\)</span></td>
+<td><span class="arithmatex">\(\left(\psi_1^{-\theta} + \psi_2^{-\theta}\right)^{-1/\theta}\)</span></td>
+</tr>
+<tr>
+<td>Exchangeable</td>
+<td>only if <span class="arithmatex">\(\psi_1 = \psi_2\)</span></td>
+</tr>
+<tr>
+<td>Edge flip</td>
+<td>swap <span class="arithmatex">\(\psi_1 \leftrightarrow \psi_2\)</span></td>
+</tr>
+</tbody>
+</table>
+<div class="arithmatex">\[
+A(w) = 1 - \left[ \big(\psi_1 (1 - w)\big)^{-\theta} + (\psi_2 w)^{-\theta} \right]^{-1/\theta}.
+\]</div>
+<p>Joe (1990). This is to Galambos what the asymmetric logistic is to Gumbel, and it is likewise the
+Khoudraji asymmetrisation of the Galambos copula with <span class="arithmatex">\(a = \psi_1\)</span>, <span class="arithmatex">\(b = \psi_2\)</span>. <span class="arithmatex">\(\psi_1 = \psi_2 = 1\)</span>
+recovers Galambos(<span class="arithmatex">\(\theta\)</span>). The one-weight sub-models are</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">Code</th>
+<th>Name</th>
+<th>Parameters, box</th>
+<th>Fixed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><code>10009</code></td>
+<td>asymmetric negative logistic, type 1</td>
+<td><span class="arithmatex">\((\theta, \psi_1) \in [0.01, 20] \times [0.01, 1]\)</span></td>
+<td><span class="arithmatex">\(\psi_2 = 1\)</span></td>
+</tr>
+<tr>
+<td style="text-align: right;"><code>10010</code></td>
+<td>asymmetric negative logistic, type 2</td>
+<td><span class="arithmatex">\((\theta, \psi_2) \in [0.01, 20] \times [0.01, 1]\)</span></td>
+<td><span class="arithmatex">\(\psi_1 = 1\)</span></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">Asymmetric lower-tail dependence</p>
+<p>The upper tail of the asymmetric negative logistic is that of a Khoudraji-transformed
+<em>survival</em> Clayton copula. Rotated by 180°, code <code>10008</code> therefore gives a non-exchangeable
+copula with lower-tail dependence <span class="arithmatex">\(\left(\psi_1^{-\theta} + \psi_2^{-\theta}\right)^{-1/\theta}\)</span>,
+something <a href="../khoudraji/">Khoudraji-Clayton</a> itself cannot provide.</p>
+</div>
+<h2 id="asymmetric-mixed-tawn">Asymmetric mixed (Tawn)<a class="headerlink" href="#asymmetric-mixed-tawn" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Code</td>
+<td><code>10011</code> (generic only)</td>
+</tr>
+<tr>
+<td>Parameters, box</td>
+<td><span class="arithmatex">\((\theta, \kappa) \in [0, 1]^2\)</span></td>
+</tr>
+<tr>
+<td>Kendall's <span class="arithmatex">\(\tau\)</span></td>
+<td>no closed form; <span class="arithmatex">\(\tau \in [0, 0.418]\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\lambda_U\)</span></td>
+<td><span class="arithmatex">\(\theta/2 + 3\phi/4\)</span></td>
+</tr>
+<tr>
+<td>Exchangeable</td>
+<td>only if <span class="arithmatex">\(\phi = 0\)</span></td>
+</tr>
+<tr>
+<td>Edge flip</td>
+<td><span class="arithmatex">\((\theta, \phi) \to (\theta + 3\phi, -\phi)\)</span>, then <span class="arithmatex">\(\kappa\)</span> recomputed</td>
+</tr>
+</tbody>
+</table>
+<div class="arithmatex">\[
+A(w) = 1 - (\theta + \phi)\, w + \theta\, w^2 + \phi\, w^3 .
+\]</div>
+<p>Tawn (1988) gives the admissible region of the cubic as <span class="arithmatex">\(\theta \ge 0\)</span>, <span class="arithmatex">\(\theta + 3\phi \ge 0\)</span>,
+<span class="arithmatex">\(\theta + \phi \le 1\)</span> and <span class="arithmatex">\(\theta + 2\phi \le 1\)</span>. A box is much easier for an optimiser than four
+linear constraints, so fortvine replaces <span class="arithmatex">\(\phi\)</span> by a share <span class="arithmatex">\(\kappa \in [0, 1]\)</span>:</p>
+<div class="arithmatex">\[
+\phi = -\frac{\theta}{3} + \kappa \left( \frac{1 - \theta}{2} + \frac{\theta}{3} \right).
+\]</div>
+<p><span class="arithmatex">\(\kappa = 0\)</span> puts <span class="arithmatex">\(\phi\)</span> on the edge <span class="arithmatex">\(\theta + 3\phi = 0\)</span> and <span class="arithmatex">\(\kappa = 1\)</span> on the edge
+<span class="arithmatex">\(\theta + 2\phi = 1\)</span>; every <span class="arithmatex">\((\theta, \kappa)\)</span> in the unit square is admissible and every
+admissible <span class="arithmatex">\((\theta, \phi)\)</span> is reached. The symmetric mixed model is the slice <span class="arithmatex">\(\phi = 0\)</span>. Since
+<span class="arithmatex">\(w\)</span> is the share of the second argument, <span class="arithmatex">\(A(1 - w)\)</span> is again a cubic of the same form, with
+<span class="arithmatex">\(\theta' = \theta + 3\phi\)</span> and <span class="arithmatex">\(\phi' = -\phi\)</span>; that is the transposition fortvine applies when a
+vine edge is flipped. Like the symmetric model, the asymmetric mixed model is limited to weak and
+moderate dependence.</p>
+<h2 id="khoudrajihuslerreiss-and-khoudrajimixed">Khoudraji–Hüsler–Reiss and Khoudraji–mixed<a class="headerlink" href="#khoudrajihuslerreiss-and-khoudrajimixed" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Khoudraji–HR</th>
+<th>Khoudraji–mixed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Code</td>
+<td><code>10012</code></td>
+<td><code>10013</code></td>
+</tr>
+<tr>
+<td>Parameters, box</td>
+<td><span class="arithmatex">\((\lambda, a, b) \in [0.01, 20] \times [0.01, 1]^2\)</span></td>
+<td><span class="arithmatex">\((\theta, a, b) \in [0, 1] \times [0.01, 1]^2\)</span></td>
+</tr>
+<tr>
+<td>Kendall's <span class="arithmatex">\(\tau\)</span> range in the box</td>
+<td><span class="arithmatex">\([0, 0.945]\)</span></td>
+<td><span class="arithmatex">\([0, 0.418]\)</span></td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\lambda_U\)</span></td>
+<td><span class="arithmatex">\((a + b)\left[1 - A_{HR}\!\left(\frac{b}{a+b}\right)\right]\)</span></td>
+<td><span class="arithmatex">\(\dfrac{\theta\, a b}{a + b}\)</span></td>
+</tr>
+<tr>
+<td>Exchangeable</td>
+<td>only if <span class="arithmatex">\(a = b\)</span></td>
+<td>only if <span class="arithmatex">\(a = b\)</span></td>
+</tr>
+<tr>
+<td>Edge flip</td>
+<td>swap <span class="arithmatex">\(a \leftrightarrow b\)</span></td>
+<td>swap <span class="arithmatex">\(a \leftrightarrow b\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>The Khoudraji construction <span class="arithmatex">\(C_K(u, v) = u^{1-a} v^{1-b} C_0(u^a, v^b)\)</span> (see the
+<a href="../khoudraji/">Khoudraji page</a>) maps an EV copula to another EV copula. In terms of the stable
+tail function, <span class="arithmatex">\(\ell_K(x, y) = (1 - a)x + (1 - b)y + \ell_0(ax, by)\)</span>, so the new Pickands function
+is</p>
+<div class="arithmatex">\[
+A_K(w) = (1 - a)(1 - w) + (1 - b)\, w + v\, A_0\!\left(\frac{b w}{v}\right), \qquad
+v = a (1 - w) + b w,
+\]</div>
+<p>with <span class="arithmatex">\(A_K''(w) = a^2 b^2 A_0''(bw/v) / v^3\)</span>. fortvine provides it for the two symmetric bases whose
+asymmetric versions are not already in the list: Hüsler–Reiss and the symmetric mixed model.
+Applied to Gumbel or Galambos the same construction gives the asymmetric logistic and asymmetric
+negative logistic models above, so those are not repeated.</p>
+<h2 id="t-ev-student-extreme-value">t-EV (Student extreme value)<a class="headerlink" href="#t-ev-student-extreme-value" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Code</td>
+<td><code>23</code> (<code>FV_TEV</code>)</td>
+</tr>
+<tr>
+<td>Parameters, box</td>
+<td><span class="arithmatex">\((\rho, \nu) \in [-0.95, 0.99] \times [1, 30]\)</span></td>
+</tr>
+<tr>
+<td>Kendall's <span class="arithmatex">\(\tau\)</span></td>
+<td>no closed form; <span class="arithmatex">\(\tau \in [0, 0.894]\)</span> in the box</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\lambda_U\)</span></td>
+<td><span class="arithmatex">\(2\, T_{\nu+1}\!\left(-\sqrt{(\nu+1)\frac{1-\rho}{1+\rho}}\right)\)</span>, the same as the t copula</td>
+</tr>
+<tr>
+<td>Exchangeable</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Rotations</td>
+<td>90, 180, 270</td>
+</tr>
+</tbody>
+</table>
+<div class="arithmatex">\[
+A(w) = w\, T_{\nu+1}(z_1) + (1 - w)\, T_{\nu+1}(z_2), \qquad
+z_1 = k\left[\left(\frac{w}{1-w}\right)^{1/\nu} - \rho\right], \quad
+z_2 = k\left[\left(\frac{1-w}{w}\right)^{1/\nu} - \rho\right], \quad
+k = \sqrt{\frac{\nu + 1}{1 - \rho^2}} .
+\]</div>
+<p>The t-EV copula (Demarta &amp; McNeil 2005) is the extreme-value limit of the Student t copula; in
+the joint limit <span class="arithmatex">\(\nu \to \infty\)</span>, <span class="arithmatex">\(\rho \to 1\)</span> it contains Hüsler–Reiss. Its parameters are poorly
+separated: quite different <span class="arithmatex">\((\rho, \nu)\)</span> pairs give almost the same <span class="arithmatex">\(A\)</span>, along a ridge that is
+nearly straight in <span class="arithmatex">\((\rho, \log\nu)\)</span>. The t distribution function has no elementary derivative
+in its degrees of freedom, so fortvine first locates the optimum on a subsample by profiling
+<span class="arithmatex">\(\log\nu\)</span> (with <span class="arithmatex">\(\rho\)</span> solved by Newton on its exact score), then refines <span class="arithmatex">\((\rho, \nu)\)</span> jointly
+on all data with a dedicated <span class="arithmatex">\(\nu\)</span>-derivative of the t distribution function. Even so, code 23 is
+the slowest family to fit, which is why the default family set leaves it out.</p>
+<h2 id="bb5">BB5<a class="headerlink" href="#bb5" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Code</td>
+<td><code>19</code> (<code>FV_BB5</code>); generic <code>10102</code></td>
+</tr>
+<tr>
+<td>Parameters, box</td>
+<td><span class="arithmatex">\(\theta \in [1, 10]\)</span>, <span class="arithmatex">\(\delta \in [0.01, 30]\)</span></td>
+</tr>
+<tr>
+<td>Kendall's <span class="arithmatex">\(\tau\)</span></td>
+<td>no closed form; <span class="arithmatex">\(\tau \in [0, 0.997]\)</span> in the box</td>
+</tr>
+<tr>
+<td><span class="arithmatex">\(\lambda_U\)</span></td>
+<td><span class="arithmatex">\(2 - \left(2 - 2^{-1/\delta}\right)^{1/\theta}\)</span></td>
+</tr>
+<tr>
+<td>Exchangeable</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Rotations</td>
+<td>90, 180, 270</td>
+</tr>
+</tbody>
+</table>
+<div class="arithmatex">\[
+C(u, v) = \exp\!\left\{ -\left[ x^\theta + y^\theta - \left(x^{-\theta\delta} + y^{-\theta\delta}\right)^{-1/\delta} \right]^{1/\theta} \right\},
+\qquad
+A(w) = \left[ w^\theta + (1 - w)^\theta - \left(w^{-\theta\delta} + (1 - w)^{-\theta\delta}\right)^{-1/\delta} \right]^{1/\theta}.
+\]</div>
+<p>BB5 (Joe &amp; Hu 1996) combines a logistic and a negative logistic part: <span class="arithmatex">\(\delta \to 0\)</span> leaves
+Gumbel(<span class="arithmatex">\(\theta\)</span>) and <span class="arithmatex">\(\theta = 1\)</span> gives Galambos(<span class="arithmatex">\(\delta\)</span>). It is the <a href="../archimax/">Archimax</a>
+copula of the positive stable generator with the negative logistic Pickands function.</p>
+<h2 id="more-extreme-value-copulas-positive-stable-archimax">More extreme-value copulas: positive stable Archimax<a class="headerlink" href="#more-extreme-value-copulas-positive-stable-archimax" title="Permanent link">&para;</a></h2>
+<p>Any Archimax copula whose outer generator is the positive stable transform,
+<span class="arithmatex">\(\psi(s) = e^{-s^{1/\theta}}\)</span>, is again an EV copula, because
+<span class="arithmatex">\(C(u, v) = \exp\{-\ell_0(x^\theta, y^\theta)^{1/\theta}\}\)</span> is max-stable. Its Pickands function is</p>
+<div class="arithmatex">\[
+A^*(w) = \left[ \big((1 - w)^\theta + w^\theta\big)\; A_0\!\left( \frac{w^\theta}{(1 - w)^\theta + w^\theta} \right) \right]^{1/\theta},
+\]</div>
+<p>and its Kendall's tau is <span class="arithmatex">\(\tau_{A_0} + (1 - \tau_{A_0})(1 - 1/\theta)\)</span>. So the seven codes <code>10103</code>,
+<code>10104</code>, <code>10106</code>, <code>10107</code>, <code>10109</code>, <code>10110</code> and <code>10111</code> (positive stable with Hüsler–Reiss, mixed,
+the asymmetric logistic types, the asymmetric negative logistic types and the asymmetric mixed
+model) extend the EV list with three-parameter members. They are documented with the
+<a href="../archimax/">Archimax families</a>.</p>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Demarta, S. and McNeil, A. J. (2005). The t copula and related copulas. <em>International
+  Statistical Review</em> 73, 111–129.</li>
+<li>Galambos, J. (1975). Order statistics of samples from multivariate distributions. <em>Journal of
+  the American Statistical Association</em> 70, 674–680.</li>
+<li>Gudendorf, G. and Segers, J. (2010). Extreme-value copulas. In <em>Copula Theory and Its
+  Applications</em>, Lecture Notes in Statistics 198, Springer, 127–145.</li>
+<li>Gumbel, E. J. (1960). Bivariate exponential distributions. <em>Journal of the American
+  Statistical Association</em> 55, 698–707.</li>
+<li>Hürlimann, W. (2003). Hutchinson–Lai's conjecture for bivariate extreme value copulas.
+  <em>Statistics &amp; Probability Letters</em> 61, 191–198.</li>
+<li>Hüsler, J. and Reiss, R.-D. (1989). Maxima of normal random vectors: between independence and
+  complete dependence. <em>Statistics &amp; Probability Letters</em> 7, 283–286.</li>
+<li>Joe, H. (1990). Families of min-stable multivariate exponential and multivariate extreme value
+  distributions. <em>Statistics &amp; Probability Letters</em> 9, 75–81.</li>
+<li>Joe, H. and Hu, T. (1996). Multivariate distributions from mixtures of max-infinitely
+  divisible distributions. <em>Journal of Multivariate Analysis</em> 57, 240–265.</li>
+<li>Pickands, J. (1981). Multivariate extreme value distributions. <em>Bulletin of the International
+  Statistical Institute</em> 49, 859–878.</li>
+<li>Tawn, J. A. (1988). Bivariate extreme value theory: models and estimation. <em>Biometrika</em> 75,
+  397–415.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../archimedean/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Archimedean">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Archimedean
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../archimax/" class="md-footer__link md-footer__link--next" aria-label="Next: Archimax">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Archimax
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Shahab Aldin Shojaeezadeh &mdash; GNU GPL v3 or later
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.indexes", "navigation.footer", "toc.follow", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+        <script src="../../javascripts/katex.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+      
+    
+  </body>
+</html>

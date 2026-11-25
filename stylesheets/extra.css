@@ -1,0 +1,102 @@
+/* fortvine documentation theme: deep blue + vine green, serif text to match the figures */
+
+:root > * {
+  --md-primary-fg-color: #1F5FA6;
+  --md-primary-fg-color--light: #4F86C6;
+  --md-primary-fg-color--dark: #154477;
+  --md-accent-fg-color: #2E8B57;
+  --md-accent-fg-color--transparent: rgba(46, 139, 87, 0.1);
+}
+
+/* light scheme only: text and surface colours (the dark scheme keeps Material's slate text colours) */
+[data-md-color-scheme="default"] {
+  --md-default-bg-color: #FBFCFD;
+  --md-default-fg-color: #1E2230;
+  --md-typeset-a-color: #1F5FA6;
+  --fv-panel: #FFFFFF;
+  --fv-rule: #DDE3EA;
+  --fv-ink: #1E2230;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-hue: 215;
+  --md-default-bg-color: #12171F;
+  --md-primary-fg-color: #163456;
+  --md-primary-fg-color--dark: #10273F;
+  --md-accent-fg-color: #6CC28F;
+  --md-typeset-a-color: #7FB0E6;
+  --fv-panel: #F5F7FA;            /* figures stay on a light panel: their palette is tuned for it */
+  --fv-rule: #2A3341;
+  --fv-ink: #DCE3EC;
+}
+
+/* type: serif body, slightly looser leading; headings in the same family, tighter */
+.md-typeset { font-size: 0.8rem; line-height: 1.72; }
+.md-typeset h1, .md-typeset h2, .md-typeset h3 { font-weight: 600; letter-spacing: -0.01em; color: var(--md-default-fg-color); }
+[data-md-color-scheme="slate"] .md-typeset h1, [data-md-color-scheme="slate"] .md-typeset h2,
+[data-md-color-scheme="slate"] .md-typeset h3 { color: #E6ECF3; }
+.md-typeset h1 { font-size: 2.0em; margin-bottom: 0.6em; }
+.md-typeset h2 { border-bottom: 1px solid var(--fv-rule); padding-bottom: 0.25em; }
+.md-typeset code { font-size: 0.82em; }
+.md-header__title { font-weight: 600; letter-spacing: 0.01em; }
+/* the logo's blue leaf needs a light disc to stand out on the blue header */
+.md-header__button.md-logo img, .md-nav__button.md-logo img {
+  background: #FBFCFD; border-radius: 50%; padding: 3px; height: 1.9rem; width: 1.9rem;
+}
+
+/* figures: every PNG sits on a light panel with a hairline frame, in both colour schemes */
+.md-typeset img[src$=".png"] {
+  background: var(--fv-panel);
+  border: 1px solid var(--fv-rule);
+  border-radius: 4px;
+  padding: 6px;
+}
+.md-typeset figure figcaption { font-size: 0.72rem; color: var(--md-default-fg-color--light); max-width: 46rem; margin: 0.4em auto 0; }
+
+/* tables in the style of a typeset paper (LaTeX booktabs): a heavy top and bottom rule, a light rule
+   under the header, no vertical lines, no fills, no shadow; numbers in lining tabular figures */
+.md-typeset__table { display: block; }
+.md-typeset table:not([class]) {
+  font-size: 0.74rem;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border-collapse: collapse;
+  border-top: 1.6px solid var(--fv-ink);
+  border-bottom: 1.6px solid var(--fv-ink);
+  background: transparent;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.md-typeset table:not([class]) th {
+  background: transparent;
+  font-weight: 600;
+  border: 0;
+  border-bottom: 0.8px solid var(--fv-ink);
+  padding: 0.55em 1.0em 0.45em;
+  vertical-align: bottom;
+}
+.md-typeset table:not([class]) td {
+  border: 0;
+  padding: 0.4em 1.0em;
+  vertical-align: top;
+}
+.md-typeset table:not([class]) tbody tr:hover { background: transparent; box-shadow: none; }
+.md-typeset table:not([class]) tbody tr:first-child td { padding-top: 0.6em; }
+.md-typeset table:not([class]) tbody tr:last-child td { padding-bottom: 0.6em; }
+/* key-value tables written with an empty header row: drop the header, keep the top rule */
+.md-typeset table:not([class]) thead:not(:has(th:not(:empty))) { display: none; }
+.md-typeset table:not([class]) .katex { font-size: 1.02em; }
+
+/* home page hero */
+.fv-hero { display: grid; grid-template-columns: 9rem 1fr; gap: 1.6rem; align-items: center; margin: 0.6rem 0 1.4rem; }
+.fv-hero img.fv-logo { width: 9rem; height: 9rem; background: none; border: 0; padding: 0; }
+.fv-hero h1 { font-size: 3.1rem; margin: 0 0 0.15em; line-height: 1.05; letter-spacing: -0.02em; }
+.fv-hero p.fv-tagline { font-size: 1.05rem; line-height: 1.5; margin: 0 0 0.9em; max-width: 34rem; color: var(--md-default-fg-color--light); }
+.fv-hero .md-button { margin: 0.2em 0.5em 0.2em 0; }
+.fv-strip { margin: 0.4rem 0 1.8rem; }
+.fv-strip img { width: 100%; }
+@media screen and (max-width: 44em) {
+  .fv-hero { grid-template-columns: 1fr; text-align: left; }
+  .fv-hero img.fv-logo { width: 5.5rem; height: 5.5rem; }
+  .fv-hero h1 { font-size: 2.3rem; }
+}
