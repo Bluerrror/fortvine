@@ -11,15 +11,17 @@ FV_FCFLAGS = -DFORTVINE_NO_IO $(SHLIB_OPENMP_FFLAGS)
 PKG_CFLAGS = $(SHLIB_OPENMP_CFLAGS)
 PKG_LIBS = $(SHLIB_OPENMP_CFLAGS) $(FLIBS)
 
-OBJECTS = fortvine_ad.o fortvine.o fortvine_api.o fortvine_capi.o init.o
+OBJECTS = fv_util.o fortvine_ad.o fortvine.o fortvine_api.o fortvine_capi.o init.o
 
 all: $(SHLIB)
 
 # module dependency order (all must stay the first target)
-fortvine_ad.o: fortvine/fortvine_ad.F90 fortvine/fortvine_adk.inc
+fv_util.o: fortvine/fv_util.F90
+	$(FC) $(FV_FCFLAGS) $(ALL_FCFLAGS) -c fortvine/fv_util.F90 -o $@
+fortvine_ad.o: fortvine/fortvine_ad.F90 fortvine/fortvine_adk.inc fv_util.o
 	$(FC) $(FV_FCFLAGS) $(ALL_FCFLAGS) -c fortvine/fortvine_ad.F90 -o $@
-fortvine.o: fortvine/fortvine.F90 fortvine_ad.o fortvine/families_core.inc \
-  fortvine/families_ext.inc fortvine/families_gen.inc
+fortvine.o: fortvine/fortvine.F90 fortvine_ad.o fv_util.o fortvine/families_core.inc \
+  fortvine/families_ext.inc fortvine/families_gen.inc fortvine/newton1.inc
 	$(FC) $(FV_FCFLAGS) $(ALL_FCFLAGS) -c fortvine/fortvine.F90 -o $@
 fortvine_api.o: fortvine/fortvine_api.F90 fortvine.o
 	$(FC) $(FV_FCFLAGS) $(ALL_FCFLAGS) -c fortvine/fortvine_api.F90 -o $@

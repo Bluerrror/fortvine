@@ -8,11 +8,11 @@
     integer, intent(in) :: fam
     VT, intent(in) :: P(3)
     real(dp), intent(in) :: a, b, x, y
-    VT :: lp, r, s, t1, t2, ls, st, eu, ev, ed, den, ua, ub, pa, pb, da, db, dum, cc, dc, ddc
+    VT :: lp, r, s, t1, t2, ls, st, eu, ev, ed, den, ua, ub
     VT :: aa, a1, a2, tm, lx2, ly2, hi2
     VT :: gq1, gq2, gq3
     VT :: ta, tb, lta, ltb, e1, e2, w, ra, rb, lra, lrb, z, lz, lq, eta, l1da, l1db, ga, gb, l1ga, l1gb, emz
-    real(dp) :: lx, ly, la, lb, m, tt, lab
+    real(dp) :: lx, ly, la, lb, tt, lab
     select case (fam)
     case (1)
       r = P(1)

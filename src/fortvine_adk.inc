@@ -1,11 +1,10 @@
 ! SPDX-License-Identifier: GPL-3.0-or-later
 ! Copyright (C) 2026 Shahab Aldin Shojaeezadeh. Part of fortvine (see LICENSE). If you use it, please cite:
 ! Shojaeezadeh, S. A. (2026). fortvine: a complete compendium to work on vine copula modeling.
-! fortvine_adk.inc -- dual numbers of a fixed width AD_N (1 or 2 copula parameters): value
-! and exact gradient, compiled once per width at the end of fortvine_ad.f90.  Same operations as
-! fortvine_ad's hd (always 3 slots), without the unused slots: one- and two-parameter
-! families evaluate their exact scores 1.1-2x faster.
+! fortvine_adk.inc -- dual numbers of a fixed width AD_N (1, 2 or 3 copula parameters): value
+! and exact gradient, compiled once per width by fortvine_ad.f90 (types hd1, hd2, hd).
 module AD_MOD
+  use fv_util, only: pnorm, dnorm
   implicit none
   private
   integer, parameter :: dp = kind(1.0d0)
@@ -254,14 +253,14 @@ contains
     type(AD_T), intent(in) :: x
     type(AD_T) :: r
     real(dp) :: f
-    f = 0.39894228040143267794_dp * exp(-0.5_dp * x%v * x%v)
-    r = kun(x, 0.5_dp * erfc(-x%v * 0.70710678118654752440_dp), f, -x%v * f)
+    f = dnorm(x%v)
+    r = kun(x, pnorm(x%v), f, -x%v * f)
   end function kpnorm
   pure function kdnorm(x) result(r)
     type(AD_T), intent(in) :: x
     type(AD_T) :: r
     real(dp) :: f
-    f = 0.39894228040143267794_dp * exp(-0.5_dp * x%v * x%v)
+    f = dnorm(x%v)
     r = kun(x, f, -x%v * f, (x%v * x%v - 1.0_dp) * f)
   end function kdnorm
   ! log(exp(p) + exp(q))

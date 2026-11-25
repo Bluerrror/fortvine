@@ -13,12 +13,13 @@
 module fortvine_api
   use iso_c_binding, only: c_int, c_double
   use fortvine, only: NAUX, fam_is_np, gen_name, gen_codes, gen_is, gen_valid, gen_dup, gen_npar, gen_flip, &
-    gen_exch, gen_lt, gen_ut, vine_pdf_x, vine_pdf_disc, vine_pdf_disc_x, vine_rosenblatt_x, vine_inverse_rosenblatt_x, &
+    gen_exch, gen_lt, gen_ut, vine_pdf_x, vine_pdf_disc_x, vine_rosenblatt_x, vine_inverse_rosenblatt_x, &
     vine_select_x, bicop_eval_x, bicop_fit_x, bicop_select_x, fv_kendall_tau_c, fv_tau_matrix, fv_pseudo_obs, &
     criterion_w, par_bounds, vine_edge_uv, qnorm, fv_fitcache_enable, fv_fitcache_clear, fv_fitcache_disable, fv_fitcache_stats, &
     fv_fitcache_capacity, &
     vine_rosenblatt_disc, bicop_cdf_x
   use iso_fortran_env, only: int64
+  use fv_util
   use, intrinsic :: ieee_arithmetic, only: ieee_value, ieee_quiet_nan
   !$ use omp_lib
   implicit none
@@ -53,7 +54,8 @@ module fortvine_api
   type, public :: fv_controls
     integer :: family_set(FV_NFAM) = [FV_ALL, FV_NONPAR, spread(0, 1, FV_NFAM - FV_NCLASSIC)]   ! first nfam used
     integer :: nfam = size(FV_ALL) - 1   ! default: every parametric family except the slow-to-fit tev;
-                                         ! nfam = size(FV_ALL) adds it, nfam = FV_NCLASSIC adds tll and bernstein; fv_generic_families() the generic ones
+                                         ! nfam = size(FV_ALL) adds it, nfam = FV_NCLASSIC adds tll and bernstein;
+                                         ! fv_generic_families() the generic ones
     integer :: selcrit = FV_BIC
     integer :: method = FV_MLE
     integer :: tree_crit = FV_TREE_TAU
@@ -481,10 +483,7 @@ contains
     real(dp), allocatable :: crit(:, :), tc(:)
     real(dp) :: thr, mb, mbt, mopt, chg, tot, neff, ps, ll, np, mt(size(u, 2))
     integer :: inf, d, t, e, m, nn, k
-    logical :: owncache, prof, sel_tr
-    character(len=8) :: ev
-    integer :: es
-    call get_environment_variable("FORTVINE_PROFILE", ev, status=es); prof = es == 0
+    logical :: owncache, sel_tr
     call self%unrelax()
     if (present(ctl)) c = ctl
     if (.not. c%select_threshold) then
@@ -546,10 +545,6 @@ contains
           mb = mbt
         end if
       end do
-#ifndef FORTVINE_NO_IO
-      if (prof) print '(a,f12.8,a,f14.4,a,f14.4,a,i3)', '  [fortvine] threshold', thr, '  mbicv', mb, &
-        '  loglik', cur%loglik(u, u_minus), '  trunc', cur%trunc
-#endif
       if (mb >= mopt) exit
       best = cur; best%threshold = thr; mopt = mb
       if (thr < 0.01_dp) exit
@@ -564,7 +559,7 @@ contains
         end do
       end do
       if (m == 0) exit
-      call sort_desc(tc(1:m))
+      call sort(tc(1:m), descending=.true.)
       k = max(1, ceiling(0.05_dp * m))
       thr = tc(k)
     end do
@@ -585,19 +580,6 @@ contains
       b%family = f
       npar_fam = b%npars()
     end function npar_fam
-    pure subroutine sort_desc(x)
-      real(dp), intent(inout) :: x(:)
-      integer :: i, j
-      real(dp) :: v
-      do i = 2, size(x)
-        v = x(i); j = i - 1
-        do while (j >= 1)
-          if (x(j) >= v) exit
-          x(j + 1) = x(j); j = j - 1
-        end do
-        x(j + 1) = v
-      end do
-    end subroutine sort_desc
   end subroutine vc_select
 
   subroutine vc_select_once(self, u, c, fixed, info, weights, discrete, u_minus, crit)
@@ -678,14 +660,16 @@ contains
     real(dp), intent(out) :: out(:)
     integer, intent(in), optional :: nthreads
     real(dp), intent(in), optional :: u_minus(:, :)
-    real(dp), allocatable :: ut(:, :, :)
-    if (any(self%disc)) then
-      call vine_pdf_disc(size(u, 1), self%d, transpose(u), transpose(u_minus), self%disc, self%order, self%trunc, &
-                         self%st, self%fam, self%rot, self%par, size(self%aux, 1), self%aux, out, fv_threads(nthreads))
-      return
-    end if
+    real(dp), allocatable :: ut(:, :, :), utm(:, :, :)
     allocate(ut(self%d, 1, size(u, 1)))
     ut(:, 1, :) = transpose(u)
+    if (any(self%disc)) then
+      allocate(utm(self%d, 1, size(u, 1)))
+      utm(:, 1, :) = transpose(u_minus)
+      call vine_pdf_disc_x(size(u, 1), 1, self%d, -1, ut, utm, self%disc, self%order, self%trunc, self%st, &
+                           self%fam, self%rot, self%par, size(self%aux, 1), self%aux, out, fv_threads(nthreads))
+      return
+    end if
     call vine_pdf_x(size(u, 1), 1, self%d, -1, ut, self%order, self%trunc, self%st, self%fam, self%rot, &
                     self%par, size(self%aux, 1), self%aux, out, fv_threads(nthreads), self%erel, &
                     self%rel_params(ut(:, 1, :)))
@@ -1062,38 +1046,5 @@ contains
         cstat = sum((sn - 3) * (zf - zb)**2)
     end function cstat
   end subroutine vc_relax
-
-  ! ascending order of x (bottom-up merge sort, stable)
-  function argsort(x) result(ix)
-    real(dp), intent(in) :: x(:)
-    integer, allocatable :: ix(:), tmp(:)
-    integer :: n, w, lo, mid, hi, i, j, k
-    n = size(x)
-    ix = [(i, i = 1, n)]
-    allocate(tmp(n))
-    w = 1
-    do while (w < n)
-      do lo = 1, n, 2 * w
-        mid = min(lo + w - 1, n); hi = min(lo + 2 * w - 1, n)
-        i = lo; j = mid + 1; k = lo
-        do while (i <= mid .and. j <= hi)
-          if (x(ix(j)) < x(ix(i))) then
-            tmp(k) = ix(j); j = j + 1
-          else
-            tmp(k) = ix(i); i = i + 1
-          end if
-          k = k + 1
-        end do
-        do while (i <= mid)
-          tmp(k) = ix(i); i = i + 1; k = k + 1
-        end do
-        do while (j <= hi)
-          tmp(k) = ix(j); j = j + 1; k = k + 1
-        end do
-      end do
-      ix = tmp
-      w = 2 * w
-    end do
-  end function argsort
 
 end module fortvine_api

@@ -4,8 +4,8 @@
 ! fortvine.f90 -- fortvine: vine copulas in Fortran (pair-copula eval, MLE fitting,
 ! vine density on prediction grids, Kendall's tau).
 !
-! Kernels. The typed Fortran API is in fortvine_api.f90; every routine here is
-! also bind(C) so the library can be called from C/C++/Julia/R as well.
+! Kernels. The typed Fortran API is in fortvine_api.f90 and its C interface in fortvine_capi.f90; the
+! kernels also have a flat C interface (fv_*, bind(C)) for C, C++, Julia, Python and R.
 ! Array convention of these kernels: observations are the LAST dimension,
 ! e.g. u(2, n) or u(d, n) (one observation's values contiguous).
 !
@@ -18,6 +18,7 @@
 ! Rotations follow vinecopulib / torchvine (counter-clockwise data rotation).
 module fortvine
   use iso_c_binding
+  use fv_util
   use fortvine_ad
   use fortvine_ad1
   use fortvine_ad2
@@ -29,7 +30,6 @@ module fortvine
   real(dp), parameter :: EPSU = 1.0e-10_dp
   real(dp), parameter :: TINYV = tiny(1.0_dp)
   real(dp), parameter :: PI = 3.14159265358979323846_dp
-  real(dp), parameter :: SQRT2 = 1.41421356237309504880_dp
   ! internal parameter vector: pp(1:3) parameters, pp(4:NPP) per-parameter constants (prep_par)
   integer, parameter :: NPP = 8
   real(dp), parameter :: LOGTINY = -708.3964185322641_dp   ! log(tiny(1d0))
@@ -93,44 +93,19 @@ module fortvine
   logical, public, volatile :: fv_abort = .false.
 
   public :: vine_rosenblatt_disc, bicop_cdf_x, ibeta_reg, pt, mle1, cand_spec
-  public :: vine_pdf_x, vine_pdf_disc, vine_pdf_disc_x, vine_rosenblatt_x, vine_inverse_rosenblatt_x, vine_select_x, &
+  public :: vine_pdf_x, vine_pdf_disc_x, vine_rosenblatt_x, vine_inverse_rosenblatt_x, vine_select_x, &
             bicop_eval_x, bicop_fit_x, bicop_select_x, criterion_w, par_bounds, vine_edge_uv, qnorm
   public :: fv_fitcache_enable, fv_fitcache_clear, fv_fitcache_disable, fv_fitcache_stats, fv_fitcache_capacity
   public :: fam_is_np, gen_is, gen_valid, gen_dup, gen_name, gen_codes, gen_npar, gen_bounds, gen_exch, gen_lt, gen_ut, gen_flip
-  public :: fv_bicop_eval, fv_bicop_pdf_hfuncs, fv_fit_jobs, fv_vine_pdf, &
-            fv_kendall_tau_c, fv_tau_matrix, fv_vine_select, fv_version, &
-            fv_vine_rosenblatt, fv_vine_inverse_rosenblatt, fv_pseudo_obs, fv_bicop_fit, fv_bicop_select
+  ! the flat C interface over the kernels (documented in docs/manual/c-api.md; fortvine_capi.f90 is the
+  ! C interface over the typed API)
+  public :: fv_version, fv_bicop_eval, fv_bicop_pdf_hfuncs, fv_fit_jobs, fv_vine_pdf, fv_kendall_tau_c, fv_tau_matrix, &
+            fv_vine_select, fv_vine_rosenblatt, fv_vine_inverse_rosenblatt, fv_pseudo_obs, fv_bicop_fit, fv_bicop_select
 
 contains
 
-  ! ------------------------------------------------------------------ utils
-  pure real(dp) function log1p_(x)
-    real(dp), intent(in) :: x
-    real(dp) :: u
-    u = 1.0_dp + x
-    if (u == 1.0_dp) then
-      log1p_ = x
-    else
-      log1p_ = log(u) * x / (u - 1.0_dp)
-    end if
-  end function log1p_
-
-  pure real(dp) function expm1_(x)
-    real(dp), intent(in) :: x
-    real(dp) :: u
-    if (abs(x) > 0.5_dp) then
-      expm1_ = exp(x) - 1.0_dp
-      return
-    end if
-    u = exp(x)
-    if (u == 1.0_dp) then
-      expm1_ = x
-    else
-      expm1_ = (u - 1.0_dp) * x / log(u)
-    end if
-  end function expm1_
-
   pure real(dp) function clampu(u)
+    !DIR$ ATTRIBUTES FORCEINLINE :: clampu
     real(dp), intent(in) :: u
     clampu = min(max(u, EPSU), 1.0_dp - EPSU)
   end function clampu
@@ -139,66 +114,6 @@ contains
     real(dp), intent(in) :: x
     finite_ = (x == x) .and. (abs(x) <= huge(x))
   end function finite_
-
-  ! ------------------------------------------------------ normal distribution
-  pure real(dp) function pnorm(x)
-    real(dp), intent(in) :: x
-    pnorm = 0.5_dp * erfc(-x / SQRT2)
-  end function pnorm
-
-  pure real(dp) function dnorm(x)
-    real(dp), intent(in) :: x
-    dnorm = exp(-0.5_dp * x * x) * 0.3989422804014327_dp
-  end function dnorm
-
-  ! Wichura (1988) AS241 PPND16, ~1e-16 relative accuracy.
-  pure real(dp) function qnorm(p)
-    real(dp), intent(in) :: p
-    real(dp) :: q, r, v
-    q = p - 0.5_dp
-    if (abs(q) <= 0.425_dp) then
-      r = 0.180625_dp - q * q
-      v = q * (((((((r * 2509.0809287301226727_dp + 33430.575583588128105_dp) * r &
-          + 67265.770927008700853_dp) * r + 45921.953931549871457_dp) * r &
-          + 13731.693765509461125_dp) * r + 1971.5909503065514427_dp) * r &
-          + 133.14166789178437745_dp) * r + 3.387132872796366608_dp) &
-          / (((((((r * 5226.495278852545925_dp + 28729.085735721942674_dp) * r &
-          + 39307.89580009271061_dp) * r + 21213.794301586595867_dp) * r &
-          + 5394.1960214247511077_dp) * r + 687.1870074920579083_dp) * r &
-          + 42.313330701600911252_dp) * r + 1.0_dp)
-      qnorm = v
-      return
-    end if
-    if (q < 0.0_dp) then
-      r = p
-    else
-      r = 1.0_dp - p
-    end if
-    r = sqrt(-log(r))
-    if (r <= 5.0_dp) then
-      r = r - 1.6_dp
-      v = (((((((r * 7.7454501427834140764e-4_dp + 0.0227238449892691845833_dp) * r &
-          + 0.24178072517745061177_dp) * r + 1.27045825245236838258_dp) * r &
-          + 3.64784832476320460504_dp) * r + 5.7694972214606914055_dp) * r &
-          + 4.6303378461565452959_dp) * r + 1.42343711074968357734_dp) &
-          / (((((((r * 1.05075007164441684324e-9_dp + 5.475938084995344946e-4_dp) * r &
-          + 0.0151986665636164571966_dp) * r + 0.14810397642748007459_dp) * r &
-          + 0.68976733498510000455_dp) * r + 1.6763848301838038494_dp) * r &
-          + 2.05319162663775882187_dp) * r + 1.0_dp)
-    else
-      r = r - 5.0_dp
-      v = (((((((r * 2.01033439929228813265e-7_dp + 2.71155556874348757815e-5_dp) * r &
-          + 0.0012426609473880784386_dp) * r + 0.026532189526576123093_dp) * r &
-          + 0.29656057182850489123_dp) * r + 1.7848265399172913358_dp) * r &
-          + 5.4637849111641143699_dp) * r + 6.6579046435011037772_dp) &
-          / (((((((r * 2.04426310338993978564e-15_dp + 1.4215117583164458887e-7_dp) * r &
-          + 1.8463183175100546818e-5_dp) * r + 7.868691311456132591e-4_dp) * r &
-          + 0.0148753612908506148525_dp) * r + 0.13692988092273580531_dp) * r &
-          + 0.59983220655588793769_dp) * r + 1.0_dp)
-    end if
-    if (q < 0.0_dp) v = -v
-    qnorm = v
-  end function qnorm
 
   ! ---------------------------------------------------- Student-t distribution
   ! Regularised incomplete beta from its continued fraction (Abramowitz & Stegun 1964, eq. 26.5.8;
@@ -332,12 +247,6 @@ contains
     end if
   end function ibeta_reg_l
 
-  ! Lower-tail CDF for x <= 0 (accurate in the far tail).
-  pure real(dp) function pt_lower(x, nu)
-    real(dp), intent(in) :: x, nu
-    pt_lower = pt_lower_l(x, nu, lbeta_t(nu))
-  end function pt_lower
-
   ! log B(nu/2, 1/2)
   pure real(dp) function lbeta_t(nu)
     real(dp), intent(in) :: nu
@@ -363,6 +272,7 @@ contains
     end if
   end function pt_lower_l
 
+  ! Student-t CDF given lb = log B(nu/2, 1/2)
   pure real(dp) function pt_l(x, nu, lb)
     real(dp), intent(in) :: x, nu, lb
     if (x <= 0.0_dp) then
@@ -372,13 +282,10 @@ contains
     end if
   end function pt_l
 
+  ! Student-t CDF (pt_l with lb = log B(nu/2, 1/2) computed here)
   pure real(dp) function pt(x, nu)
     real(dp), intent(in) :: x, nu
-    if (x <= 0.0_dp) then
-      pt = pt_lower(x, nu)
-    else
-      pt = 1.0_dp - pt_lower(-x, nu)
-    end if
+    pt = pt_l(x, nu, lbeta_t(nu))
   end function pt
 
   pure real(dp) function ldt(x, nu)
@@ -615,8 +522,7 @@ contains
     real(dp), intent(in) :: pp(NPP), a, b
     logical, intent(in) :: nh
     real(dp), intent(out) :: lp, h1, h2
-    real(dp) :: r, s, x, y, nu, th, t1, t2, ls, st, lx, ly, ua, ub, eu, ev, ed, den
-    real(dp) :: pa, pb, cc, da, db, dc, ddc, dum, p1, p2, la, lb2, tt, aa, a1, a2, lx2, ly2, hi2, g1, g2, gc
+    real(dp) :: r, s, x, y, nu, th, p1, p2, la, lb2, tt, aa, a1, a2, g1, g2, gc
     p1 = pp(1); p2 = pp(2)
     h1 = b; h2 = a
     select case (fam)
@@ -624,13 +530,8 @@ contains
       lp = 0.0_dp
     case (1)
       r = min(max(p1, -0.999999_dp), 0.999999_dp)
-      x = qnorm(a); y = qnorm(b)
       s = 1.0_dp - r * r
-      lp = -0.5_dp * log(s) - (r * r * (x * x + y * y) - 2.0_dp * r * x * y) / (2.0_dp * s)
-      if (nh) then
-        h1 = pnorm((y - r * x) / sqrt(s))
-        h2 = pnorm((x - r * y) / sqrt(s))
-      end if
+      call pt_gauss(r, s, log(s), sqrt(s), a, b, nh, lp, h1, h2)
     case (2)
       r = min(max(p1, -0.999999_dp), 0.999999_dp)
       nu = min(max(p2, 2.0_dp), 100.0_dp)
@@ -648,49 +549,17 @@ contains
       if (th < 1.0e-10_dp) then
         lp = 0.0_dp; return
       end if
-      t1 = -th * log(a); t2 = -th * log(b)
-      ! log(a^-th + b^-th - 1), computed stably
-      ls = max(t1, t2) + log(exp(t1 - max(t1, t2)) + exp(t2 - max(t1, t2)) - exp(-max(t1, t2)))
-      lp = log1p_(th) + (-1.0_dp - th) * (log(a) + log(b)) + (-2.0_dp - 1.0_dp / th) * ls
-      if (nh) then
-        h1 = exp((-th - 1.0_dp) * log(a) + (-1.0_dp / th - 1.0_dp) * ls)
-        h2 = exp((-th - 1.0_dp) * log(b) + (-1.0_dp / th - 1.0_dp) * ls)
-      end if
+      call pt_clayton(th, log1p_(th), a, b, nh, lp, h1, h2)
     case (4)
-      th = max(p1, 1.0_dp)
-      x = -log(a); y = -log(b)
-      lx = log(x); ly = log(y)
-      t1 = th * lx; t2 = th * ly
-      ls = max(t1, t2) + log1p_(exp(min(t1, t2) - max(t1, t2)))   ! log(x^th + y^th)
-      st = exp(ls / th)
-      lp = -st + (th - 1.0_dp) * (lx + ly) + x + y + (1.0_dp / th - 2.0_dp) * ls &
-           + log(th - 1.0_dp + st)
-      if (nh) then
-        h1 = exp(-st + x + (th - 1.0_dp) * lx + (1.0_dp / th - 1.0_dp) * ls)
-        h2 = exp(-st + y + (th - 1.0_dp) * ly + (1.0_dp / th - 1.0_dp) * ls)
-      end if
+      call pt_gumbel(max(p1, 1.0_dp), a, b, nh, lp, h1, h2)
     case (5)
       th = p1
       if (abs(th) < 1.0e-10_dp) then
         lp = 0.0_dp; return
       end if
-      eu = expm1_(-th * a); ev = expm1_(-th * b); ed = expm1_(-th)
-      den = ed + eu * ev
-      lp = log(max(-th * ed * (eu + 1.0_dp) * (ev + 1.0_dp), TINYV)) - 2.0_dp * log(abs(den))
-      if (nh) then
-        h1 = (eu + 1.0_dp) * ev / den
-        h2 = (ev + 1.0_dp) * eu / den
-      end if
+      call pt_frank(th, expm1_(-th), a, b, nh, lp, h1, h2)
     case (6)
-      th = max(p1, 1.0_dp)
-      ua = (1.0_dp - a)**th; ub = (1.0_dp - b)**th
-      s = ua + ub - ua * ub
-      lp = (1.0_dp / th - 2.0_dp) * log(s) + (th - 1.0_dp) * (log(1.0_dp - a) + log(1.0_dp - b)) &
-           + log(th - 1.0_dp + s)
-      if (nh) then
-        h1 = exp((th - 1.0_dp) * log(1.0_dp - a) + log1p_(-ub) + (1.0_dp / th - 1.0_dp) * log(s))
-        h2 = exp((th - 1.0_dp) * log(1.0_dp - b) + log1p_(-ua) + (1.0_dp / th - 1.0_dp) * log(s))
-      end if
+      call pt_joe(max(p1, 1.0_dp), a, b, nh, lp, h1, h2)
     case (11)
       ! Tawn (extreme-value): vinecopulib ExtremeValueBicop::pdf_raw / hfunc*_raw
       la = log(a); lb2 = log(b)
@@ -833,85 +702,6 @@ contains
       h2 = exp(lab * aa) * (aa + (1.0_dp - t) * a1) / b
     end if
   end subroutine tev_eval
-
-  ! t_{c1} CDF of a dual argument: d/dz T = t density (kd = log normaliser, lb = log B)
-  pure function tcdf_hd(z, c1, kd, lb) result(r)
-    type(hd), intent(in) :: z
-    real(dp), intent(in) :: c1, kd, lb
-    type(hd) :: r
-    r = z
-    r%v = pt_l(z%v, c1, lb)
-    r%g = exp(kd - 0.5_dp * (c1 + 1.0_dp) * log1p_(z%v * z%v / c1)) * z%g
-  end function tcdf_hd
-
-  ! t-EV log-density over dual parameters (exact rho-score; nu is profiled by the caller,
-  ! so P(2) carries no derivative and the df-dependence of T needs none either)
-  pure function tev_lpdf_hd(P, a, b, kd, lbt) result(lp)
-    type(hd), intent(in) :: P(3)
-    real(dp), intent(in) :: a, b, kd, lbt
-    type(hd) :: lp, k, z1, z2, d1, d2, dd1, dd2, f1, f2, fp1, fp2, t1, t2, aa, a1, a2
-    real(dp) :: nu, c1, la, lb, lab, t, L, x1, x2
-    nu = min(max(P(2)%v, 1.0_dp), 60.0_dp); c1 = nu + 1.0_dp
-    la = log(a); lb = log(b); lab = la + lb
-    t = min(max(lb / lab, 1.0e-300_dp), 1.0_dp - epsilon(1.0_dp))
-    L = 1.0_dp / (t * (1.0_dp - t))
-    x1 = exp((log(t) - log1p_(-t)) / nu); x2 = exp((log1p_(-t) - log(t)) / nu)
-    k = hsqrt(c1 / ((1.0_dp - P(1)) * (1.0_dp + P(1))))
-    z1 = k * (x1 - P(1)); z2 = k * (x2 - P(1))
-    d1 = k * (x1 * L / nu); d2 = k * (-x2 * L / nu)
-    dd1 = k * (x1 * L * L * (1.0_dp / nu - (1.0_dp - 2.0_dp * t)) / nu)
-    dd2 = k * (x2 * L * L * (1.0_dp / nu + (1.0_dp - 2.0_dp * t)) / nu)
-    f1 = hexp(kd - 0.5_dp * (c1 + 1.0_dp) * hlog1p(z1 * z1 / c1))
-    f2 = hexp(kd - 0.5_dp * (c1 + 1.0_dp) * hlog1p(z2 * z2 / c1))
-    fp1 = -(f1 * (c1 + 1.0_dp) * z1 / (c1 + z1 * z1))
-    fp2 = -(f2 * (c1 + 1.0_dp) * z2 / (c1 + z2 * z2))
-    t1 = tcdf_hd(z1, c1, kd, lbt); t2 = tcdf_hd(z2, c1, kd, lbt)
-    aa = t * t1 + (1.0_dp - t) * t2
-    a1 = t1 - t2 + t * f1 * d1 + (1.0_dp - t) * f2 * d2
-    a2 = 2.0_dp * (f1 * d1 - f2 * d2) + t * (fp1 * d1 * d1 + f1 * dd1) + (1.0_dp - t) * (fp2 * d2 * d2 + f2 * dd2)
-    lp = lab * aa - lab + hlog(aa * aa + (1.0_dp - 2.0_dp * t) * a1 * aa - (1.0_dp - t) * t * (a1 * a1 + a2 / lab))
-  end function tev_lpdf_hd
-
-  ! t_{c1} CDF of dual (z, c1): d/dz T = density f, d/dc1 T = dpt_dnu (exact)
-  pure function tcdf_hd2(z, c1, f, cs) result(r)
-    type(hd), intent(in) :: z, c1
-    real(dp), intent(in) :: f, cs(3)
-    type(hd) :: r
-    r%v = pt_l(z%v, c1%v, cs(1))
-    r%g = f * z%g + dpt_dnu(z%v, c1%v, cs) * c1%g
-  end function tcdf_hd2
-
-  ! t-EV log-density over dual (rho, nu): exact joint score, so (rho, nu) are fitted by
-  ! one Fisher-scoring Newton instead of a Brent profile over nu.
-  ! cs = [log B(c1/2, 1/2), psi(c1/2), psi((c1+1)/2), log normaliser of t_{c1}], c1 = nu+1
-  pure function tev_lpdf_hd2(P, a, b, cs) result(lp)
-    type(hd), intent(in) :: P(3)
-    real(dp), intent(in) :: a, b, cs(4)
-    type(hd) :: lp, nu, c1, kd, k, x1, x2, z1, z2, d1, d2, dd1, dd2, f1, f2, fp1, fp2, t1, t2, aa, a1, a2
-    real(dp) :: la, lb, lab, t, L, lt
-    nu = P(2); c1 = nu + 1.0_dp
-    la = log(a); lb = log(b); lab = la + lb
-    t = min(max(lb / lab, 1.0e-300_dp), 1.0_dp - epsilon(1.0_dp))
-    L = 1.0_dp / (t * (1.0_dp - t))
-    lt = log(t) - log1p_(-t)
-    x1 = hexp(lt / nu); x2 = hexp(-lt / nu)
-    k = hsqrt(c1 / ((1.0_dp - P(1)) * (1.0_dp + P(1))))
-    z1 = k * (x1 - P(1)); z2 = k * (x2 - P(1))
-    d1 = k * x1 * L / nu; d2 = -(k * x2 * L / nu)
-    dd1 = k * x1 * (L * L) * (1.0_dp / nu - (1.0_dp - 2.0_dp * t)) / nu
-    dd2 = k * x2 * (L * L) * (1.0_dp / nu + (1.0_dp - 2.0_dp * t)) / nu
-    ! log normaliser of t_{c1}: d/dc = (psi((c+1)/2) - psi(c/2)) / 2 - 1/(2c)
-    kd%v = cs(4); kd%g = (0.5_dp * (cs(3) - cs(2)) - 0.5_dp / c1%v) * c1%g
-    f1 = hexp(kd - 0.5_dp * (c1 + 1.0_dp) * hlog1p(z1 * z1 / c1))
-    f2 = hexp(kd - 0.5_dp * (c1 + 1.0_dp) * hlog1p(z2 * z2 / c1))
-    fp1 = -(f1 * (c1 + 1.0_dp) * z1 / (c1 + z1 * z1))
-    fp2 = -(f2 * (c1 + 1.0_dp) * z2 / (c1 + z2 * z2))
-    t1 = tcdf_hd2(z1, c1, f1%v, cs(1:3)); t2 = tcdf_hd2(z2, c1, f2%v, cs(1:3))
-    aa = t * t1 + (1.0_dp - t) * t2
-    a1 = t1 - t2 + t * f1 * d1 + (1.0_dp - t) * f2 * d2
-    a2 = 2.0_dp * (f1 * d1 - f2 * d2) + t * (fp1 * d1 * d1 + f1 * dd1) + (1.0_dp - t) * (fp2 * d2 * d2 + f2 * dd2)
-    lp = lab * aa - lab + hlog(aa * aa + (1.0_dp - 2.0_dp * t) * a1 * aa - (1.0_dp - t) * t * (a1 * a1 + a2 / lab))
-  end function tev_lpdf_hd2
 
   ! ---- t-EV likelihood by sorted cumulative quadrature ---------------------------
   ! A(t) needs the t_{nu+1} CDF at z = k (e^(+-w/nu) - rho) for every observation, which
@@ -1066,7 +856,7 @@ contains
     real(dp), intent(in) :: p(3)
     real(dp), intent(out) :: f, g(3), hm(3, 3)
     real(dp), allocatable :: zs(:), ts(:), dts(:), t1(:), t2(:), d1(:), d2(:)
-    real(dp) :: rho, nu, c1, kk, cs(4), lp, tt, lab, w
+    real(dp) :: rho, nu, c1, kk, cs(4), lp
     type(hd) :: P2(3), lpd
     integer :: m, j, i, n, jj, bk, nt
     real(dp) :: fb(NBK), gb(3, NBK), hb(3, 3, NBK)
@@ -1120,7 +910,7 @@ contains
         P2(j) = hconst(p(j))
       end if
     end do
-    if (c%lognu) P2(2) = hexp(P2(2))
+    if (c%lognu) P2(2) = fexp(P2(2))
     !$omp parallel do private(bk, i, jj, lpd) num_threads(nt) if(nt > 1) schedule(dynamic)
     do bk = 1, NBK
     fb(bk) = 0.0_dp; gb(:, bk) = 0.0_dp; hb(:, :, bk) = 0.0_dp
@@ -1175,15 +965,15 @@ contains
     real(dp) :: L
     nu = P(2); c1 = nu + 1.0_dp
     L = 1.0_dp / (t * (1.0_dp - t))
-    x1 = hexp(w / nu); x2 = hexp(-w / nu)
-    k = hsqrt(c1 / ((1.0_dp - P(1)) * (1.0_dp + P(1))))
+    x1 = fexp(w / nu); x2 = fexp(-w / nu)
+    k = fsqrt(c1 / ((1.0_dp - P(1)) * (1.0_dp + P(1))))
     z1 = k * (x1 - P(1)); z2 = k * (x2 - P(1))
     d1 = k * x1 * L / nu; d2 = -(k * x2 * L / nu)
     dd1 = k * x1 * (L * L) * (1.0_dp / nu - (1.0_dp - 2.0_dp * t)) / nu
     dd2 = k * x2 * (L * L) * (1.0_dp / nu + (1.0_dp - 2.0_dp * t)) / nu
     kd%v = cs(4); kd%g = (0.5_dp * (cs(3) - cs(2)) - 0.5_dp / c1%v) * c1%g
-    f1 = hexp(kd - 0.5_dp * (c1 + 1.0_dp) * hlog1p(z1 * z1 / c1))
-    f2 = hexp(kd - 0.5_dp * (c1 + 1.0_dp) * hlog1p(z2 * z2 / c1))
+    f1 = fexp(kd - 0.5_dp * (c1 + 1.0_dp) * flog1p(z1 * z1 / c1))
+    f2 = fexp(kd - 0.5_dp * (c1 + 1.0_dp) * flog1p(z2 * z2 / c1))
     fp1 = -(f1 * (c1 + 1.0_dp) * z1 / (c1 + z1 * z1))
     fp2 = -(f2 * (c1 + 1.0_dp) * z2 / (c1 + z2 * z2))
     t1%v = T1v; t1%g = f1%v * z1%g + dT1 * c1%g
@@ -1191,15 +981,14 @@ contains
     aa = t * t1 + (1.0_dp - t) * t2
     a1 = t1 - t2 + t * f1 * d1 + (1.0_dp - t) * f2 * d2
     a2 = 2.0_dp * (f1 * d1 - f2 * d2) + t * (fp1 * d1 * d1 + f1 * dd1) + (1.0_dp - t) * (fp2 * d2 * d2 + f2 * dd2)
-    lp = lab * aa - lab + hlog(aa * aa + (1.0_dp - 2.0_dp * t) * a1 * aa - (1.0_dp - t) * t * (a1 * a1 + a2 / lab))
+    lp = lab * aa - lab + flog(aa * aa + (1.0_dp - 2.0_dp * t) * a1 * aa - (1.0_dp - t) * t * (a1 * a1 + a2 / lab))
   end function tev_lp_Thd
 
   ! inverse of h1 in the second argument: find v with h1(a, v) = w.
   pure real(dp) function hinv10(fam, pp, a, w0)
     integer, intent(in) :: fam
     real(dp), intent(in) :: pp(NPP), a, w0
-    real(dp) :: p1, p2, w, r, nu, x, q, th, eu, ed, lo, hi, v, lp, h1, h2, s
-    integer :: it
+    real(dp) :: p1, p2, w, r, nu, x, q, th, eu, ed, s
     p1 = pp(1); p2 = pp(2)
     w = clampu(w0)
     select case (fam)
@@ -1244,8 +1033,7 @@ contains
   pure real(dp) function hinv20(fam, pp, b, w0)
     integer, intent(in) :: fam
     real(dp), intent(in) :: pp(NPP), b, w0
-    real(dp) :: w, lo, hi, v, lp, h1, h2
-    integer :: it
+    real(dp) :: w
     if (fam /= 11 .and. .not. (gen_is(fam) .and. .not. gen_exch(fam))) then
       hinv20 = hinv10(fam, pp, b, w0); return
     end if
@@ -1344,6 +1132,7 @@ contains
 
   ! --------------------------------------------------------- rotation layer
   pure subroutine rotate(rot, u1, u2, a, b)
+    !DIR$ ATTRIBUTES FORCEINLINE :: rotate
     integer, intent(in) :: rot
     real(dp), intent(in) :: u1, u2
     real(dp), intent(out) :: a, b
@@ -1367,6 +1156,14 @@ contains
     real(dp) :: a, b, g1, g2
     call rotate(rot, clampu(u1), clampu(u2), a, b)
     call eval0(fam, pp, a, b, nh, lp, g1, g2)
+    call unrotate_h(rot, g1, g2, h1, h2)
+  end subroutine eval_rot
+
+  ! h-functions h1, h2 of the original orientation from those (g1, g2) of the rotated pair
+  elemental subroutine unrotate_h(rot, g1, g2, h1, h2)
+    integer, intent(in) :: rot
+    real(dp), intent(in) :: g1, g2
+    real(dp), intent(out) :: h1, h2
     select case (rot)
     case (90)
       h1 = g2; h2 = 1.0_dp - g1
@@ -1377,7 +1174,154 @@ contains
     case default
       h1 = g1; h2 = g2
     end select
-  end subroutine eval_rot
+  end subroutine unrotate_h
+
+  ! eval_rot at n points of one edge (one family, rotation, parameter): the rotation, the family dispatch and the
+  ! per-edge constants are taken out of the per-point loop, so each family runs one plain loop the compiler can
+  ! vectorise.  Every point uses eval0's own formulas in the same order (the results are eval_rot's).
+  pure subroutine eval_rot_n(fam, rot, pp, n, u1, u2, nh, lp, h1, h2)
+    integer, intent(in) :: fam, rot, n
+    real(dp), intent(in) :: pp(NPP), u1(n), u2(n)
+    logical, intent(in) :: nh
+    real(dp), intent(out) :: lp(n), h1(n), h2(n)
+    real(dp) :: a(n), b(n), g1(n), g2(n)
+    integer :: i
+    do i = 1, n
+      call rotate(rot, clampu(u1(i)), clampu(u2(i)), a(i), b(i))
+    end do
+    call eval0_n(fam, pp, n, a, b, nh, lp, g1, g2)
+    call unrotate_h(rot, g1, g2, h1, h2)
+  end subroutine eval_rot_n
+
+  ! eval0 at n points (a, b already rotated and clamped).  Families 0, 1, 3-6 have their own loops (eval0's
+  ! expressions verbatim, constants of the edge computed once); every other family calls eval0 per point.
+  pure subroutine eval0_n(fam, pp, n, a, b, nh, lp, h1, h2)
+    integer, intent(in) :: fam, n
+    real(dp), intent(in) :: pp(NPP), a(n), b(n)
+    logical, intent(in) :: nh
+    real(dp), intent(out) :: lp(n), h1(n), h2(n)
+    real(dp) :: r, s, th
+    integer :: i
+    h1 = b; h2 = a
+    select case (fam)
+    case (0)
+      lp = 0.0_dp
+    case (1)
+      r = min(max(pp(1), -0.999999_dp), 0.999999_dp)
+      s = 1.0_dp - r * r
+      call pt_gauss(r, s, log(s), sqrt(s), a, b, nh, lp, h1, h2)
+    case (3)
+      th = pp(1)
+      if (th < 1.0e-10_dp) then
+        lp = 0.0_dp; return                         ! eval0 returns before its clamp too
+      end if
+      call pt_clayton(th, log1p_(th), a, b, nh, lp, h1, h2)
+    case (4)
+      call pt_gumbel(max(pp(1), 1.0_dp), a, b, nh, lp, h1, h2)
+    case (5)
+      th = pp(1)
+      if (abs(th) < 1.0e-10_dp) then
+        lp = 0.0_dp; return                         ! eval0 returns before its clamp too
+      end if
+      call pt_frank(th, expm1_(-th), a, b, nh, lp, h1, h2)
+    case (6)
+      call pt_joe(max(pp(1), 1.0_dp), a, b, nh, lp, h1, h2)
+    case default
+      do i = 1, n
+        call eval0(fam, pp, a(i), b(i), nh, lp(i), h1(i), h2(i))
+      end do
+      return                                        ! eval0 clamps (or not) itself
+    end select
+    h1 = min(max(h1, 0.0_dp), 1.0_dp)
+    h2 = min(max(h2, 0.0_dp), 1.0_dp)
+  end subroutine eval0_n
+
+  ! ---- one point of the Gaussian, Clayton, Gumbel, Frank and Joe pair copulas (a, b rotated and clamped):
+  ! log density lp and, if nh, the h-functions (left unchanged otherwise).  Elemental: eval0 calls them for one
+  ! point, eval0_n for a whole edge; the edge constants (r, s = 1 - r^2, log s, sqrt s; log1p(th); expm1(-th))
+  ! are arguments so a batch computes them once.
+  elemental subroutine pt_gauss(r, s, ls, sq, a, b, nh, lp, h1, h2)
+    !DIR$ ATTRIBUTES FORCEINLINE :: pt_gauss
+    real(dp), intent(in) :: r, s, ls, sq, a, b
+    logical, intent(in) :: nh
+    real(dp), intent(out) :: lp
+    real(dp), intent(inout) :: h1, h2
+    real(dp) :: x, y
+    x = qnorm(a); y = qnorm(b)
+    lp = -0.5_dp * ls - (r * r * (x * x + y * y) - 2.0_dp * r * x * y) / (2.0_dp * s)
+    if (nh) then
+      h1 = pnorm((y - r * x) / sq)
+      h2 = pnorm((x - r * y) / sq)
+    end if
+  end subroutine pt_gauss
+
+  elemental subroutine pt_clayton(th, l1p, a, b, nh, lp, h1, h2)
+    !DIR$ ATTRIBUTES FORCEINLINE :: pt_clayton
+    real(dp), intent(in) :: th, l1p, a, b
+    logical, intent(in) :: nh
+    real(dp), intent(out) :: lp
+    real(dp), intent(inout) :: h1, h2
+    real(dp) :: t1, t2, ls
+    t1 = -th * log(a); t2 = -th * log(b)
+    ls = max(t1, t2) + log(exp(t1 - max(t1, t2)) + exp(t2 - max(t1, t2)) - exp(-max(t1, t2)))   ! log(a^-th + b^-th - 1)
+    lp = l1p + (-1.0_dp - th) * (log(a) + log(b)) + (-2.0_dp - 1.0_dp / th) * ls
+    if (nh) then
+      h1 = exp((-th - 1.0_dp) * log(a) + (-1.0_dp / th - 1.0_dp) * ls)
+      h2 = exp((-th - 1.0_dp) * log(b) + (-1.0_dp / th - 1.0_dp) * ls)
+    end if
+  end subroutine pt_clayton
+
+  elemental subroutine pt_gumbel(th, a, b, nh, lp, h1, h2)
+    !DIR$ ATTRIBUTES FORCEINLINE :: pt_gumbel
+    real(dp), intent(in) :: th, a, b
+    logical, intent(in) :: nh
+    real(dp), intent(out) :: lp
+    real(dp), intent(inout) :: h1, h2
+    real(dp) :: x, y, lx, ly, t1, t2, ls, st
+    x = -log(a); y = -log(b)
+    lx = log(x); ly = log(y)
+    t1 = th * lx; t2 = th * ly
+    ls = max(t1, t2) + log1p_(exp(min(t1, t2) - max(t1, t2)))   ! log(x^th + y^th)
+    st = exp(ls / th)
+    lp = -st + (th - 1.0_dp) * (lx + ly) + x + y + (1.0_dp / th - 2.0_dp) * ls + log(th - 1.0_dp + st)
+    if (nh) then
+      h1 = exp(-st + x + (th - 1.0_dp) * lx + (1.0_dp / th - 1.0_dp) * ls)
+      h2 = exp(-st + y + (th - 1.0_dp) * ly + (1.0_dp / th - 1.0_dp) * ls)
+    end if
+  end subroutine pt_gumbel
+
+  elemental subroutine pt_frank(th, ed, a, b, nh, lp, h1, h2)
+    !DIR$ ATTRIBUTES FORCEINLINE :: pt_frank
+    real(dp), intent(in) :: th, ed, a, b
+    logical, intent(in) :: nh
+    real(dp), intent(out) :: lp
+    real(dp), intent(inout) :: h1, h2
+    real(dp) :: eu, ev, den
+    eu = expm1_(-th * a); ev = expm1_(-th * b)
+    den = ed + eu * ev
+    lp = log(max(-th * ed * (eu + 1.0_dp) * (ev + 1.0_dp), TINYV)) - 2.0_dp * log(abs(den))
+    if (nh) then
+      h1 = (eu + 1.0_dp) * ev / den
+      h2 = (ev + 1.0_dp) * eu / den
+    end if
+  end subroutine pt_frank
+
+  elemental subroutine pt_joe(th, a, b, nh, lp, h1, h2)
+    !DIR$ ATTRIBUTES FORCEINLINE :: pt_joe
+    real(dp), intent(in) :: th, a, b
+    logical, intent(in) :: nh
+    real(dp), intent(out) :: lp
+    real(dp), intent(inout) :: h1, h2
+    real(dp) :: ua, ub, s
+    ua = (1.0_dp - a)**th; ub = (1.0_dp - b)**th
+    s = ua + ub - ua * ub
+    lp = (1.0_dp / th - 2.0_dp) * log(s) + (th - 1.0_dp) * (log(1.0_dp - a) + log(1.0_dp - b)) &
+         + log(th - 1.0_dp + s)
+    if (nh) then
+      h1 = exp((th - 1.0_dp) * log(1.0_dp - a) + log1p_(-ub) + (1.0_dp / th - 1.0_dp) * log(s))
+      h2 = exp((th - 1.0_dp) * log(1.0_dp - b) + log1p_(-ua) + (1.0_dp / th - 1.0_dp) * log(s))
+    end if
+  end subroutine pt_joe
 
   pure real(dp) function hinv_rot(fam, rot, pp, u1, u2, which)
     integer, intent(in) :: fam, rot, which
@@ -1422,70 +1366,6 @@ contains
       x = a; y = b
     end select
   end subroutine prep_xy
-
-  pure subroutine arch_hd(fam, th, de, x, phi, d1, d2)
-    integer, intent(in) :: fam
-    type(hd), intent(in) :: th, de, x
-    type(hd), intent(out) :: phi, d1, d2
-    type(hd) :: t1, ox, tmp, l, nrm
-    select case (fam)
-    case (7)
-      t1 = x**(-th) - 1.0_dp
-      phi = t1**de
-      d1 = -(de * th) * x**(-(th + 1.0_dp)) * t1**(de - 1.0_dp)
-      d2 = de * th * t1**de * ((1.0_dp + de * th) - (1.0_dp + th) * x**th) &
-           / ((x**th - 1.0_dp) * (x**th - 1.0_dp) * x * x)
-    case (8)
-      ox = 1.0_dp - x
-      tmp = ox**th
-      l = hlog1p(-tmp)
-      phi = (-l)**de
-      d1 = de * th * (-l)**(de - 1.0_dp) * ox**(th - 1.0_dp) / (tmp - 1.0_dp)
-      d2 = (-l)**(de - 2.0_dp) * de * th * ox**(th - 2.0_dp) &
-           * ((de - 1.0_dp) * th * tmp - (tmp + th - 1.0_dp) * l) / ((tmp - 1.0_dp) * (tmp - 1.0_dp))
-    case (9)
-      ox = 1.0_dp - x
-      tmp = ox**th
-      phi = (1.0_dp - tmp)**(-de) - 1.0_dp
-      d1 = -(de * th) * (1.0_dp - tmp)**(-de - 1.0_dp) * ox**(th - 1.0_dp)
-      d2 = de * th * (1.0_dp - tmp)**(-de - 2.0_dp) * ox**(th - 2.0_dp) &
-           * (th - 1.0_dp + (1.0_dp + de * th) * tmp)
-    case default  ! 10, bb8
-      nrm = 1.0_dp - (1.0_dp - de)**th
-      ox = 1.0_dp - de * x
-      tmp = ox**th
-      phi = -hlog((1.0_dp - tmp) / nrm)
-      d1 = -(de * th) * ox**(th - 1.0_dp) / (1.0_dp - tmp)
-      d2 = de * de * th * ox**(th - 2.0_dp) * (th - 1.0_dp + tmp) / ((tmp - 1.0_dp) * (tmp - 1.0_dp))
-    end select
-  end subroutine arch_hd
-
-  pure function arch_psi_hd(fam, th, de, t) result(r)
-    integer, intent(in) :: fam
-    type(hd), intent(in) :: th, de, t
-    type(hd) :: r
-    select case (fam)
-    case (7)
-      r = (t**(1.0_dp / de) + 1.0_dp)**(-1.0_dp / th)
-    case (8)
-      r = 1.0_dp - (-hexpm1(-(t**(1.0_dp / de))))**(1.0_dp / th)
-    case (9)
-      r = 1.0_dp - (1.0_dp - (1.0_dp + t)**(-1.0_dp / de))**(1.0_dp / th)
-    case default
-      r = (1.0_dp - (1.0_dp + hexp(-t) * ((1.0_dp - de)**th - 1.0_dp))**(1.0_dp / th)) / de
-    end select
-  end function arch_psi_hd
-
-  ! log(exp(p) + exp(q)) for dual numbers
-  pure function lse(p, q) result(r)
-    type(hd), intent(in) :: p, q
-    type(hd) :: r
-    if (p%v >= q%v) then
-      r = p + hlog1p(hexp(q - p))
-    else
-      r = q + hlog1p(hexp(p - q))
-    end if
-  end function lse
 
   ! log c(a, b; P) with exact parameter derivatives, once per dual type
 #define VT type(hd)
@@ -1623,12 +1503,12 @@ contains
     real(dp), intent(out) :: f, g(3), hm(3, 3)
     type(hd) :: PP(3), lp
     integer :: i, j, bk, nt
-    real(dp) :: kd, lbt, cs4(4), c1, p2, fb(NBK), gb(3, NBK), hb(3, 3, NBK)
+    real(dp) :: fb(NBK), gb(3, NBK), hb(3, 3, NBK)
     if (k == npar_of(c%fam) .and. k <= 2 .and. c%fam /= 2 .and. c%fam /= 23) then
       call ll_hk(c, k, p, f, g, hm)          ! one- and two-parameter families: narrower duals
       return
     end if
-    if (c%fam == 23 .and. allocated(c%pq)) then
+    if (c%fam == 23) then                    ! t-EV: its own exact score (fit_pair calls tev_prep first)
       call tev_ll(c, k, p, f, g, hm)
       return
     end if
@@ -1639,29 +1519,14 @@ contains
         PP(j) = hconst(p(j))
       end if
     end do
-    p2 = p(2)
-    if (c%lognu) then
-      PP(2) = hexp(PP(2)); p2 = exp(p(2))
-    end if
+    if (c%lognu) PP(2) = fexp(PP(2))
     f = 0.0_dp; g = 0.0_dp; hm = 0.0_dp
-    kd = 0.0_dp; lbt = 0.0_dp
-    if (c%fam == 23) then
-      c1 = min(max(p2, 1.0_dp), 60.0_dp) + 1.0_dp
-      kd = kdens_t(c1); lbt = lbeta_t(c1)
-      cs4 = [lbt, digamma(0.5_dp * c1), digamma(0.5_dp * (c1 + 1.0_dp)), kd]
-    end if
     nt = grab(c)
     !$omp parallel do private(bk, i, j, lp) num_threads(nt) if(nt > 1) schedule(dynamic)
     do bk = 1, NBK
     fb(bk) = 0.0_dp; gb(:, bk) = 0.0_dp; hb(:, :, bk) = 0.0_dp
     do i = bk0(bk, c%n), bk0(bk + 1, c%n) - 1
-      if (c%fam == 23 .and. k >= 2) then
-        lp = tev_lpdf_hd2(PP, c%a(i), c%b(i), cs4)
-      else if (c%fam == 23) then
-        lp = tev_lpdf_hd(PP, c%a(i), c%b(i), kd, lbt)
-      else
-        lp = lpdf_hd(c%fam, PP, c%a(i), c%b(i), c%x(i), c%y(i))
-      end if
+      lp = lpdf_hd(c%fam, PP, c%a(i), c%b(i), c%x(i), c%y(i))
       if (.not. (finite_(lp%v) .and. all(abs(lp%g) <= huge(1.0_dp)))) lp = hconst(LOGTINY)
       ! BHHH / Fisher scoring: curvature = -sum of score outer products
       if (c%usew) then
@@ -1965,22 +1830,6 @@ contains
     !$omp end parallel do
   end subroutine bicop_eval_x
 
-  subroutine fv_bicop_pdf_hfuncs(fam, rot, par, n, u, pdf, h1, h2, nthreads) &
-      bind(C, name="fv_bicop_pdf_hfuncs")
-    integer(c_int), value :: fam, rot, n, nthreads
-    real(c_double), intent(in) :: par(3), u(2, n)
-    real(c_double), intent(out) :: pdf(n), h1(n), h2(n)
-    integer :: i
-    real(dp) :: lp, pp(NPP)
-    pp = prep_par(fam, par)
-    !$omp parallel do private(i, lp) num_threads(nthreads) if(n > 4096) schedule(static)
-    do i = 1, n
-      call eval_rot(fam, rot, pp, u(1, i), u(2, i), .true., lp, h1(i), h2(i))
-      pdf(i) = max(exp(lp), TINYV)
-    end do
-    !$omp end parallel do
-  end subroutine fv_bicop_pdf_hfuncs
-
   ! ----------------------------------------------------------- log-likelihood
   real(dp) function ll_par(c, pp)
     type(ctx_t), intent(in) :: c
@@ -2076,7 +1925,6 @@ contains
   recursive real(dp) function f1(c, x) result(f)
     type(ctx_t), intent(inout) :: c
     real(dp), intent(in) :: x
-    type(ctx_t) :: ci
     real(dp) :: rb, fb, rp(3)
     select case (c%mode)
     case (1)
@@ -2482,26 +2330,6 @@ contains
     logit_box = log(fr / (1.0_dp - fr))
   end function logit_box
 
-  ! ----------------------------------------------------------- C API: fitting
-  ! njob independent (dataset, family, rotation) fits.  U is (nds, n, 2) in
-  ! torch order -> Fortran U(2, n, nds).  method: 0 = evaluate loglik at x0,
-  ! 1 = MLE within [lb, ub], 2 = student with rho fixed at x0(1), nu by MLE.
-  subroutine fv_fit_jobs(njob, n, nds, u, ds, fam, rot, method, x0, lb, ub, usew, w, &
-                          par, ll, nthreads) bind(C, name="fv_fit_jobs")
-    integer(c_int), value :: njob, n, nds, usew, nthreads
-    real(c_double), intent(in) :: u(2, n, nds), w(n), x0(3, njob), lb(3, njob), ub(3, njob)
-    integer(c_int), intent(in) :: ds(njob), fam(njob), rot(njob), method(njob)
-    real(c_double), intent(out) :: par(3, njob), ll(njob)
-    integer :: j
-    !$ call omp_set_max_active_levels(2)
-    !$omp parallel do private(j) num_threads(max(1, min(nthreads, njob))) schedule(dynamic, 1)
-    do j = 1, njob
-      call fit_one(n, u(:, :, ds(j) + 1), fam(j), rot(j), method(j), x0(:, j), lb(:, j), ub(:, j), &
-                   usew /= 0, w, par(:, j), ll(j), max(1, nthreads / max(1, min(nthreads, njob))))
-    end do
-    !$omp end parallel do
-  end subroutine fv_fit_jobs
-
   ! ---------------------------------------------------------- pair-fit cache
   ! fv_fitcache_enable(capacity): turn the cache on with room for capacity fits (a
   ! hash table; when full, colliding entries are replaced).  Keys are two independent
@@ -2612,6 +2440,7 @@ contains
 
   ! log-density lp and its theta-derivatives d1, d2 (eval0's density; flat in the clamped regions)
   pure subroutine kern_lp(fam, th0, t, lp, d1, d2)
+    !DIR$ ATTRIBUTES FORCEINLINE :: kern_lp
     integer, intent(in) :: fam
     real(dp), intent(in) :: th0, t(4)
     real(dp), intent(out) :: lp, d1, d2
@@ -2675,6 +2504,7 @@ contains
   ! unrotated h-functions g(1) = h1 = P(V <= b | U = a), g(2) = h2 = P(U <= a | V = b) (eval0's) and
   ! their theta-derivatives gd, gdd
   pure subroutine kern_h(fam, th0, t, g, gd, gdd)
+    !DIR$ ATTRIBUTES FORCEINLINE :: kern_h
     integer, intent(in) :: fam
     real(dp), intent(in) :: th0, t(4)
     real(dp), intent(out) :: g(2), gd(2), gdd(2)
@@ -2813,6 +2643,7 @@ contains
   ! theta-derivatives L1, L2: log1p/expm1 directly, and its Taylor series in th below 1e-4, where
   ! the direct derivatives cancel (L = x + y - th xy + th^2 xy(x+y)/2 - ...; independence at th = 0)
   pure subroutine clayton_l(th, x, y, l, l1, l2)
+    !DIR$ ATTRIBUTES FORCEINLINE :: clayton_l
     real(dp), intent(in) :: th, x, y
     real(dp), intent(out) :: l, l1, l2
     real(dp) :: p, s1, c1, c2, c3, c4, e, e0, ls, r1, r2
@@ -2832,6 +2663,7 @@ contains
 
   ! Frank: eu = expm1(-th a), ev, ed = expm1(-th), den = ed + eu ev and theta-derivatives
   pure subroutine frank_terms(th, a, b, eu, ev, ed, eu1, ev1, eu2, ev2, ed1, ed2, den, dn1, dn2)
+    !DIR$ ATTRIBUTES FORCEINLINE :: frank_terms
     real(dp), intent(in) :: th, a, b
     real(dp), intent(out) :: eu, ev, ed, eu1, ev1, eu2, ev2, ed1, ed2, den, dn1, dn2
     eu = expm1_(-th * a); ev = expm1_(-th * b); ed = expm1_(-th)
@@ -2845,6 +2677,7 @@ contains
 
   ! Joe: ua = (1-a)^th = exp(th l1), ub, s = ua + ub - ua ub and theta-derivatives
   pure subroutine joe_terms(th, l1, l2, ua, ub, ua1, ub1, ua2, ub2, s, s1, s2)
+    !DIR$ ATTRIBUTES FORCEINLINE :: joe_terms
     real(dp), intent(in) :: th, l1, l2
     real(dp), intent(out) :: ua, ub, ua1, ub1, ua2, ub2, s, s1, s2
     ua = exp(th * l1); ub = exp(th * l2)
@@ -2866,7 +2699,7 @@ contains
     logical, intent(out) :: ok
     integer, parameter :: MAP(4, 0:3) = reshape([1, 2, 3, 4, 2, 3, 4, 1, 3, 4, 1, 2, 4, 1, 2, 3], [4, 4])
     integer, parameter :: LMAP(2, 0:3) = reshape([7, 8, 8, 9, 9, 10, 10, 7], [2, 4])
-    real(dp), allocatable :: ww(:), ra(:), rb(:)
+    real(dp), allocatable :: ww(:), ra(:), rb(:), lpv(:), d1v(:), d2v(:)
     real(dp) :: ss(3), rr(3), th, f, fr, lo, hi
     integer :: i, ir, k(4), kl(2), nr
     par = 0.0_dp; ll = -huge(1.0_dp)
@@ -2905,6 +2738,7 @@ contains
         call rotate(rot, clampu(u1(i)), clampu(u2(i)), ra(i), rb(i))
       end do
     end if
+    allocate(lpv(n), d1v(n), d2v(n))
     call newton1(x0(1), lb(1), ub(1), th, f, ok)
     par(1) = th; ll = f
   contains
@@ -2916,23 +2750,58 @@ contains
       gauss_ll = -0.5_dp * ss(1) * log(s) - (r * r * ss(2) - 2.0_dp * r * ss(3)) / (2.0_dp * s)
     end function gauss_ll
 
+    ! log-likelihood f, score g, curvature h at th0: the row terms in one loop per family (the family a
+    ! constant, so the loop vectorises), then summed in row order
     subroutine pass(th0, f, g, h)
       real(dp), intent(in) :: th0
       real(dp), intent(out) :: f, g, h
-      real(dp) :: tk(4), lp, d1, d2
       integer :: i
+      select case (fam)
+      case (3)
+        !$omp simd
+        do i = 1, n
+          call term(3, i, th0)
+        end do
+      case (4)
+        !$omp simd
+        do i = 1, n
+          call term(4, i, th0)
+        end do
+      case (5)
+        !$omp simd
+        do i = 1, n
+          call term(5, i, th0)
+        end do
+      case (6)
+        !$omp simd
+        do i = 1, n
+          call term(6, i, th0)
+        end do
+      case default
+        !$omp simd
+        do i = 1, n
+          call term(fam, i, th0)
+        end do
+      end select
       f = 0.0_dp; g = 0.0_dp; h = 0.0_dp
       do i = 1, n
-        select case (fam)
-        case (3); tk = [t(i, k(1)), t(i, k(2)), 0.0_dp, 0.0_dp]
-        case (4); tk = [-t(i, k(1)), -t(i, k(2)), t(i, kl(1)), t(i, kl(2))]
-        case (5); tk = [ra(i), rb(i), 0.0_dp, 0.0_dp]
-        case default; tk = [t(i, k(3)), t(i, k(4)), 0.0_dp, 0.0_dp]
-        end select
-        call kern_lp(fam, th0, tk, lp, d1, d2)
-        call acc_ll(ww(i), lp, d1, d2, f, g, h)
+        call acc_ll(ww(i), lpv(i), d1v(i), d2v(i), f, g, h)
       end do
     end subroutine pass
+
+    ! row i: log-density of family fm and its theta-derivatives into lpv, d1v, d2v
+    subroutine term(fm, i, th0)
+      integer, intent(in) :: fm, i
+      real(dp), intent(in) :: th0
+      real(dp) :: tk(4)
+      select case (fm)
+      case (3); tk = [t(i, k(1)), t(i, k(2)), 0.0_dp, 0.0_dp]
+      case (4); tk = [-t(i, k(1)), -t(i, k(2)), t(i, kl(1)), t(i, kl(2))]
+      case (5); tk = [ra(i), rb(i), 0.0_dp, 0.0_dp]
+      case default; tk = [t(i, k(3)), t(i, k(4)), 0.0_dp, 0.0_dp]
+      end select
+      call kern_lp(fm, th0, tk, lpv(i), d1v(i), d2v(i))
+    end subroutine term
   end subroutine mle1
 
   ! pair with discrete margins (ctx c after disc_prep): exact discrete likelihood of eval_disc --
@@ -2943,45 +2812,89 @@ contains
     real(dp), intent(in) :: x0, lb, ub
     real(dp), intent(out) :: par, ll
     logical, intent(out) :: ok
+    real(dp), allocatable :: lpv(:), d1v(:), d2v(:)
+    integer, allocatable :: ik(:, :)
+    integer :: nk(0:3), i, q
+    ! rows grouped by kind (0 untied, 1-2 tied in one margin, 3 in both), so each group's loop is homogeneous
+    allocate(lpv(c%n), d1v(c%n), d2v(c%n), ik(c%n, 0:3))
+    nk = 0
+    do i = 1, c%n
+      q = min(max(c%dk(i), 0), 3); nk(q) = nk(q) + 1; ik(nk(q), q) = i
+    end do
     call newton1(x0, lb, ub, par, ll, ok)
   contains
 #include "newton1.inc"
+    ! log-likelihood f, score g, curvature h at th0: the row terms one kind (and family) at a time, so the
+    ! loops vectorise, then summed in row order
     subroutine pass(th0, f, g, h)
       real(dp), intent(in) :: th0
       real(dp), intent(out) :: f, g, h
-      real(dp) :: lp, d1, d2, wi
-      integer :: i
+      real(dp) :: wi
+      integer :: i, j, q
+      select case (c%fam)
+      case (3)
+        !$omp simd private(i)
+        do j = 1, nk(0)
+          i = ik(j, 0); call row(0, 3, i, th0, lpv(i), d1v(i), d2v(i))
+        end do
+      case (4)
+        !$omp simd private(i)
+        do j = 1, nk(0)
+          i = ik(j, 0); call row(0, 4, i, th0, lpv(i), d1v(i), d2v(i))
+        end do
+      case (5)
+        !$omp simd private(i)
+        do j = 1, nk(0)
+          i = ik(j, 0); call row(0, 5, i, th0, lpv(i), d1v(i), d2v(i))
+        end do
+      case (6)
+        !$omp simd private(i)
+        do j = 1, nk(0)
+          i = ik(j, 0); call row(0, 6, i, th0, lpv(i), d1v(i), d2v(i))
+        end do
+      case default
+        !$omp simd private(i)
+        do j = 1, nk(0)
+          i = ik(j, 0); call row(0, c%fam, i, th0, lpv(i), d1v(i), d2v(i))
+        end do
+      end select
+      do q = 1, 3
+        !$omp simd private(i)
+        do j = 1, nk(q)
+          i = ik(j, q); call row(q, c%fam, i, th0, lpv(i), d1v(i), d2v(i))
+        end do
+      end do
       f = 0.0_dp; g = 0.0_dp; h = 0.0_dp
       do i = 1, c%n
         wi = 1.0_dp
         if (c%usew) wi = c%w(i)
-        call row(i, th0, lp, d1, d2)
-        call acc_ll(wi, lp, d1, d2, f, g, h)
+        call acc_ll(wi, lpv(i), d1v(i), d2v(i), f, g, h)
       end do
     end subroutine pass
-    subroutine row(i, th0, lp, d1, d2)
-      integer, intent(in) :: i
+    ! row i of kind kd (c%dk(i)) and family fm (c%fam)
+    subroutine row(kd, fm, i, th0, lp, d1, d2)
+      integer, intent(in) :: kd, fm, i
       real(dp), intent(in) :: th0
       real(dp), intent(out) :: lp, d1, d2
       real(dp) :: hp(2), hpd(2), hpdd(2), hq(2), hqd(2), hqdd(2), dd, ddd, dddd, cc(4), cd(4), cdd(4), sg
       integer :: j, kk
-      select case (c%dk(i))
+      select case (kd)
       case (0)
-        call kern_lp(c%fam, th0, c%xp(:, i), lp, d1, d2)
+        call kern_lp(fm, th0, c%xp(:, i), lp, d1, d2)
       case (1, 2)
         ! h-function k of the original orientation = s0 + sg * g(j) of the rotated pair
-        kk = c%dk(i)
+        kk = kd
         call hrot_map(c%rot, 3 - kk, j, sg)
-        call kern_h(c%fam, th0, c%xp(:, i), hp, hpd, hpdd)
-        call kern_h(c%fam, th0, c%xq(:, i), hq, hqd, hqdd)
+        call kern_h(fm, th0, c%xp(:, i), hp, hpd, hpdd)
+        call kern_h(fm, th0, c%xq(:, i), hq, hqd, hqdd)
         dd = sg * (hp(j) - hq(j)); ddd = sg * (hpd(j) - hqd(j)); dddd = sg * (hpdd(j) - hqdd(j))
         call log_mass(dd, ddd, dddd, merge(c%a0(i) - c%am(i), c%b0(i) - c%bm(i), kk == 1), lp, d1, d2)
       case default
         ! rectangle of the rotated pair: corners (lo, lo), (hi, lo), (lo, hi), (hi, hi) in xp
-        call kern_c(c%fam, th0, c%xp(2, i), c%xp(4, i), cc(1), cd(1), cdd(1))
-        call kern_c(c%fam, th0, c%xp(1, i), c%xp(4, i), cc(2), cd(2), cdd(2))
-        call kern_c(c%fam, th0, c%xp(2, i), c%xp(3, i), cc(3), cd(3), cdd(3))
-        call kern_c(c%fam, th0, c%xp(1, i), c%xp(3, i), cc(4), cd(4), cdd(4))
+        call kern_c(fm, th0, c%xp(2, i), c%xp(4, i), cc(1), cd(1), cdd(1))
+        call kern_c(fm, th0, c%xp(1, i), c%xp(4, i), cc(2), cd(2), cdd(2))
+        call kern_c(fm, th0, c%xp(2, i), c%xp(3, i), cc(3), cd(3), cdd(3))
+        call kern_c(fm, th0, c%xp(1, i), c%xp(3, i), cc(4), cd(4), cdd(4))
         dd = cc(1) - cc(2) - cc(3) + cc(4); ddd = cd(1) - cd(2) - cd(3) + cd(4); dddd = cdd(1) - cdd(2) - cdd(3) + cdd(4)
         call log_mass(dd, ddd, dddd, (c%a0(i) - c%am(i)) * (c%b0(i) - c%bm(i)), lp, d1, d2)
       end select
@@ -2990,6 +2903,7 @@ contains
 
   ! log(mass / width) and its derivatives (eval_disc's floor: tiny mass scores log(tiny), flat)
   pure subroutine log_mass(m, md, mdd, wd, lp, d1, d2)
+    !DIR$ ATTRIBUTES FORCEINLINE :: log_mass
     real(dp), intent(in) :: m, md, mdd, wd
     real(dp), intent(out) :: lp, d1, d2
     if (m / wd > TINYV) then
@@ -3018,6 +2932,7 @@ contains
   ! weighted log-likelihood, score and curvature accumulation; a non-finite log-density scores
   ! LOGTINY (eval0's floor) and contributes no slope
   pure subroutine acc_ll(wi, lp, d1, d2, f, g, h)
+    !DIR$ ATTRIBUTES FORCEINLINE :: acc_ll
     real(dp), intent(in) :: wi, lp, d1, d2
     real(dp), intent(inout) :: f, g, h
     if (abs(lp) < 1.0e300_dp .and. abs(d1) < 1.0e300_dp .and. abs(d2) < 1.0e300_dp) then
@@ -3084,7 +2999,7 @@ contains
 
 
 
-  ! bnd present: racing screen (see fit_one_raw); bnd = ll marks a final fit.  xr: polish from
+  ! bnd present: racing screen (see fit_pair); bnd = ll marks a final fit.  xr: polish from
   ! this screen point (the cache key stays the one of the plain fit).  Screens are cached under
   ! their own key, so a repeated selection is all cache hits.
   subroutine fit_one(n, u, fam, rot, method, x0, lb, ub, usew, w, par, ll, nin, ax, um, dsc, bnd, xr, tgt, pool)
@@ -3106,7 +3021,7 @@ contains
       return
     end if
     if (fc_cap == 0 .or. fam == 0 .or. method == 0) then
-      call fit_one_raw(n, u, fam, rot, method, x0, lb, ub, usew, w, par, ll, nin, ax, um, dsc, bnd, xr, tgt, pool)
+      call fit_pair(n, u, fam, rot, method, x0, lb, ub, usew, w, par, ll, nin, ax, um, dsc, bnd, xr, tgt, pool)
       if (present(bnd)) bnd = max(bnd, ll)
       return
     end if
@@ -3133,7 +3048,7 @@ contains
     end if
     !$omp end critical (fv_fitcache)
     if (hit) return
-    call fit_one_raw(n, u, fam, rot, method, x0, lb, ub, usew, w, par, ll, nin, ax, um, dsc, bnd, xr, tgt, pool)
+    call fit_pair(n, u, fam, rot, method, x0, lb, ub, usew, w, par, ll, nin, ax, um, dsc, bnd, xr, tgt, pool)
     if (fv_abort) return
     if (present(bnd)) then
       if (bnd > ll) then                                 ! a screen, or a polish given up
@@ -3181,7 +3096,7 @@ contains
     end subroutine store
   end subroutine fit_one
 
-  subroutine fit_one_raw(n, u, fam, rot, method, x0, lb, ub, usew, w, par, ll, nin, ax, um, dsc, bnd, xr, tgt, pool)
+  subroutine fit_pair(n, u, fam, rot, method, x0, lb, ub, usew, w, par, ll, nin, ax, um, dsc, bnd, xr, tgt, pool)
     integer, intent(in) :: n, fam, rot, method, nin
     logical :: dsc_any, okf
     real(dp), intent(in) :: u(2, n), x0(3), lb(3), ub(3), w(:)
@@ -3542,7 +3457,7 @@ contains
       call nmk(c, npar_of(fam), x0, lb, ub, par, fm)
       ll = -fm
     end if
-  end subroutine fit_one_raw
+  end subroutine fit_pair
 
   ! --------------------------------------------------------- structure arrays
   ! From the natural-order struct array (edge, tree) derive min array and the
@@ -3579,23 +3494,7 @@ contains
     end do
   end subroutine prep_all
 
-  ! --------------------------------------------------------- C API: vine pdf
-  ! Vine density on (nsamp, bins, d) data in ORIGINAL variable order.  Every
-  ! column except `tgt` (0-based original index, -1 = none) is constant across
-  ! bins, so edges whose inputs are all bin-constant are evaluated once per
-  ! sample.  order(d): 1-based structure order.  st/fam/rot: torch (d, d)
-  ! [tree, edge] -> Fortran (edge, tree); par: (3, edge, tree).
-  subroutine fv_vine_pdf(nsamp, bins, d, tgt, u, order, trunc, st, fam, rot, par, out, nthreads) &
-      bind(C, name="fv_vine_pdf")
-    integer(c_int), value :: nsamp, bins, d, tgt, trunc, nthreads
-    real(c_double), intent(in) :: u(d, bins, nsamp), par(3, d, d)
-    integer(c_int), intent(in) :: order(d), st(d, d), fam(d, d), rot(d, d)
-    real(c_double), intent(out) :: out(bins, nsamp)
-    real(dp) :: axd(1, d, d)
-    call vine_pdf_x(nsamp, bins, d, tgt, u, order, trunc, st, fam, rot, par, 1, axd, out, nthreads)
-  end subroutine fv_vine_pdf
-
-  ! fv_vine_pdf with the aux vectors of nonparametric pair copulas, aux(na, d, d)
+  ! vine density with the aux vectors of nonparametric pair copulas, aux(na, d, d)
   ! erel(2, nrel) / prel(3, nrel, nsamp): non-simplified edges (edge, tree) and their parameters
   ! per sample (they must not depend on `tgt`: the bins share them)
   subroutine vine_pdf_x(nsamp, bins, d, tgt, u, order, trunc, st, fam, rot, par, na, aux, out, nthreads, erel, prel)
@@ -3751,53 +3650,11 @@ contains
   ! Vine density with discrete variables (vinecopulib var_types): u(d, n) = F(x),
   ! um(d, n) = F(x-) (used where disc(j)), original variable order.  Each stored
   ! pseudo-observation carries its minus version and a discreteness flag.
-  subroutine vine_pdf_disc(n, d, u, um, disc, order, trunc, st, fam, rot, par, na, aux, out, nthreads)
-    integer, intent(in) :: n, d, trunc, nthreads, na
-    real(dp), intent(in) :: u(d, n), um(d, n), par(3, d, d), aux(na, d, d)
-    logical, intent(in) :: disc(d)
-    integer, intent(in) :: order(d), st(d, d), fam(d, d), rot(d, d)
-    real(dp), intent(out) :: out(n)
-    integer :: mn(d, d), nh1(d, d), nh2(d, d), i, j, t, e, m
-    real(dp) :: hf1(d), hf2(d), hm1(d), hm2(d), ppv(NPP, d, d), v2, v2m, lp, h1, h2, q1, q2, s
-    logical :: df1(d), df2(d), d2
-    call struct_arrays(d, trunc, st, mn, nh1, nh2)
-    call prep_all(d, trunc, fam, par, ppv)
-    !$omp parallel do private(i, j, t, e, m, hf1, hf2, hm1, hm2, v2, v2m, lp, h1, h2, q1, q2, s, df1, df2, d2) &
-    !$omp& num_threads(nthreads) schedule(dynamic, 256)
-    do i = 1, n
-      do j = 1, d
-        hf2(j) = clampu(u(order(j), i)); df2(j) = disc(order(j))
-        hm2(j) = hf2(j)
-        if (df2(j)) hm2(j) = clampu(um(order(j), i))
-      end do
-      hf1 = hf2; hm1 = hm2; df1 = df2
-      s = 0.0_dp
-      do t = 1, trunc
-        do e = 1, d - t
-          m = mn(e, t)
-          if (m == st(e, t)) then
-            v2 = hf2(m); v2m = hm2(m); d2 = df2(m)
-          else
-            v2 = hf1(m); v2m = hm1(m); d2 = df1(m)
-          end if
-          call eval_disc(fam(e, t), rot(e, t), ppv(:, e, t), aux(:, e, t), hf2(e), v2, hm2(e), v2m, df2(e), d2, &
-                         lp, h1, h2, q1, q2)
-          s = s + lp
-          if (nh1(e, t) /= 0) then
-            hf1(e) = h1; hm1(e) = q1; df1(e) = d2
-          end if
-          hf2(e) = h2; hm2(e) = q2
-        end do
-      end do
-      out(i) = max(exp(s), TINYV)
-    end do
-    !$omp end parallel do
-  end subroutine vine_pdf_disc
 
-  ! vine_pdf_disc on a prediction grid: u, um (d, bins, nsamp) in ORIGINAL variable order where
-  ! only variable `tgt` (0-based) varies across bins.  As in vine_pdf_x, edges whose inputs are
-  ! all bin-constant are evaluated once per sample, and h-functions only where a later tree
-  ! reads them; every pair term is the same eval_disc call as in vine_pdf_disc.
+  ! Vine density with possibly discrete variables on a prediction grid: u, um (d, bins, nsamp) in ORIGINAL
+  ! variable order where only variable `tgt` (0-based; -1 none, bins = 1: the plain density) varies across bins.
+  ! As in vine_pdf_x, edges whose inputs are all bin-constant are evaluated once per sample, and h-functions only
+  ! where a later tree reads them; every pair term is eval_disc's.
   subroutine vine_pdf_disc_x(nsamp, bins, d, tgt, u, um, disc, order, trunc, st, fam, rot, par, na, aux, out, &
                              nthreads)
     integer, intent(in) :: nsamp, bins, d, tgt, trunc, nthreads, na
@@ -3806,10 +3663,11 @@ contains
     integer, intent(in) :: order(d), st(d, d), fam(d, d), rot(d, d)
     real(dp), intent(out) :: out(bins, nsamp)
     real(dp), allocatable :: hf1(:, :), hf2(:, :), hm1(:, :), hm2(:, :), lpf(:), t1(:), t2(:), q1(:), q2(:)
+    real(dp), allocatable :: va(:), vb(:), vam(:), vbm(:), lpk(:)
     logical, allocatable :: fu1(:), fu2(:)
     logical :: df1(d), df2(d), d2, fa, fb, full, useh2, wh
     integer :: mn(d, d), nh1(d, d), nh2(d, d)
-    real(dp) :: ppv(NPP, d, d), lpc, lp, v1, v1m, v2, v2m
+    real(dp) :: ppv(NPP, d, d), lpc
     integer :: i, j, t, e, m, nb, k, kb1, kb2, ntgt
     call struct_arrays(d, trunc, st, mn, nh1, nh2)
     call prep_all(d, trunc, fam, par, ppv)
@@ -3818,9 +3676,10 @@ contains
       if (order(j) - 1 == tgt) ntgt = j
     end do
     !$omp parallel private(hf1, hf2, hm1, hm2, lpf, t1, t2, q1, q2, fu1, fu2, df1, df2, d2, fa, fb, full, useh2, wh, &
-    !$omp&                 lpc, lp, v1, v1m, v2, v2m, i, j, t, e, m, nb, k, kb1, kb2) num_threads(nthreads)
+    !$omp&                 lpc, i, j, t, e, m, nb, k, kb1, kb2, va, vb, vam, vbm, lpk) &
+    !$omp&                 num_threads(nthreads)
     allocate(hf1(bins, d), hf2(bins, d), hm1(bins, d), hm2(bins, d), lpf(bins), t1(bins), t2(bins), q1(bins), &
-             q2(bins), fu1(d), fu2(d))
+             q2(bins), fu1(d), fu2(d), va(bins), vb(bins), vam(bins), vbm(bins), lpk(bins))
     !$omp do schedule(dynamic, 4)
     do i = 1, nsamp
       do j = 1, d
@@ -3847,20 +3706,23 @@ contains
           full = fa .or. fb
           nb = merge(bins, 1, full)
           wh = nh1(e, t) /= 0 .or. nh2(e, t) /= 0
+          ! the edge's nb points, evaluated in one batched call (eval_disc_n: eval_disc's results)
           do k = 1, nb
             kb1 = merge(k, 1, fa); kb2 = merge(k, 1, fb)
-            v1 = hf2(kb1, e); v1m = hm2(kb1, e)
+            va(k) = hf2(kb1, e); vam(k) = hm2(kb1, e)
             if (useh2) then
-              v2 = hf2(kb2, m); v2m = hm2(kb2, m)
+              vb(k) = hf2(kb2, m); vbm(k) = hm2(kb2, m)
             else
-              v2 = hf1(kb2, m); v2m = hm1(kb2, m)
+              vb(k) = hf1(kb2, m); vbm(k) = hm1(kb2, m)
             end if
-            call eval_disc(fam(e, t), rot(e, t), ppv(:, e, t), aux(:, e, t), v1, v2, v1m, v2m, df2(e), d2, &
-                           lp, t1(k), t2(k), q1(k), q2(k), need_h=wh)
+          end do
+          call eval_disc_n(fam(e, t), rot(e, t), ppv(:, e, t), aux(:, e, t), nb, va(1:nb), vb(1:nb), vam(1:nb), &
+                           vbm(1:nb), df2(e), d2, wh, lpk(1:nb), t1(1:nb), t2(1:nb), q1(1:nb), q2(1:nb))
+          do k = 1, nb
             if (full) then
-              lpf(k) = lpf(k) + lp
+              lpf(k) = lpf(k) + lpk(k)
             else
-              lpc = lpc + lp
+              lpc = lpc + lpk(k)
             end if
           end do
           if (nh1(e, t) /= 0) then
@@ -3876,14 +3738,14 @@ contains
       end do
     end do
     !$omp end do
-    deallocate(hf1, hf2, hm1, hm2, lpf, t1, t2, q1, q2, fu1, fu2)
+    deallocate(hf1, hf2, hm1, hm2, lpf, t1, t2, q1, q2, fu1, fu2, va, vb, vam, vbm, lpk)
     !$omp end parallel
   end subroutine vine_pdf_disc_x
 
   ! Rosenblatt transform with discrete variables (vinecopulib Vinecop::rosenblatt):
   ! out = F(x_k | x_1..x_{k-1}) and outm = its left limit F(x_k- | ...), propagated with
   ! the h-functions at F(x) and at F(x-) of the discrete arguments (eval_disc, as in
-  ! vine_pdf_disc).  Continuous variables: outm = out.  Brockwell's randomisation
+  ! vine_pdf_disc_x).  Continuous variables: outm = out.  Brockwell's randomisation
   ! W out + (1 - W) outm is applied by the caller.
   subroutine vine_rosenblatt_disc(n, d, u, um, disc, order, trunc, st, fam, rot, par, na, aux, out, outm, nthreads)
     integer, intent(in) :: n, d, trunc, nthreads, na
@@ -3929,17 +3791,6 @@ contains
     !$omp end parallel do
   end subroutine vine_rosenblatt_disc
 
-  ! Rosenblatt transform (vinecopulib Vinecop::rosenblatt), u/out: torch (n, d).
-  subroutine fv_vine_rosenblatt(n, d, u, order, trunc, st, fam, rot, par, out, nthreads) &
-      bind(C, name="fv_vine_rosenblatt")
-    integer(c_int), value :: n, d, trunc, nthreads
-    real(c_double), intent(in) :: u(d, n), par(3, d, d)
-    integer(c_int), intent(in) :: order(d), st(d, d), fam(d, d), rot(d, d)
-    real(c_double), intent(out) :: out(d, n)
-    real(dp) :: axd(1, d, d)
-    call vine_rosenblatt_x(n, d, u, order, trunc, st, fam, rot, par, 1, axd, out, nthreads)
-  end subroutine fv_vine_rosenblatt
-
   subroutine vine_rosenblatt_x(n, d, u, order, trunc, st, fam, rot, par, na, aux, out, nthreads)
     integer, intent(in) :: n, d, trunc, nthreads, na
     real(dp), intent(in) :: u(d, n), par(3, d, d), aux(na, d, d)
@@ -3978,17 +3829,6 @@ contains
     end do
     !$omp end parallel do
   end subroutine vine_rosenblatt_x
-
-  ! Inverse Rosenblatt transform (vinecopulib Vinecop::inverse_rosenblatt).
-  subroutine fv_vine_inverse_rosenblatt(n, d, u, order, trunc, st, fam, rot, par, out, nthreads) &
-      bind(C, name="fv_vine_inverse_rosenblatt")
-    integer(c_int), value :: n, d, trunc, nthreads
-    real(c_double), intent(in) :: u(d, n), par(3, d, d)
-    integer(c_int), intent(in) :: order(d), st(d, d), fam(d, d), rot(d, d)
-    real(c_double), intent(out) :: out(d, n)
-    real(dp) :: axd(1, d, d)
-    call vine_inverse_rosenblatt_x(n, d, u, order, trunc, st, fam, rot, par, 1, axd, out, nthreads)
-  end subroutine fv_vine_inverse_rosenblatt
 
   subroutine vine_inverse_rosenblatt_x(n, d, u, order, trunc, st, fam, rot, par, na, aux, out, nthreads)
     integer, intent(in) :: n, d, trunc, nthreads, na
@@ -4045,16 +3885,13 @@ contains
     real(c_double), intent(in) :: x(d, n)
     real(c_double), intent(out) :: out(d, n)
     real(dp), allocatable :: col(:), r(:)
-    integer, allocatable :: idx(:), buf(:)
+    integer, allocatable :: idx(:)
     integer :: j, i, k, l
-    !$omp parallel do private(j, i, k, l, col, r, idx, buf) num_threads(nthreads) schedule(dynamic, 1)
+    !$omp parallel do private(j, i, k, l, col, r, idx) num_threads(nthreads) schedule(dynamic, 1)
     do j = 1, d
-      allocate(col(n), r(n), idx(n), buf(n))
+      allocate(col(n), r(n), idx(n))
       col = x(j, :)
-      do i = 1, n
-        idx(i) = i
-      end do
-      call msort_by(col, idx, buf, 1, n)
+      idx = argsort(col)
       i = 1
       do while (i <= n)
         k = i
@@ -4068,94 +3905,35 @@ contains
         i = k + 1
       end do
       out(j, :) = r / real(n + 1, dp)
-      deallocate(col, r, idx, buf)
+      deallocate(col, r, idx)
     end do
     !$omp end parallel do
   end subroutine fv_pseudo_obs
 
-  recursive subroutine msort_by(key, ix, bf, lo, hi)
-    real(dp), intent(in) :: key(:)
-    integer, intent(inout) :: ix(:), bf(:)
-    integer, intent(in) :: lo, hi
-    integer :: mid, p, q, k
-    if (hi <= lo) return
-    mid = (lo + hi) / 2
-    call msort_by(key, ix, bf, lo, mid)
-    call msort_by(key, ix, bf, mid + 1, hi)
-    p = lo; q = mid + 1; k = lo
-    do while (p <= mid .and. q <= hi)
-      if (key(ix(q)) < key(ix(p))) then
-        bf(k) = ix(q); q = q + 1
-      else
-        bf(k) = ix(p); p = p + 1
-      end if
-      k = k + 1
-    end do
-    do while (p <= mid)
-      bf(k) = ix(p); p = p + 1; k = k + 1
-    end do
-    do while (q <= hi)
-      bf(k) = ix(q); q = q + 1; k = k + 1
-    end do
-    ix(lo:hi) = bf(lo:hi)
-  end subroutine msort_by
-
   ! ------------------------------------------------------ C API: Kendall tau
-  ! tau-b via Knight (1966): O(n log n), tie-corrected.
+  ! tau-b via Knight (1966): O(n log n), tie-corrected -- sort by (x, y) and count the ties, then sort by y
+  ! counting the discordant pairs (inversions)
   real(dp) function tau_b(n, x, y)
     integer, intent(in) :: n
     real(dp), intent(in) :: x(n), y(n)
-    integer, allocatable :: idx(:), buf(:)
-    integer(8) :: n0, n1, n2, n3, sw, tcount
-    integer :: i, j
+    real(dp), allocatable :: xs(:), ys(:), z(:)
+    integer, allocatable :: idx(:)
+    integer(8) :: n0, n1, n2, n3, sw
     real(dp) :: den
+    integer :: i
     if (n < 2) then
       tau_b = 0.0_dp; return
     end if
-    allocate(idx(n), buf(n))
-    do i = 1, n
-      idx(i) = i
-    end do
+    allocate(xs(n), ys(n), z(n), idx(n))
+    xs = x; ys = y; z = 0.0_dp
+    idx = [(i, i = 1, n)]
     sw = 0
-    call msort(idx, buf, 1, n, 1, sw)   ! lexicographic (x, y)
+    call sort_ab(n, xs, ys, idx, sw)                 ! lexicographic (x, y)
     n0 = int(n, 8) * int(n - 1, 8) / 2
-    n1 = 0; n3 = 0
-    i = 1
-    do while (i <= n)
-      j = i
-      do while (j < n)
-        if (x(idx(j + 1)) /= x(idx(i))) exit
-        j = j + 1
-      end do
-      tcount = j - i + 1
-      n1 = n1 + tcount * (tcount - 1) / 2
-      i = j + 1
-    end do
-    i = 1
-    do while (i <= n)
-      j = i
-      do while (j < n)
-        if (x(idx(j + 1)) /= x(idx(i)) .or. y(idx(j + 1)) /= y(idx(i))) exit
-        j = j + 1
-      end do
-      tcount = j - i + 1
-      n3 = n3 + tcount * (tcount - 1) / 2
-      i = j + 1
-    end do
+    n1 = tie_pairs(xs, xs); n3 = tie_pairs(xs, ys)
     sw = 0
-    call msort(idx, buf, 1, n, 2, sw)   ! by y, counting discordant swaps
-    n2 = 0
-    i = 1
-    do while (i <= n)
-      j = i
-      do while (j < n)
-        if (y(idx(j + 1)) /= y(idx(i))) exit
-        j = j + 1
-      end do
-      tcount = j - i + 1
-      n2 = n2 + tcount * (tcount - 1) / 2
-      i = j + 1
-    end do
+    call sort_ab(n, ys, z, idx, sw)                  ! by y: sw = discordant pairs
+    n2 = tie_pairs(ys, ys)
     den = sqrt(real(n0 - n1, dp)) * sqrt(real(n0 - n2, dp))
     if (den <= 0.0_dp) then
       tau_b = 0.0_dp
@@ -4164,41 +3942,21 @@ contains
     end if
     tau_b = min(max(tau_b, -1.0_dp), 1.0_dp)
   contains
-    logical function lt(p, q, key)
-      integer, intent(in) :: p, q, key
-      if (key == 1) then
-        lt = x(p) < x(q) .or. (x(p) == x(q) .and. y(p) < y(q))
-      else
-        lt = y(p) < y(q)
-      end if
-    end function lt
-    recursive subroutine msort(ix, bf, lo, hi, key, cnt)
-      integer, intent(inout) :: ix(:), bf(:)
-      integer, intent(in) :: lo, hi, key
-      integer(8), intent(inout) :: cnt
-      integer :: mid, p, q, k
-      if (hi <= lo) return
-      mid = (lo + hi) / 2
-      call msort(ix, bf, lo, mid, key, cnt)
-      call msort(ix, bf, mid + 1, hi, key, cnt)
-      p = lo; q = mid + 1; k = lo
-      do while (p <= mid .and. q <= hi)
-        if (lt(ix(q), ix(p), key)) then
-          bf(k) = ix(q); q = q + 1
-          cnt = cnt + (mid - p + 1)
-        else
-          bf(k) = ix(p); p = p + 1
-        end if
-        k = k + 1
+    ! number of tied pairs in runs of equal (p, q) of the sorted sequence
+    integer(8) function tie_pairs(p, q)
+      real(dp), intent(in) :: p(n), q(n)
+      integer :: i, j
+      tie_pairs = 0; i = 1
+      do while (i <= n)
+        j = i
+        do while (j < n)
+          if (p(j + 1) /= p(i) .or. q(j + 1) /= q(i)) exit
+          j = j + 1
+        end do
+        tie_pairs = tie_pairs + int(j - i + 1, 8) * int(j - i, 8) / 2
+        i = j + 1
       end do
-      do while (p <= mid)
-        bf(k) = ix(p); p = p + 1; k = k + 1
-      end do
-      do while (q <= hi)
-        bf(k) = ix(q); q = q + 1; k = k + 1
-      end do
-      ix(lo:hi) = bf(lo:hi)
-    end subroutine msort
+    end function tie_pairs
   end function tau_b
 
   real(c_double) function fv_kendall_tau_c(n, x, y) bind(C, name="fv_kendall_tau")
@@ -4249,19 +4007,6 @@ contains
   ! torchvine's VinecopSelectorTorch / vinecopulib's VinecopSelector.
   ! ======================================================================
 
-  pure real(dp) function digamma(x0)
-    real(dp), intent(in) :: x0
-    real(dp) :: x, r, f
-    x = x0; r = 0.0_dp
-    do while (x < 12.0_dp)
-      r = r - 1.0_dp / x
-      x = x + 1.0_dp
-    end do
-    f = 1.0_dp / (x * x)
-    digamma = r + log(x) - 0.5_dp / x - f * (1.0_dp / 12.0_dp - f * (1.0_dp / 120.0_dp &
-              - f * (1.0_dp / 252.0_dp - f * (1.0_dp / 240.0_dp - f / 132.0_dp))))
-  end function digamma
-
   ! integral_0^a t / (e^t - 1) dt, exact series (machine precision):
   !  a < 1:  a - a^2/4 + sum_k B_2k a^(2k+1) / ((2k+1) (2k)!)   (Bernoulli numbers)
   !  a >= 1: pi^2/6 - sum_k e^(-k a) (a/k + 1/k^2)
@@ -4291,20 +4036,6 @@ contains
       debye_int = PI * PI / 6.0_dp - s
     end if
   end function debye_int
-
-  ! trigamma psi'(x), x > 0 (recurrence + asymptotic series)
-  pure real(dp) function trigamma(x0)
-    real(dp), intent(in) :: x0
-    real(dp) :: x, r, f
-    x = x0; r = 0.0_dp
-    do while (x < 12.0_dp)
-      r = r + 1.0_dp / (x * x)
-      x = x + 1.0_dp
-    end do
-    f = 1.0_dp / (x * x)
-    trigamma = r + 1.0_dp / x + 0.5_dp * f + f / x * (1.0_dp / 6.0_dp - f * (1.0_dp / 30.0_dp - f * (1.0_dp / 42.0_dp &
-               - f * (1.0_dp / 30.0_dp - f * 5.0_dp / 66.0_dp))))
-  end function trigamma
 
   pure real(dp) function frank_tau(th)
     real(dp), intent(in) :: th
@@ -4800,46 +4531,22 @@ contains
   end function tau_est
 
   ! ranks 1..n (ties broken by stable order), via merge sort
+  ! ranks 1..n of x, ties in order of appearance (a stable sort)
   subroutine rank_vec(n, x, r)
     integer, intent(in) :: n
     real(dp), intent(in) :: x(n)
     real(dp), intent(out) :: r(n)
-    integer, allocatable :: idx(:), buf(:)
+    real(dp), allocatable :: v(:), z(:)
+    integer, allocatable :: idx(:)
+    integer(8) :: cnt
     integer :: i
-    allocate(idx(n), buf(n))
-    do i = 1, n
-      idx(i) = i
-    end do
-    call msort_val(idx, buf, 1, n)
+    allocate(v(n), z(n), idx(n))
+    v = x; z = 0.0_dp; cnt = 0
+    idx = [(i, i = 1, n)]
+    call sort_ab(n, v, z, idx, cnt)
     do i = 1, n
       r(idx(i)) = real(i, dp)
     end do
-  contains
-    recursive subroutine msort_val(ix, bf, lo, hi)
-      integer, intent(inout) :: ix(:), bf(:)
-      integer, intent(in) :: lo, hi
-      integer :: mid, p, q, k
-      if (hi <= lo) return
-      mid = (lo + hi) / 2
-      call msort_val(ix, bf, lo, mid)
-      call msort_val(ix, bf, mid + 1, hi)
-      p = lo; q = mid + 1; k = lo
-      do while (p <= mid .and. q <= hi)
-        if (x(ix(q)) < x(ix(p))) then
-          bf(k) = ix(q); q = q + 1
-        else
-          bf(k) = ix(p); p = p + 1
-        end if
-        k = k + 1
-      end do
-      do while (p <= mid)
-        bf(k) = ix(p); p = p + 1; k = k + 1
-      end do
-      do while (q <= hi)
-        bf(k) = ix(q); q = q + 1; k = k + 1
-      end do
-      ix(lo:hi) = bf(lo:hi)
-    end subroutine msort_val
   end subroutine rank_vec
 
   ! Tree criterion: 0 tau, 1 rho (Spearman), 2 joe, 3 hoeffd (binned, as torchvine),
@@ -5647,7 +5354,7 @@ contains
       if (.not. wh) then
         h1 = 0.0_dp; h1m = 0.0_dp; return
       end if
-      h1 = avg_h(1, am, a, b); h1m = h1
+      h1 = avg_h(fam, rot, pp, ax, 1, am, a, b); h1m = h1
     else if (xb .and. .not. xa) then
       call eval_x(fam, rot, pp, ax, a, b, .true., lp, h1, t2)
       call eval_x(fam, rot, pp, ax, a, bm, .true., lp, h1m, t2)
@@ -5655,43 +5362,70 @@ contains
       if (.not. wh) then
         h2 = 0.0_dp; h2m = 0.0_dp; return
       end if
-      h2 = avg_h(2, bm, b, a); h2m = h2
+      h2 = avg_h(fam, rot, pp, ax, 2, bm, b, a); h2m = h2
     else
-      h1 = avg_h(1, am, a, b); h1m = avg_h(1, am, a, bm)
+      h1 = avg_h(fam, rot, pp, ax, 1, am, a, b); h1m = avg_h(fam, rot, pp, ax, 1, am, a, bm)
       lp = log(max((h1 - h1m) / (b - bm), TINYV))
       if (.not. wh) then
         h2 = 0.0_dp; h2m = 0.0_dp; return
       end if
-      h2 = avg_h(2, bm, b, a); h2m = avg_h(2, bm, b, am)
+      h2 = avg_h(fam, rot, pp, ax, 2, bm, b, a); h2m = avg_h(fam, rot, pp, ax, 2, bm, b, am)
     end if
-  contains
-    ! mean over s in [lo, hi] of h1(s, y) (k = 1) or h2(y, s) (k = 2)
-    pure real(dp) function avg_h(k, lo, hi, y)
-      integer, intent(in) :: k
-      real(dp), intent(in) :: lo, hi, y
-      real(dp), parameter :: gx(8) = [0.0950125098376374_dp, 0.2816035507792589_dp, 0.4580167776572274_dp, &
-        0.6178762444026438_dp, 0.7554044083550030_dp, 0.8656312023878318_dp, 0.9445750230732326_dp, &
-        0.9894009349916499_dp]
-      real(dp), parameter :: gw(8) = [0.1894506104550685_dp, 0.1826034150449236_dp, 0.1691565193950025_dp, &
-        0.1495959888165767_dp, 0.1246289712555339_dp, 0.0951585116824928_dp, 0.0622535239386479_dp, &
-        0.0271524594117541_dp]
-      integer :: np, ip, q, sg
-      real(dp) :: pl, ph, c0, hw, s, x, l1, g1, g2, ch, cl
-      ! closed form (C(hi, y) - C(lo, y)) / (hi - lo) where the copula CDF has one; tiny
-      ! cells (< 1e-3) keep the quadrature, which there is more accurate than a difference
-      if (hi - lo >= 1.0e-3_dp .and. has_cdf(fam)) then
-        if (k == 1) then
-          ch = cdf_x(fam, rot, pp, ax, hi, y); cl = cdf_x(fam, rot, pp, ax, lo, y)
-        else
-          ch = cdf_x(fam, rot, pp, ax, y, hi); cl = cdf_x(fam, rot, pp, ax, y, lo)
-        end if
-        avg_h = min(max((ch - cl) / (hi - lo), 0.0_dp), 1.0_dp)
-        return
+  end subroutine eval_disc
+
+  ! mean over s in [lo, hi] of h1(s, y) (k = 1) or h2(y, s) (k = 2) of one edge: the closed form
+  ! (C(hi, y) - C(lo, y)) / (hi - lo) where the copula CDF has one; tiny cells (< 1e-3) keep the Gauss-Legendre
+  ! quadrature, which there is more accurate than a difference.  The quadrature points are evaluated in one batched
+  ! call (eval_rot_n) where eval_x is eval_rot, and summed in the same order.
+  pure real(dp) function avg_h(fam, rot, pp, ax, k, lo, hi, y)
+    integer, intent(in) :: fam, rot, k
+    real(dp), intent(in) :: pp(NPP), ax(:), lo, hi, y
+    real(dp), parameter :: gx(8) = [0.0950125098376374_dp, 0.2816035507792589_dp, 0.4580167776572274_dp, &
+      0.6178762444026438_dp, 0.7554044083550030_dp, 0.8656312023878318_dp, 0.9445750230732326_dp, &
+      0.9894009349916499_dp]
+    real(dp), parameter :: gw(8) = [0.1894506104550685_dp, 0.1826034150449236_dp, 0.1691565193950025_dp, &
+      0.1495959888165767_dp, 0.1246289712555339_dp, 0.0951585116824928_dp, 0.0622535239386479_dp, &
+      0.0271524594117541_dp]
+    integer :: np, ip, q, sg, m, i
+    real(dp) :: pl, ph, c0, hw, s, x, l1, g1, g2, ch, cl
+    real(dp) :: xs(128), ws(128), ys(128), lps(128), g1s(128), g2s(128)
+    if (hi - lo >= 1.0e-3_dp .and. has_cdf(fam)) then
+      if (k == 1) then
+        ch = cdf_x(fam, rot, pp, ax, hi, y); cl = cdf_x(fam, rot, pp, ax, lo, y)
+      else
+        ch = cdf_x(fam, rot, pp, ax, y, hi); cl = cdf_x(fam, rot, pp, ax, y, lo)
       end if
-      np = 1
-      if (hi - lo > 0.02_dp) np = 4
-      if (hi - lo > 0.2_dp) np = 8
-      s = 0.0_dp
+      avg_h = min(max((ch - cl) / (hi - lo), 0.0_dp), 1.0_dp)
+      return
+    end if
+    np = 1
+    if (hi - lo > 0.02_dp) np = 4
+    if (hi - lo > 0.2_dp) np = 8
+    s = 0.0_dp
+    if (fam /= 0 .and. .not. fam_is_np(fam)) then
+      m = 0
+      do ip = 1, np
+        pl = lo + (hi - lo) * (ip - 1) / np; ph = lo + (hi - lo) * ip / np
+        c0 = 0.5_dp * (pl + ph); hw = 0.5_dp * (ph - pl)
+        do q = 1, 8
+          do sg = -1, 1, 2
+            m = m + 1
+            xs(m) = c0 + sg * hw * gx(q); ws(m) = gw(q) * hw; ys(m) = y
+          end do
+        end do
+      end do
+      if (k == 1) then
+        call eval_rot_n(fam, rot, pp, m, xs, ys, .true., lps, g1s, g2s)
+        do i = 1, m
+          s = s + ws(i) * g1s(i)
+        end do
+      else
+        call eval_rot_n(fam, rot, pp, m, ys, xs, .true., lps, g1s, g2s)
+        do i = 1, m
+          s = s + ws(i) * g2s(i)
+        end do
+      end if
+    else
       do ip = 1, np
         pl = lo + (hi - lo) * (ip - 1) / np; ph = lo + (hi - lo) * ip / np
         c0 = 0.5_dp * (pl + ph); hw = 0.5_dp * (ph - pl)
@@ -5706,9 +5440,38 @@ contains
           end do
         end do
       end do
-      avg_h = min(max(s / (hi - lo), 0.0_dp), 1.0_dp)
-    end function avg_h
-  end subroutine eval_disc
+    end if
+    avg_h = min(max(s / (hi - lo), 0.0_dp), 1.0_dp)
+  end function avg_h
+
+  ! eval_disc at n points of one edge: the points without a discrete jump (most of a prediction grid) in one
+  ! batched call (eval_rot_n), the others through eval_disc point by point; the results are eval_disc's.
+  pure subroutine eval_disc_n(fam, rot, pp, ax, n, a, b, am, bm, da, db, wh, lp, h1, h2, h1m, h2m)
+    integer, intent(in) :: fam, rot, n
+    real(dp), intent(in) :: pp(NPP), ax(:), a(n), b(n), am(n), bm(n)
+    logical, intent(in) :: da, db, wh
+    real(dp), intent(out) :: lp(n), h1(n), h2(n), h1m(n), h2m(n)
+    integer :: ix(n), i, j, nc
+    real(dp) :: xa(n), xb(n), l0(n), p1(n), p2(n)
+    logical :: jump(n)
+    jump = (da .and. a - am > 1.0e-12_dp) .or. (db .and. b - bm > 1.0e-12_dp) .or. fam == 0 .or. fam_is_np(fam)
+    nc = 0
+    do i = 1, n
+      if (.not. jump(i)) then
+        nc = nc + 1; ix(nc) = i; xa(nc) = a(i); xb(nc) = b(i)
+      end if
+    end do
+    if (nc > 0) then
+      call eval_rot_n(fam, rot, pp, nc, xa, xb, wh, l0, p1, p2)
+      do j = 1, nc
+        i = ix(j); lp(i) = l0(j); h1(i) = p1(j); h2(i) = p2(j); h1m(i) = p1(j); h2m(i) = p2(j)
+      end do
+    end if
+    do i = 1, n
+      if (jump(i)) call eval_disc(fam, rot, pp, ax, a(i), b(i), am(i), bm(i), da, db, lp(i), h1(i), h2(i), &
+                                  h1m(i), h2m(i), need_h=wh)
+    end do
+  end subroutine eval_disc_n
 
   ! ----------------------------------------------------------- TLL estimation
   ! vinecopulib TllBicop::fit (nonparametric_method "constant", mult 1, 30 x 30
@@ -5804,16 +5567,13 @@ contains
     real(dp), intent(in) :: x(n), y(n), w(n)
     logical, intent(in) :: usew
     real(dp), intent(out) :: p0(n), p1(n)
-    integer, allocatable :: o0(:), o1(:), i0(:), i1(:), bf(:)
+    integer, allocatable :: o0(:), o1(:), i0(:), i1(:)
     real(dp), allocatable :: t(:)
     integer :: i, wl, io, ii
     real(dp) :: sd
-    allocate(o0(n), o1(n), i0(n), i1(n), bf(n), t(n))
+    allocate(o0(n), o1(n), i0(n), i1(n), t(n))
     wl = ceiling(real(n, dp) / 5.0_dp)
-    do i = 1, n
-      o0(i) = i; o1(i) = i
-    end do
-    call msort_by(x, o0, bf, 1, n); call msort_by(y, o1, bf, 1, n)
+    o0 = argsort(x); o1 = argsort(y)
     do i = 1, n
       i0(o0(i)) = i; i1(o1(i)) = i
     end do
@@ -5940,15 +5700,12 @@ contains
   real(dp) function tau_w(n, x, y, w)
     integer, intent(in) :: n
     real(dp), intent(in) :: x(n), y(n), w(n)
-    integer, allocatable :: ix(:), bf(:), ry(:)
+    integer, allocatable :: ix(:), ry(:)
     real(dp), allocatable :: bit(:)
     integer :: i, j, k, nr
     real(dp) :: cc, dd, t0, tx, ty, gw, gw2, sall, sw
-    allocate(ix(n), bf(n), ry(n))
-    do i = 1, n
-      ix(i) = i
-    end do
-    call msort_by(y, ix, bf, 1, n)
+    allocate(ry(n))
+    ix = argsort(y)
     nr = 0; ty = 0.0_dp; i = 1
     do while (i <= n)
       j = i; gw = 0.0_dp; gw2 = 0.0_dp
@@ -5961,10 +5718,7 @@ contains
       ty = ty + 0.5_dp * (gw * gw - gw2)
       i = j
     end do
-    do i = 1, n
-      ix(i) = i
-    end do
-    call msort_by(x, ix, bf, 1, n)
+    ix = argsort(x)
     allocate(bit(nr)); bit = 0.0_dp
     cc = 0.0_dp; dd = 0.0_dp; tx = 0.0_dp; sall = 0.0_dp; i = 1
     do while (i <= n)
@@ -6037,16 +5791,13 @@ contains
     real(dp), intent(in) :: x0(n), y0(n)
     integer, parameter :: kk = 3
     real(dp), allocatable :: x(:), y(:), xs(:), ys(:), ysort(:)
-    integer, allocatable :: ox(:), oy(:), bf(:)
+    integer, allocatable :: ox(:), oy(:)
     real(dp) :: dk(kk), dist, dxx, eps, sx, sy, s
-    integer :: q, l, nx, ny, i
-    allocate(x(n), y(n), xs(n), ys(n), ysort(n), ox(n), oy(n), bf(n))
+    integer :: q, l, nx, ny
+    allocate(x(n), y(n), xs(n), ys(n), ysort(n))
     sx = sqrt(max(sum((x0 - sum(x0) / n)**2) / n, TINYV)); sy = sqrt(max(sum((y0 - sum(y0) / n)**2) / n, TINYV))
     x = x0 / sx; y = y0 / sy
-    do i = 1, n
-      ox(i) = i; oy(i) = i
-    end do
-    call msort_by(x, ox, bf, 1, n); call msort_by(y, oy, bf, 1, n)
+    ox = argsort(x); oy = argsort(y)
     xs = x(ox); ys = y(ox); ysort = y(oy)
     s = 0.0_dp
     do q = 1, n
@@ -6153,17 +5904,6 @@ contains
     criterion_w = abs(r)
   end function criterion_w
 
-  ! ------------------------------------------------- C API: single pair copula
-  ! Fit a given family/rotation (u torch (n, 2)); ci as in edge_cands.
-  subroutine fv_bicop_fit(n, u, fam, rot, ci, par, ll, nthreads) bind(C, name="fv_bicop_fit")
-    integer(c_int), value :: n, fam, rot, nthreads
-    real(c_double), intent(in) :: u(2, n)
-    integer(c_int), intent(in) :: ci(6)
-    real(c_double), intent(out) :: par(3), ll
-    real(dp) :: wd(1), ax(NAUX)
-    call bicop_fit_x(n, u, fam, rot, ci, .false., wd, par, ll, ax, nthreads)
-  end subroutine fv_bicop_fit
-
   ! fit one family/rotation with optional weights; ax receives a nonparametric estimate
   subroutine bicop_fit_x(n, u, fam, rot, ci, usew, w, par, ll, ax, nthreads)
     integer, intent(in) :: n, fam, rot, nthreads, ci(6)
@@ -6190,19 +5930,6 @@ contains
       call fit_one(n, u, fam, rot, cm, x0, lb, ub, usew, w, par, ll, max(1, nthreads), ax=ax)
     end if
   end subroutine bicop_fit_x
-
-  ! Select family/rotation/parameters for one pair (vinecopulib Bicop::select).
-  subroutine fv_bicop_select(n, u, nf, famset, ci, psi0, fam, rot, par, ll, nthreads) &
-      bind(C, name="fv_bicop_select")
-    integer(c_int), value :: n, nf, nthreads
-    real(c_double), intent(in) :: u(2, n)
-    integer(c_int), intent(in) :: famset(nf), ci(6)
-    real(c_double), value :: psi0
-    integer(c_int), intent(out) :: fam, rot
-    real(c_double), intent(out) :: par(3), ll
-    real(dp) :: wd(1), ax(NAUX)
-    call bicop_select_x(n, u, nf, famset, ci, psi0, .false., wd, fam, rot, par, ll, ax, nthreads)
-  end subroutine fv_bicop_select
 
   subroutine bicop_select_x(n, u, nf, famset, ci, psi0, usew, w, fam, rot, par, ll, ax, nthreads)
     integer, intent(in) :: n, nf, nthreads, famset(nf), ci(6)
@@ -6325,32 +6052,6 @@ contains
     end select
   end function sel_score
 
-  ! ------------------------------------------------------- C API: vine select
-  ! u: torch (n, d) -> Fortran u(d, n).  famset: family codes.
-  ! ci(1..10): selcrit, method, preselect, allow_rot, aggressive, tau_est,
-  !            tree_crit (0 tau,1 rho,2 joe,3 hoeffd), tree_algo (0 prim,1 kruskal),
-  !            trunc_lvl (-1 = d-1), has_struct (fixed structure given)
-  ! cr(1..2): threshold, psi0
-  ! order_io / struct_in: fixed structure (natural-order labels) when ci(10)=1.
-  ! Outputs (torch (d, d) [tree, edge] -> Fortran (edge, tree)):
-  !   order_io(d), struct_out, fam_out, rot_out, par_out(2, d, d), ll_out(d, d); info=0 ok.
-  subroutine fv_vine_select(n, d, u, nf, famset, ci, cr, order_io, struct_in, struct_out, &
-                             fam_out, rot_out, par_out, ll_out, nthreads, info) &
-                             bind(C, name="fv_vine_select")
-    integer(c_int), value :: n, d, nf, nthreads
-    real(c_double), intent(in) :: u(d, n), cr(2)
-    integer(c_int), intent(in) :: famset(nf), ci(10), struct_in(d, d)
-    integer(c_int), intent(inout) :: order_io(d)
-    integer(c_int), intent(out) :: struct_out(d, d), fam_out(d, d), rot_out(d, d), info
-    real(c_double), intent(out) :: par_out(3, d, d), ll_out(d, d)
-    real(dp) :: wd(1), umd(1, 1), axd(1, d, d)
-    logical :: dd(d)
-    integer :: tr
-    dd = .false.
-    call vine_select_x(n, d, u, nf, famset, ci, cr, order_io, struct_in, struct_out, fam_out, rot_out, &
-                       par_out, ll_out, nthreads, info, .false., wd, dd, umd, axd, .false., tr)
-  end subroutine fv_vine_select
-
   ! Dissmann selection with observation weights (usew, w(n)), discrete variables
   ! (disc(d), um(d, n) = F(x-) in original order), nonparametric families (aux_out
   ! (NAUX, d, d) when the family set contains 24/25, else size 1) and mBICv-chosen
@@ -6395,19 +6096,12 @@ contains
     logical, allocatable :: skipj(:, :)              ! candidate left out by the pre-screen
     integer, parameter :: KEEPG = 4                  ! generic candidates per edge that are really fitted
     real(dp) :: best, sc, eb, ppe(NPP)
-    real(dp) :: tp(6), tq
-    logical :: prof
-    character(len=8) :: envv
-    integer :: envst
 
     info = 0
-    tp = 0.0_dp; tq = 0.0_dp
     anyd = any(disc)
     utau = .not. usew            ! unweighted: the fast tau-matrix path is available
     nax = size(aux_out, 1)
     trunc_out = 0
-    call get_environment_variable("FORTVINE_PROFILE", envv, status=envst)
-    prof = (envst == 0)
     thr = cr(1)
     trunc = ci(9)
     if (trunc < 0 .or. trunc > d - 1) trunc = d - 1
@@ -6473,7 +6167,6 @@ contains
     end if
 
     do t = 1, trunc
-      !$ tq = omp_get_wtime()
       ! ranks of every vertex's two pseudo-observation columns, once per tree (rank-based criteria)
       if (allocated(vr1)) deallocate(vr1, vr2)
       if (ci(7) == 1 .or. ci(7) == 3) then
@@ -6545,7 +6238,6 @@ contains
       if (ne /= nv - 1) then
         info = 2; return
       end if
-      !$ tp(1) = tp(1) + omp_get_wtime() - tq; tq = omp_get_wtime()
       allocate(pa(n, ne), pb(n, ne), eh1(n, ne), eh2(n, ne), eda(ne), edb(ne))
       allocate(pam(merge(n, 1, anyd), ne), pbm(merge(n, 1, anyd), ne), eh1m(merge(n, 1, anyd), ne), &
                eh2m(merge(n, 1, anyd), ne))
@@ -6575,11 +6267,10 @@ contains
                             taum_at(e), jnc(e), jf(:, e), jr(:, e), jm(:, e), jx0(:, :, e), jlb(:, :, e), &
                             jub(:, :, e))
           end if
-          ! (nonparametric families on discrete pairs: fitted to mid-ranks, see fit_one_raw)
+          ! (nonparametric families on discrete pairs: fitted to mid-ranks, see fit_pair)
         end if
       end do
       !$omp end parallel do
-      !$ tp(2) = tp(2) + omp_get_wtime() - tq; tq = omp_get_wtime()
       ! transforms of every continuous edge, shared by all its one-parameter candidates (mle1)
       allocate(ptr(n, 10, ne))
       !$omp parallel do private(e) num_threads(nthreads) schedule(dynamic, 1)
@@ -6677,7 +6368,6 @@ contains
         trunc = t - 1
         exit
       end if
-      !$ tp(3) = tp(3) + omp_get_wtime() - tq; tq = omp_get_wtime()
       do e = 1, ne
         E_fam(e, t) = 0; E_rot(e, t) = 0; E_par(:, e, t) = 0.0_dp; E_ll(e, t) = 0.0_dp
         best = -huge(1.0_dp)
@@ -6741,12 +6431,6 @@ contains
       deallocate(jnc, jf, jr, jm, jx0, jlb, jub, jpar, jll, jbd, ebest, je, jk, jaux, ptr)
       deallocate(skipj)
       if (allocated(gsc)) deallocate(gsc)
-      !$ tp(4) = tp(4) + omp_get_wtime() - tq
-#ifndef FORTVINE_NO_IO
-      if (prof) print '(a,i3,a,i5,a,4f9.1)', '  [fortvine] tree', t, ' jobs', nj, &
-        '  ms crit/info+cands/fits/h:', 1e3 * tp(1:4)
-#endif
-      tp(1:4) = 0.0_dp
 
       ! ---------- edges become the next tree's vertices
       deallocate(vh1, vh2, vprev, vall, vnall, vcond, vncond, vd1, vd2, vh1m, vh2m)
@@ -6848,7 +6532,6 @@ contains
       real(dp), intent(in), optional :: xr(3), tgt  ! polish from the screen point, give up below tgt
       real(dp), allocatable :: ju(:, :), jum(:, :)
       logical :: edisc, okm
-      real(dp) :: tjob
       if (jm(jk(q), je(q)) == 1 .and. any(jf(jk(q), je(q)) == [1, 3, 4, 5, 6]) .and. .not. (eda(je(q)) .or. edb(je(q)))) then
         call mle1(jf(jk(q), je(q)), jr(jk(q), je(q)), n, pa(:, je(q)), pb(:, je(q)), ptr(:, :, je(q)), usew, w, &
                   jx0(:, jk(q), je(q)), jlb(:, jk(q), je(q)), jub(:, jk(q), je(q)), jpar(:, jk(q), je(q)), jll(jk(q), je(q)), okm)
@@ -6874,15 +6557,10 @@ contains
           if (present(bnd)) bnd = jll(jk(q), je(q))
           deallocate(jum)
         else
-          !$ tjob = omp_get_wtime()
           call fit_one(n, ju, jf(jk(q), je(q)), jr(jk(q), je(q)), jm(jk(q), je(q)), &
                        jx0(:, jk(q), je(q)), jlb(:, jk(q), je(q)), jub(:, jk(q), je(q)), &
                        usew, w, jpar(:, jk(q), je(q)), jll(jk(q), je(q)), nin, &
                        ax=jaux(:, jk(q), je(q)), bnd=bnd, xr=xr, tgt=tgt, pool=pool)
-#ifndef FORTVINE_NO_IO
-          !$ if (prof .and. omp_get_wtime() - tjob > 0.2_dp) print '(a,i3,a,i3,a,f8.3,a,3f9.4)', '  [fortvine] slow job fam', &
-          !$   jf(jk(q), je(q)), ' rot', jr(jk(q), je(q)), ' s', omp_get_wtime() - tjob, ' par', jpar(:, jk(q), je(q))
-#endif
         end if
         deallocate(ju)
       end if
@@ -7150,5 +6828,130 @@ contains
       root = x
     end function root
   end subroutine mst_kruskal
+
+  ! ------------------------------------------------------------------ flat C interface over the kernels
+  subroutine fv_bicop_pdf_hfuncs(fam, rot, par, n, u, pdf, h1, h2, nthreads) &
+      bind(C, name="fv_bicop_pdf_hfuncs")
+    integer(c_int), value :: fam, rot, n, nthreads
+    real(c_double), intent(in) :: par(3), u(2, n)
+    real(c_double), intent(out) :: pdf(n), h1(n), h2(n)
+    integer :: i
+    real(dp) :: lp, pp(NPP)
+    pp = prep_par(fam, par)
+    !$omp parallel do private(i, lp) num_threads(nthreads) if(n > 4096) schedule(static)
+    do i = 1, n
+      call eval_rot(fam, rot, pp, u(1, i), u(2, i), .true., lp, h1(i), h2(i))
+      pdf(i) = max(exp(lp), TINYV)
+    end do
+    !$omp end parallel do
+  end subroutine fv_bicop_pdf_hfuncs
+
+  ! ----------------------------------------------------------- C API: fitting
+  ! njob independent (dataset, family, rotation) fits.  U is (nds, n, 2) in
+  ! torch order -> Fortran U(2, n, nds).  method: 0 = evaluate loglik at x0,
+  ! 1 = MLE within [lb, ub], 2 = student with rho fixed at x0(1), nu by MLE.
+  subroutine fv_fit_jobs(njob, n, nds, u, ds, fam, rot, method, x0, lb, ub, usew, w, &
+                          par, ll, nthreads) bind(C, name="fv_fit_jobs")
+    integer(c_int), value :: njob, n, nds, usew, nthreads
+    real(c_double), intent(in) :: u(2, n, nds), w(n), x0(3, njob), lb(3, njob), ub(3, njob)
+    integer(c_int), intent(in) :: ds(njob), fam(njob), rot(njob), method(njob)
+    real(c_double), intent(out) :: par(3, njob), ll(njob)
+    integer :: j
+    !$ call omp_set_max_active_levels(2)
+    !$omp parallel do private(j) num_threads(max(1, min(nthreads, njob))) schedule(dynamic, 1)
+    do j = 1, njob
+      call fit_one(n, u(:, :, ds(j) + 1), fam(j), rot(j), method(j), x0(:, j), lb(:, j), ub(:, j), &
+                   usew /= 0, w, par(:, j), ll(j), max(1, nthreads / max(1, min(nthreads, njob))))
+    end do
+    !$omp end parallel do
+  end subroutine fv_fit_jobs
+
+  ! --------------------------------------------------------- C API: vine pdf
+  ! Vine density on (nsamp, bins, d) data in ORIGINAL variable order.  Every
+  ! column except `tgt` (0-based original index, -1 = none) is constant across
+  ! bins, so edges whose inputs are all bin-constant are evaluated once per
+  ! sample.  order(d): 1-based structure order.  st/fam/rot: torch (d, d)
+  ! [tree, edge] -> Fortran (edge, tree); par: (3, edge, tree).
+  subroutine fv_vine_pdf(nsamp, bins, d, tgt, u, order, trunc, st, fam, rot, par, out, nthreads) &
+      bind(C, name="fv_vine_pdf")
+    integer(c_int), value :: nsamp, bins, d, tgt, trunc, nthreads
+    real(c_double), intent(in) :: u(d, bins, nsamp), par(3, d, d)
+    integer(c_int), intent(in) :: order(d), st(d, d), fam(d, d), rot(d, d)
+    real(c_double), intent(out) :: out(bins, nsamp)
+    real(dp) :: axd(1, d, d)
+    call vine_pdf_x(nsamp, bins, d, tgt, u, order, trunc, st, fam, rot, par, 1, axd, out, nthreads)
+  end subroutine fv_vine_pdf
+
+  ! Rosenblatt transform (vinecopulib Vinecop::rosenblatt), u/out: torch (n, d).
+  subroutine fv_vine_rosenblatt(n, d, u, order, trunc, st, fam, rot, par, out, nthreads) &
+      bind(C, name="fv_vine_rosenblatt")
+    integer(c_int), value :: n, d, trunc, nthreads
+    real(c_double), intent(in) :: u(d, n), par(3, d, d)
+    integer(c_int), intent(in) :: order(d), st(d, d), fam(d, d), rot(d, d)
+    real(c_double), intent(out) :: out(d, n)
+    real(dp) :: axd(1, d, d)
+    call vine_rosenblatt_x(n, d, u, order, trunc, st, fam, rot, par, 1, axd, out, nthreads)
+  end subroutine fv_vine_rosenblatt
+
+  ! Inverse Rosenblatt transform (vinecopulib Vinecop::inverse_rosenblatt).
+  subroutine fv_vine_inverse_rosenblatt(n, d, u, order, trunc, st, fam, rot, par, out, nthreads) &
+      bind(C, name="fv_vine_inverse_rosenblatt")
+    integer(c_int), value :: n, d, trunc, nthreads
+    real(c_double), intent(in) :: u(d, n), par(3, d, d)
+    integer(c_int), intent(in) :: order(d), st(d, d), fam(d, d), rot(d, d)
+    real(c_double), intent(out) :: out(d, n)
+    real(dp) :: axd(1, d, d)
+    call vine_inverse_rosenblatt_x(n, d, u, order, trunc, st, fam, rot, par, 1, axd, out, nthreads)
+  end subroutine fv_vine_inverse_rosenblatt
+
+  ! ------------------------------------------------- C API: single pair copula
+  ! Fit a given family/rotation (u torch (n, 2)); ci as in edge_cands.
+  subroutine fv_bicop_fit(n, u, fam, rot, ci, par, ll, nthreads) bind(C, name="fv_bicop_fit")
+    integer(c_int), value :: n, fam, rot, nthreads
+    real(c_double), intent(in) :: u(2, n)
+    integer(c_int), intent(in) :: ci(6)
+    real(c_double), intent(out) :: par(3), ll
+    real(dp) :: wd(1), ax(NAUX)
+    call bicop_fit_x(n, u, fam, rot, ci, .false., wd, par, ll, ax, nthreads)
+  end subroutine fv_bicop_fit
+
+  ! Select family/rotation/parameters for one pair (vinecopulib Bicop::select).
+  subroutine fv_bicop_select(n, u, nf, famset, ci, psi0, fam, rot, par, ll, nthreads) &
+      bind(C, name="fv_bicop_select")
+    integer(c_int), value :: n, nf, nthreads
+    real(c_double), intent(in) :: u(2, n)
+    integer(c_int), intent(in) :: famset(nf), ci(6)
+    real(c_double), value :: psi0
+    integer(c_int), intent(out) :: fam, rot
+    real(c_double), intent(out) :: par(3), ll
+    real(dp) :: wd(1), ax(NAUX)
+    call bicop_select_x(n, u, nf, famset, ci, psi0, .false., wd, fam, rot, par, ll, ax, nthreads)
+  end subroutine fv_bicop_select
+
+  ! ------------------------------------------------------- C API: vine select
+  ! u: torch (n, d) -> Fortran u(d, n).  famset: family codes.
+  ! ci(1..10): selcrit, method, preselect, allow_rot, aggressive, tau_est,
+  !            tree_crit (0 tau,1 rho,2 joe,3 hoeffd), tree_algo (0 prim,1 kruskal),
+  !            trunc_lvl (-1 = d-1), has_struct (fixed structure given)
+  ! cr(1..2): threshold, psi0
+  ! order_io / struct_in: fixed structure (natural-order labels) when ci(10)=1.
+  ! Outputs (torch (d, d) [tree, edge] -> Fortran (edge, tree)):
+  !   order_io(d), struct_out, fam_out, rot_out, par_out(2, d, d), ll_out(d, d); info=0 ok.
+  subroutine fv_vine_select(n, d, u, nf, famset, ci, cr, order_io, struct_in, struct_out, &
+                             fam_out, rot_out, par_out, ll_out, nthreads, info) &
+                             bind(C, name="fv_vine_select")
+    integer(c_int), value :: n, d, nf, nthreads
+    real(c_double), intent(in) :: u(d, n), cr(2)
+    integer(c_int), intent(in) :: famset(nf), ci(10), struct_in(d, d)
+    integer(c_int), intent(inout) :: order_io(d)
+    integer(c_int), intent(out) :: struct_out(d, d), fam_out(d, d), rot_out(d, d), info
+    real(c_double), intent(out) :: par_out(3, d, d), ll_out(d, d)
+    real(dp) :: wd(1), umd(1, 1), axd(1, d, d)
+    logical :: dd(d)
+    integer :: tr
+    dd = .false.
+    call vine_select_x(n, d, u, nf, famset, ci, cr, order_io, struct_in, struct_out, fam_out, rot_out, &
+                       par_out, ll_out, nthreads, info, .false., wd, dd, umd, axd, .false., tr)
+  end subroutine fv_vine_select
 
 end module fortvine

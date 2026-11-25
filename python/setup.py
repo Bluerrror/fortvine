@@ -20,7 +20,7 @@ from setuptools.command.sdist import sdist
 from setuptools.dist import Distribution
 
 HERE = Path(__file__).resolve().parent
-SOURCES = ["fortvine_ad.f90", "fortvine.f90", "fortvine_api.f90", "fortvine_capi.f90"]
+SOURCES = ["fv_util.f90", "fortvine_ad.f90", "fortvine.f90", "fortvine_api.f90", "fortvine_capi.f90"]
 LIBNAME = {"win32": "libfortvine.dll", "darwin": "libfortvine.dylib"}.get(sys.platform, "libfortvine.so")
 FFLAGS = "-O3 -funroll-loops -fno-math-errno -ffree-line-length-none -fopenmp"
 
